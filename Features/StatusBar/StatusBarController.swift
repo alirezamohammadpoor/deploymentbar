@@ -10,6 +10,7 @@ final class StatusBarController: NSObject {
   private let refreshStatusStore = RefreshStatusStore()
   private let authSession = AuthSession.shared
   private let credentialStore = CredentialStore()
+  private let settingsStore = SettingsStore.shared
   private let notificationManager: NotificationManager
 
   private var refreshEngine: RefreshEngine?
@@ -18,7 +19,10 @@ final class StatusBarController: NSObject {
   private var isStale: Bool = false
 
   override init() {
-    notificationManager = NotificationManager(browserLauncher: browserLauncher)
+    notificationManager = NotificationManager(
+      browserLauncher: browserLauncher,
+      settings: settingsStore
+    )
     super.init()
 
     notificationManager.configure()
@@ -50,6 +54,9 @@ final class StatusBarController: NSObject {
         refreshStatusStore: refreshStatusStore,
         openURL: { [weak self] url in
           self?.browserLauncher.open(url: url)
+        },
+        refreshNow: { [weak self] in
+          self?.refreshEngine?.triggerImmediateRefresh()
         }
       )
     )

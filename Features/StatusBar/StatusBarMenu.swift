@@ -4,6 +4,7 @@ struct StatusBarMenu: View {
   @ObservedObject var store: DeploymentStore
   @ObservedObject var refreshStatusStore: RefreshStatusStore
   let openURL: (URL) -> Void
+  let refreshNow: () -> Void
 
   @StateObject private var authSession = AuthSession.shared
 
@@ -46,6 +47,12 @@ struct StatusBarMenu: View {
       }
 
       refreshFooter
+
+      Button("Refresh Now") {
+        refreshNow()
+      }
+      .buttonStyle(.plain)
+      .font(.caption)
     }
   }
 

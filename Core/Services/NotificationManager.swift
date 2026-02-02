@@ -4,9 +4,11 @@ import UserNotifications
 final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
   private let center = UNUserNotificationCenter.current()
   private let browserLauncher: BrowserLauncher
+  private let settings: SettingsStore
 
-  init(browserLauncher: BrowserLauncher) {
+  init(browserLauncher: BrowserLauncher, settings: SettingsStore) {
     self.browserLauncher = browserLauncher
+    self.settings = settings
   }
 
   func configure() {
@@ -21,7 +23,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
   }
 
   func postDeploymentNotification(deployment: Deployment) {
-    guard deployment.state == .ready || deployment.state == .error else { return }
+    guard shouldNotify(for: deployment.state) else { return }
 
     let content = UNMutableNotificationContent()
     content.title = deployment.projectName
@@ -60,5 +62,16 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
   ) {
     completionHandler([.banner, .sound])
+  }
+
+  private func shouldNotify(for state: DeploymentState) -> Bool {
+    switch state {
+    case .ready:
+      return settings.notifyOnReady
+    case .error:
+      return settings.notifyOnFailed
+    case .building, .canceled:
+      return false
+    }
   }
 }
