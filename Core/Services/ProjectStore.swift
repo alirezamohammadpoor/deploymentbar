@@ -54,7 +54,7 @@ final class ProjectStore: ObservableObject {
           }
         }
         await MainActor.run {
-          self.error = self.errorMessage(for: error)
+          self.error = Self.errorMessage(for: error)
           self.isLoading = false
         }
       } catch {
@@ -66,7 +66,7 @@ final class ProjectStore: ObservableObject {
     }
   }
 
-  private func errorMessage(for error: APIError) -> String {
+  static func errorMessage(for error: APIError) -> String {
     switch error {
     case .unauthorized:
       return "Unauthorized"
@@ -80,6 +80,8 @@ final class ProjectStore: ObservableObject {
       return "Network error"
     case .invalidResponse:
       return "Invalid response"
+    case .oauthError(let message):
+      return message
     }
   }
 }
