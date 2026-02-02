@@ -5,9 +5,12 @@ final class StatusBarController: NSObject {
   private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
   private let popover = NSPopover()
   private let browserLauncher = BrowserLauncher()
+  private let deploymentStore = DeploymentStore()
 
   override init() {
     super.init()
+
+    deploymentStore.apply(deployments: DeploymentStore.mockDeployments)
 
     if let button = statusItem.button {
       button.image = NSImage(systemSymbolName: "bolt.horizontal", accessibilityDescription: "VercelBar")
@@ -19,7 +22,7 @@ final class StatusBarController: NSObject {
     popover.behavior = .transient
     popover.contentViewController = NSHostingController(
       rootView: StatusBarMenu(
-        deployments: StatusBarMenu.mockDeployments,
+        store: deploymentStore,
         openURL: { [weak self] url in
           self?.browserLauncher.open(url: url)
         }
