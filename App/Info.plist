@@ -32,12 +32,12 @@
 	<key>LSUIElement</key>
 	<true/>
 	<key>VercelClientId</key>
-	<string></string>
+	<string>$(VERCEL_CLIENT_ID)</string>
 	<key>VercelClientSecret</key>
-	<string></string>
+	<string>$(VERCEL_CLIENT_SECRET)</string>
 	<key>VercelRedirectURI</key>
-	<string>vercelbar://oauth/callback</string>
+	<string>$(VERCEL_REDIRECT_URI)</string>
 	<key>VercelScopes</key>
-	<string>offline_access</string>
+	<string>$(VERCEL_SCOPES)</string>
 </dict>
 </plist>

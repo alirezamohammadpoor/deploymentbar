@@ -7,6 +7,10 @@ options:
 settings:
   base:
     SWIFT_VERSION: 5.9
+    VERCEL_CLIENT_ID: $(VERCEL_CLIENT_ID)
+    VERCEL_CLIENT_SECRET: $(VERCEL_CLIENT_SECRET)
+    VERCEL_REDIRECT_URI: $(VERCEL_REDIRECT_URI)
+    VERCEL_SCOPES: $(VERCEL_SCOPES)
 
 targets:
   VercelBar:
@@ -26,10 +30,10 @@ targets:
           - CFBundleURLName: com.example.VercelBar
             CFBundleURLSchemes:
               - vercelbar
-        VercelClientId: ""
-        VercelClientSecret: ""
-        VercelRedirectURI: vercelbar://oauth/callback
-        VercelScopes: offline_access
+        VercelClientId: $(VERCEL_CLIENT_ID)
+        VercelClientSecret: $(VERCEL_CLIENT_SECRET)
+        VercelRedirectURI: $(VERCEL_REDIRECT_URI)
+        VercelScopes: $(VERCEL_SCOPES)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
