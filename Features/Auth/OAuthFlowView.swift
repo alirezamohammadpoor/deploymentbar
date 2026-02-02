@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OAuthFlowView: View {
-  @StateObject private var authSession = AuthSession.shared
+  @ObservedObject var authSession: AuthSession
 
   var body: some View {
     VStack(spacing: 12) {

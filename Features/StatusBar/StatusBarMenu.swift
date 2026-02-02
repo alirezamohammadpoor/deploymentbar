@@ -4,11 +4,26 @@ struct StatusBarMenu: View {
   @ObservedObject var store: DeploymentStore
   let openURL: (URL) -> Void
 
+  @StateObject private var authSession = AuthSession.shared
+
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
       Text("Deployments")
         .font(.headline)
 
+      switch authSession.status {
+      case .signedIn:
+        deploymentsView
+      case .signedOut, .signingIn, .error:
+        OAuthFlowView(authSession: authSession)
+      }
+    }
+    .padding(12)
+    .frame(width: 360)
+  }
+
+  private var deploymentsView: some View {
+    VStack(alignment: .leading, spacing: 8) {
       if store.deployments.isEmpty {
         Text("No deployments yet")
           .font(.caption)
@@ -29,8 +44,6 @@ struct StatusBarMenu: View {
         }
       }
     }
-    .padding(12)
-    .frame(width: 360)
   }
 
   private func previewURL(for deployment: Deployment) -> URL? {

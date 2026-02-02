@@ -20,6 +20,12 @@ final class AuthSession: ObservableObject {
   private var codeVerifier: String?
   private var redirectURI: String?
 
+  private init() {
+    if let tokens = credentialStore.loadTokens(), tokens.expiresAt > Date() {
+      status = .signedIn
+    }
+  }
+
   func startSignIn() {
     guard let config = VercelAuthConfig.load() else {
       status = .error("Missing Vercel OAuth config in Info.plist")
