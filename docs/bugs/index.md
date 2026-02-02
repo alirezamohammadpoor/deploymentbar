@@ -11,3 +11,4 @@
 - 2026-02-02: OAuth duplicate instance (`docs/bugs/20260202-oauth-duplicate-instance.md`)
 - 2026-02-02: OAuth token error details (`docs/bugs/20260202-oauth-token-error-details.md`)
 - 2026-02-02: OAuth state mismatch details (`docs/bugs/20260202-oauth-state-mismatch-details.md`)
+- 2026-02-02: OAuth secondary instance guard (`docs/bugs/20260202-oauth-secondary-instance-guard.md`)
