@@ -1,0 +1,7 @@
+{
+  "cleanUrls": true,
+  "routes": [
+    { "src": "/oauth/callback", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}

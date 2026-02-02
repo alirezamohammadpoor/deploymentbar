@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VercelBar OAuth Redirect</title>
+  </head>
+  <body>
+    <p>Redirecting back to VercelBar…</p>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get("code");
+        const state = params.get("state");
+        if (!code || !state) {
+          document.body.textContent = "Missing OAuth parameters.";
+          return;
+        }
+        const redirect = "vercelbar://oauth/callback";
+        const url = `${redirect}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+        window.location.replace(url);
+      })();
+    </script>
+  </body>
+</html>
