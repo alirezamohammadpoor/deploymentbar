@@ -1,7 +1,6 @@
 {
-  "cleanUrls": true,
-  "routes": [
-    { "src": "/oauth/callback", "dest": "/index.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/oauth/callback", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
