@@ -158,6 +158,8 @@ final class RefreshEngine {
       return "Network error"
     case .invalidResponse:
       return "Invalid response"
+    case .oauthError(let message):
+      return message
     }
   }
 }
