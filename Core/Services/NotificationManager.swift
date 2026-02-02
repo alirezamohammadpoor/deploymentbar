@@ -5,10 +5,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
   private let center = UNUserNotificationCenter.current()
   private let browserLauncher: BrowserLauncher
   private let settings: SettingsStore
+  private let historyStore: NotificationHistoryStore
 
-  init(browserLauncher: BrowserLauncher, settings: SettingsStore) {
+  init(browserLauncher: BrowserLauncher, settings: SettingsStore, historyStore: NotificationHistoryStore = NotificationHistoryStore()) {
     self.browserLauncher = browserLauncher
     self.settings = settings
+    self.historyStore = historyStore
   }
 
   func configure() {
@@ -24,6 +26,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
   func postDeploymentNotification(deployment: Deployment) {
     guard shouldNotify(for: deployment.state) else { return }
+    guard historyStore.shouldNotify(id: deployment.id, state: deployment.state) else { return }
 
     let content = UNMutableNotificationContent()
     content.title = deployment.projectName
@@ -41,7 +44,10 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
       trigger: nil
     )
 
-    center.add(request)
+    center.add(request) { [weak self] error in
+      guard error == nil else { return }
+      self?.historyStore.markNotified(id: deployment.id, state: deployment.state)
+    }
   }
 
   func userNotificationCenter(
