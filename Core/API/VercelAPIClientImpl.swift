@@ -58,6 +58,23 @@ final class VercelAPIClientImpl: VercelAPIClient {
     return try await tokenRequest(body: body, fallbackRefreshToken: refreshToken)
   }
 
+  func revokeToken(_ token: String) async throws {
+    var body: [String: String] = [
+      "client_id": config.clientId,
+      "token": token
+    ]
+    if let secret = config.clientSecret {
+      body["client_secret"] = secret
+    }
+
+    var request = URLRequest(url: VercelEndpoints.oauthRevoke)
+    request.httpMethod = "POST"
+    request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+    request.httpBody = formBody(body)
+
+    try await executeNoContent(request)
+  }
+
   func fetchDeployments(limit: Int, projectIds: [String]?) async throws -> [DeploymentDTO] {
     var items = [URLQueryItem(name: "limit", value: String(limit))]
     if let projectIds, !projectIds.isEmpty {
@@ -74,14 +91,17 @@ final class VercelAPIClientImpl: VercelAPIClient {
     return try await execute(request)
   }
 
+  func fetchProjects() async throws -> [ProjectDTO] {
+    let request = try authorizedRequest(path: "/v9/projects", queryItems: [])
+    let response: ProjectsResponse = try await execute(request)
+    return response.projects
+  }
+
   private func tokenRequest(body: [String: String], fallbackRefreshToken: String? = nil) async throws -> TokenPair {
     var request = URLRequest(url: VercelEndpoints.oauthToken)
     request.httpMethod = "POST"
     request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-    request.httpBody = body
-      .map { key, value in "\(key)=\(value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value)" }
-      .joined(separator: "&")
-      .data(using: .utf8)
+    request.httpBody = formBody(body)
 
     let response: OAuthTokenResponse = try await execute(request, requiresAuth: false)
     guard let refresh = response.refreshToken ?? fallbackRefreshToken else {
@@ -93,6 +113,13 @@ final class VercelAPIClientImpl: VercelAPIClient {
       refreshToken: refresh,
       expiresAt: Date().addingTimeInterval(expiresIn)
     )
+  }
+
+  private func formBody(_ body: [String: String]) -> Data? {
+    body
+      .map { key, value in "\(key)=\(value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value)" }
+      .joined(separator: "&")
+      .data(using: .utf8)
   }
 
   private func authorizedRequest(path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
@@ -134,10 +161,39 @@ final class VercelAPIClientImpl: VercelAPIClient {
       throw APIError.networkFailure
     }
   }
+
+  private func executeNoContent(_ request: URLRequest) async throws {
+    do {
+      let (_, response) = try await session.data(for: request)
+      guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+      switch http.statusCode {
+      case 200...299:
+        return
+      case 401:
+        throw APIError.unauthorized
+      case 429:
+        let reset = http.value(forHTTPHeaderField: "X-RateLimit-Reset").flatMap { TimeInterval($0) }
+        let resetDate = reset.map { Date(timeIntervalSince1970: $0) }
+        throw APIError.rateLimited(resetAt: resetDate)
+      case 500...599:
+        throw APIError.serverError
+      default:
+        throw APIError.invalidResponse
+      }
+    } catch let error as APIError {
+      throw error
+    } catch {
+      throw APIError.networkFailure
+    }
+  }
 }
 
 private struct DeploymentsResponse: Decodable {
   let deployments: [DeploymentDTO]
+}
+
+private struct ProjectsResponse: Decodable {
+  let projects: [ProjectDTO]
 }
 
 private struct OAuthTokenResponse: Decodable {

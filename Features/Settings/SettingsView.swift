@@ -5,11 +5,26 @@ struct SettingsView: View {
   @State private var browserOptions: [BrowserOption] = BrowserOption.availableOptions()
   private let launchAtLoginManager = LaunchAtLoginManager()
 
+  private let pollingOptions: [TimeInterval] = [15, 30, 60, 120, 300]
+
   var body: some View {
     Form {
       Section("Notifications") {
         Toggle("Notify on ready", isOn: $settings.notifyOnReady)
         Toggle("Notify on failed", isOn: $settings.notifyOnFailed)
+      }
+
+      Section("Polling") {
+        Picker("Interval", selection: $settings.pollingInterval) {
+          ForEach(pollingOptions, id: \.self) { interval in
+            Text(label(for: interval)).tag(interval)
+          }
+        }
+        .pickerStyle(PopUpButtonPickerStyle())
+      }
+
+      Section("Projects") {
+        ProjectFilterView()
       }
 
       Section("Browser") {
@@ -32,9 +47,16 @@ struct SettingsView: View {
       }
     }
     .padding(16)
-    .frame(width: 360)
+    .frame(width: 420)
     .onAppear {
       browserOptions = BrowserOption.availableOptions()
     }
+  }
+
+  private func label(for interval: TimeInterval) -> String {
+    if interval < 60 {
+      return "\(Int(interval))s"
+    }
+    return "\(Int(interval / 60))m"
   }
 }

@@ -5,6 +5,7 @@ struct StatusBarMenu: View {
   @ObservedObject var refreshStatusStore: RefreshStatusStore
   let openURL: (URL) -> Void
   let refreshNow: () -> Void
+  let signOut: () -> Void
 
   @StateObject private var authSession = AuthSession.shared
 
@@ -48,11 +49,21 @@ struct StatusBarMenu: View {
 
       refreshFooter
 
-      Button("Refresh Now") {
-        refreshNow()
+      HStack {
+        Button("Refresh Now") {
+          refreshNow()
+        }
+        .buttonStyle(.plain)
+        .font(.caption)
+
+        Spacer()
+
+        Button("Sign Out") {
+          signOut()
+        }
+        .buttonStyle(.plain)
+        .font(.caption)
       }
-      .buttonStyle(.plain)
-      .font(.caption)
     }
   }
 

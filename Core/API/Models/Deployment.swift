@@ -2,6 +2,7 @@ import Foundation
 
 struct Deployment: Identifiable, Equatable {
   let id: String
+  let projectId: String?
   let projectName: String
   let branch: String?
   let state: DeploymentState
@@ -56,6 +57,7 @@ extension Deployment {
     let readyAt = dto.ready.map { Date(timeIntervalSince1970: TimeInterval($0) / 1000) }
     return Deployment(
       id: dto.uid,
+      projectId: dto.projectId,
       projectName: dto.name,
       branch: dto.gitSource?.ref,
       state: DeploymentState.from(readyState: dto.readyState, state: dto.state),

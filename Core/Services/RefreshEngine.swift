@@ -6,11 +6,12 @@ final class RefreshEngine {
   private let apiClient: VercelAPIClientImpl
   private let authSession: AuthSession
   private let statusStore: RefreshStatusStore
-  private let baseInterval: TimeInterval
+  private let settingsStore: SettingsStore
   private let maxBackoff: TimeInterval = 300
 
   private var task: Task<Void, Never>?
   private var backoffStep: Int = 0
+  private var baseInterval: TimeInterval
 
   init(
     store: DeploymentStore,
@@ -18,6 +19,7 @@ final class RefreshEngine {
     apiClient: VercelAPIClientImpl,
     authSession: AuthSession,
     statusStore: RefreshStatusStore,
+    settingsStore: SettingsStore,
     interval: TimeInterval = 30.0
   ) {
     self.store = store
@@ -25,6 +27,7 @@ final class RefreshEngine {
     self.apiClient = apiClient
     self.authSession = authSession
     self.statusStore = statusStore
+    self.settingsStore = settingsStore
     self.baseInterval = interval
   }
 
@@ -48,6 +51,10 @@ final class RefreshEngine {
     Task { [weak self] in
       await self?.fetchOnce(resetBackoff: true)
     }
+  }
+
+  func updateInterval(_ interval: TimeInterval) {
+    baseInterval = interval
   }
 
   private func runLoop() async {
@@ -76,17 +83,26 @@ final class RefreshEngine {
       return
     }
 
+    let selectedIds = await MainActor.run { settingsStore.selectedProjectIds }
+    let projectIds = selectedIds.isEmpty ? nil : Array(selectedIds)
+
     do {
       if tokens.shouldRefreshSoon {
         let refreshed = try await apiClient.refreshToken(tokens.refreshToken)
         credentialStore.saveTokens(refreshed)
       }
 
-      let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: nil)
+      let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: projectIds)
       let deployments = dtos.map(Deployment.from(dto:))
+      let filtered = selectedIds.isEmpty
+        ? deployments
+        : deployments.filter { deployment in
+            guard let projectId = deployment.projectId else { return false }
+            return selectedIds.contains(projectId)
+          }
 
       await MainActor.run {
-        store.apply(deployments: deployments)
+        store.apply(deployments: filtered)
       }
 
       backoffStep = 0

@@ -33,6 +33,7 @@ extension DeploymentStore {
 
       return Deployment(
         id: "mock-\(index)",
+        projectId: "project-\(index)",
         projectName: "Project \(10 - index)",
         branch: index % 2 == 0 ? "main" : "feature/alpha",
         state: state,

@@ -20,6 +20,14 @@ final class SettingsStore: ObservableObject {
     didSet { defaults.set(launchAtLogin, forKey: Keys.launchAtLogin) }
   }
 
+  @Published var pollingInterval: TimeInterval {
+    didSet { defaults.set(pollingInterval, forKey: Keys.pollingInterval) }
+  }
+
+  @Published var selectedProjectIds: Set<String> {
+    didSet { defaults.set(Array(selectedProjectIds), forKey: Keys.selectedProjectIds) }
+  }
+
   private let defaults: UserDefaults
   private let launchAtLoginManager = LaunchAtLoginManager()
 
@@ -28,12 +36,18 @@ final class SettingsStore: ObservableObject {
     defaults.register(defaults: [
       Keys.notifyOnReady: true,
       Keys.notifyOnFailed: true,
-      Keys.browserBundleId: ""
+      Keys.browserBundleId: "",
+      Keys.pollingInterval: 30.0,
+      Keys.selectedProjectIds: []
     ])
 
     self.notifyOnReady = defaults.bool(forKey: Keys.notifyOnReady)
     self.notifyOnFailed = defaults.bool(forKey: Keys.notifyOnFailed)
     self.browserBundleId = defaults.string(forKey: Keys.browserBundleId) ?? ""
+    self.pollingInterval = defaults.double(forKey: Keys.pollingInterval)
+
+    let storedProjects = defaults.array(forKey: Keys.selectedProjectIds) as? [String] ?? []
+    self.selectedProjectIds = Set(storedProjects)
 
     if let storedLaunch = defaults.object(forKey: Keys.launchAtLogin) as? Bool {
       self.launchAtLogin = storedLaunch
@@ -49,5 +63,7 @@ final class SettingsStore: ObservableObject {
     static let notifyOnFailed = "settings.notifyOnFailed"
     static let browserBundleId = "settings.browserBundleId"
     static let launchAtLogin = "settings.launchAtLogin"
+    static let pollingInterval = "settings.pollingInterval"
+    static let selectedProjectIds = "settings.selectedProjectIds"
   }
 }

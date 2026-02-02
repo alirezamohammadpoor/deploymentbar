@@ -79,8 +79,20 @@ final class AuthSession: ObservableObject {
     }
   }
 
-  func signOut() {
+  func signOut(revokeToken: Bool = false) {
+    let tokens = credentialStore.loadTokens()
     credentialStore.clearTokens()
     status = .signedOut
+
+    guard revokeToken, let tokens else { return }
+    Task.detached {
+      guard let config = VercelAuthConfig.load() else { return }
+      let client = VercelAPIClientImpl(config: config, tokenProvider: { tokens.accessToken })
+      do {
+        try await client.revokeToken(tokens.refreshToken)
+      } catch {
+        return
+      }
+    }
   }
 }

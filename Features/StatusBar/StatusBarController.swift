@@ -12,6 +12,7 @@ final class StatusBarController: NSObject {
   private let authSession = AuthSession.shared
   private let credentialStore = CredentialStore()
   private let settingsStore = SettingsStore.shared
+  private let projectStore = ProjectStore.shared
   private let notificationManager: NotificationManager
 
   private var refreshEngine: RefreshEngine?
@@ -32,12 +33,15 @@ final class StatusBarController: NSObject {
       let client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
         self?.credentialStore.loadTokens()?.accessToken
       })
+      projectStore.configure(apiClient: client)
       refreshEngine = RefreshEngine(
         store: deploymentStore,
         credentialStore: credentialStore,
         apiClient: client,
         authSession: authSession,
-        statusStore: refreshStatusStore
+        statusStore: refreshStatusStore,
+        settingsStore: settingsStore,
+        interval: settingsStore.pollingInterval
       )
     }
 
@@ -58,6 +62,9 @@ final class StatusBarController: NSObject {
         },
         refreshNow: { [weak self] in
           self?.refreshEngine?.triggerImmediateRefresh()
+        },
+        signOut: { [weak self] in
+          self?.authSession.signOut(revokeToken: true)
         }
       )
     )
@@ -80,6 +87,13 @@ final class StatusBarController: NSObject {
       .sink { [weak self] status in
         self?.isStale = status.isStale
         self?.updateStatusIcon()
+      }
+      .store(in: &cancellables)
+
+    settingsStore.$pollingInterval
+      .receive(on: RunLoop.main)
+      .sink { [weak self] interval in
+        self?.refreshEngine?.updateInterval(interval)
       }
       .store(in: &cancellables)
 
@@ -108,6 +122,7 @@ final class StatusBarController: NSObject {
     case .signedIn:
       notificationManager.requestAuthorizationIfNeeded()
       refreshEngine?.start()
+      projectStore.refresh()
     case .signedOut:
       refreshEngine?.stop()
       deploymentStore.apply(deployments: [])

@@ -4,8 +4,10 @@ protocol VercelAPIClient {
   func authorizationURL(state: String, codeChallenge: String?) -> URL
   func exchangeCode(_ code: String, codeVerifier: String?, redirectURI: String) async throws -> TokenPair
   func refreshToken(_ refreshToken: String) async throws -> TokenPair
+  func revokeToken(_ token: String) async throws
   func fetchDeployments(limit: Int, projectIds: [String]?) async throws -> [DeploymentDTO]
   func fetchDeploymentDetail(idOrUrl: String) async throws -> DeploymentDetailDTO
+  func fetchProjects() async throws -> [ProjectDTO]
 }
 
 struct TokenPair: Codable, Equatable {
