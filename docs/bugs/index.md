@@ -6,3 +6,4 @@
 - 2026-02-02: Token exchange error details (`docs/bugs/20260202-token-exchange-error-details.md`)
 - 2026-02-02: ProjectStore missing OAuth error case (`docs/bugs/20260202-projectstore-oautherror-case.md`)
 - 2026-02-02: RefreshEngine missing OAuth error case (`docs/bugs/20260202-refreshengine-oautherror-case.md`)
+- 2026-02-02: RefreshEngine test access (`docs/bugs/20260202-refreshengine-testing-access.md`)

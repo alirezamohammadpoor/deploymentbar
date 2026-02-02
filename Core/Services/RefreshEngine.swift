@@ -112,7 +112,7 @@ final class RefreshEngine {
         await MainActor.run { authSession.signOut() }
       }
       backoffStep = min(backoffStep + 1, 4)
-      await updateStatus(isStale: true, error: errorMessage(for: error))
+      await updateStatus(isStale: true, error: Self.errorMessage(for: error))
     } catch {
       backoffStep = min(backoffStep + 1, 4)
       await updateStatus(isStale: true, error: "Network error")
@@ -141,7 +141,7 @@ final class RefreshEngine {
     }
   }
 
-  private func errorMessage(for error: APIError) -> String {
+  static func errorMessage(for error: APIError) -> String {
     switch error {
     case .unauthorized:
       return "Unauthorized"
