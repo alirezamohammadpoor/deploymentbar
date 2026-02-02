@@ -34,6 +34,10 @@ final class AuthSession: ObservableObject {
   }
 
   func startSignIn() {
+    if case .signingIn = status {
+      return
+    }
+
     guard let config = VercelAuthConfig.load() else {
       status = .error("Missing Vercel OAuth config in Info.plist")
       return
@@ -73,7 +77,7 @@ final class AuthSession: ObservableObject {
 
     guard let code, let state, state == pendingState else {
       stateStore.clear()
-      status = .error("OAuth state mismatch")
+      status = .error(Self.stateMismatchMessage(expected: pendingState, received: state, code: code))
       return
     }
 
@@ -138,6 +142,17 @@ final class AuthSession: ObservableObject {
     case .invalidResponse:
       return "Invalid response"
     }
+  }
+
+  static func stateMismatchMessage(expected: String?, received: String?, code: String?) -> String {
+    guard let code, !code.isEmpty else {
+      return "OAuth state mismatch (missing code)"
+    }
+    guard let received, !received.isEmpty else {
+      return "OAuth state mismatch (missing state)"
+    }
+    let expectedValue = expected ?? "nil"
+    return "OAuth state mismatch (expected \(expectedValue), got \(received))"
   }
 }
 
