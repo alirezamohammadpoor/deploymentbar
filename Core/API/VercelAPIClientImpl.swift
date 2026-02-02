@@ -103,7 +103,13 @@ final class VercelAPIClientImpl: VercelAPIClient {
     request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     request.httpBody = formBody(body)
 
-    let (data, response) = try await session.data(for: request)
+    let data: Data
+    let response: URLResponse
+    do {
+      (data, response) = try await session.data(for: request)
+    } catch {
+      throw APIError.networkFailure
+    }
     guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
 
     if (200...299).contains(http.statusCode) {
@@ -123,22 +129,8 @@ final class VercelAPIClientImpl: VercelAPIClient {
       }
     }
 
-    if let message = OAuthErrorParser.parseMessage(data: data) {
-      throw APIError.oauthError(message)
-    }
-
-    switch http.statusCode {
-    case 401:
-      throw APIError.unauthorized
-    case 429:
-      let reset = http.value(forHTTPHeaderField: "X-RateLimit-Reset").flatMap { TimeInterval($0) }
-      let resetDate = reset.map { Date(timeIntervalSince1970: $0) }
-      throw APIError.rateLimited(resetAt: resetDate)
-    case 500...599:
-      throw APIError.serverError
-    default:
-      throw APIError.invalidResponse
-    }
+    let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
+    throw APIError.oauthError(message ?? "OAuth error (HTTP \(http.statusCode))")
   }
 
   private func formBody(_ body: [String: String]) -> Data? {

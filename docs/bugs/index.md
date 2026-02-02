@@ -9,3 +9,4 @@
 - 2026-02-02: RefreshEngine test access (`docs/bugs/20260202-refreshengine-testing-access.md`)
 - 2026-02-02: OAuth state persistence (`docs/bugs/20260202-oauth-state-persistence.md`)
 - 2026-02-02: OAuth duplicate instance (`docs/bugs/20260202-oauth-duplicate-instance.md`)
+- 2026-02-02: OAuth token error details (`docs/bugs/20260202-oauth-token-error-details.md`)
