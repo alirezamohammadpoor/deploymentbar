@@ -17,6 +17,14 @@ export VERCEL_REDIRECT_URI=https://<your-redirect-site>.vercel.app/oauth/callbac
 export VERCEL_SCOPES=offline_access
 ```
 
+## Using Config/Secrets.xcconfig
+`.xcconfig` treats `//` as a comment, so `https://...` will be truncated. Use the SLASH trick:
+
+```xcconfig
+SLASH = /
+VERCEL_REDIRECT_URI = https:$(SLASH)$(SLASH)deploymentbar.vercel.app/oauth/callback
+```
+
 ## Redirect helper site
 Vercel OAuth apps only accept HTTPS callback URLs. This repo includes a tiny redirect helper you can deploy.
 See `docs/oauth-redirect.md` and the `oauth-redirect/` folder.
