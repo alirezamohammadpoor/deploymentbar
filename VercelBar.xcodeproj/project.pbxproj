@@ -20,6 +20,7 @@
 		40771C2A28F62F4FD94F15DE /* OAuthErrorParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB217019D4BCB181B46B7CC /* OAuthErrorParser.swift */; };
 		437FFA62AF5ABCB26A33D9DA /* PKCE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B8AEC6768A1FF3F68979F94 /* PKCE.swift */; };
 		4A28E95EF9E04798570463FE /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8733EA8F63C7DF65A4F74C2 /* StatusBarController.swift */; };
+		52288D7857E8769DCFDA837B /* AppInstanceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7EFCE5A4BC80199BB0B660 /* AppInstanceChecker.swift */; };
 		547AA3E69B941C24A87B3AFE /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A2468F9E31C2C6BE877D53 /* LaunchAtLoginManager.swift */; };
 		6D3867F2C3839A54E8811329 /* RefreshStatusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA38A045D7A14692EB0E4B4 /* RefreshStatusStore.swift */; };
 		6F0C058B18430A68669D3FBA /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D44649339F8B2D758C69 /* NotificationManager.swift */; };
@@ -45,11 +46,13 @@
 		D153EA9866E052C3EE0EAA72 /* Deployment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C6C72472FF271E4BED36E9 /* Deployment.swift */; };
 		DB7222F279BAE14F6C57BE77 /* VercelBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D9DF0A5BA572AA0D3AB120 /* VercelBarApp.swift */; };
 		DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20CF436D58E6113D6762394 /* KeychainWrapper.swift */; };
+		DD16BA4E94069B29D9219449 /* AppInstanceCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */; };
 		E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */; };
 		E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */; };
 		EBE49FDB1E196C43B86233E4 /* RefreshEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5688759D6355B9677C342B /* RefreshEngineTests.swift */; };
 		F055321721D66116AA629334 /* VercelAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EC52EE24AF127D16FFBB44 /* VercelAuthConfig.swift */; };
 		F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98C31D628F9124DE94E6764 /* DeploymentStore.swift */; };
+		F6B3A867F27162E4A5FBE7D8 /* AppInstanceMessenger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3268ABB41413559BB04B3AF4 /* AppInstanceMessenger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +75,7 @@
 		2059CB0908FBF2598B74EDB6 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		284B022542CC1D3EC5F3327D /* StatusBarMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarMenu.swift; sourceTree = "<group>"; };
 		2E7E6D377E1EEA08D1D6076F /* RelativeTimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelativeTimeFormatter.swift; sourceTree = "<group>"; };
+		3268ABB41413559BB04B3AF4 /* AppInstanceMessenger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceMessenger.swift; sourceTree = "<group>"; };
 		3E40D9EAC57E7FBFC750DC46 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
 		42C6C72472FF271E4BED36E9 /* Deployment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deployment.swift; sourceTree = "<group>"; };
 		4358CC9248F52D2385D12C85 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -90,6 +94,7 @@
 		8691E7898183191AC14EA0F4 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
 		877E9B1658821600DD874233 /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
 		8A5688759D6355B9677C342B /* RefreshEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshEngineTests.swift; sourceTree = "<group>"; };
+		8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceCheckerTests.swift; sourceTree = "<group>"; };
 		9A37A799DA4EE5AFA228FAC8 /* DeploymentRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentRowView.swift; sourceTree = "<group>"; };
 		9BF7091D038B145BAAB0D4D9 /* VercelAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPITests.swift; sourceTree = "<group>"; };
 		A06CECD6CA0683A7F18BD08D /* StatusBarControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarControllerTests.swift; sourceTree = "<group>"; };
@@ -110,6 +115,7 @@
 		D5D811C25E71FE8B0AA37B64 /* VercelEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelEndpoints.swift; sourceTree = "<group>"; };
 		E21E89679C5915C2E0733CDB /* BrowserOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserOption.swift; sourceTree = "<group>"; };
 		E8733EA8F63C7DF65A4F74C2 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
+		ED7EFCE5A4BC80199BB0B660 /* AppInstanceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceChecker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -194,6 +200,7 @@
 		7272A1A72C0391A8D5C64D63 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */,
 				B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */,
 				65BAF22C6F9F36C993CCBEDB /* DeploymentStoreTests.swift */,
 				1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */,
@@ -232,6 +239,8 @@
 		C37321AE78A5AE529D1D52EE /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				ED7EFCE5A4BC80199BB0B660 /* AppInstanceChecker.swift */,
+				3268ABB41413559BB04B3AF4 /* AppInstanceMessenger.swift */,
 				0141273F800345B6BF035DF3 /* AuthSessionStateStore.swift */,
 				8691E7898183191AC14EA0F4 /* BrowserLauncher.swift */,
 				E21E89679C5915C2E0733CDB /* BrowserOption.swift */,
@@ -349,6 +358,8 @@
 			files = (
 				C45D090556521BAED2E21CA4 /* APIError.swift in Sources */,
 				7F95418D6985ADB0D7C51DB3 /* AppDelegate.swift in Sources */,
+				52288D7857E8769DCFDA837B /* AppInstanceChecker.swift in Sources */,
+				F6B3A867F27162E4A5FBE7D8 /* AppInstanceMessenger.swift in Sources */,
 				B9D3514B953546AE4D70E2DB /* AuthSession.swift in Sources */,
 				B174933ED6DF56DE957CF540 /* AuthSessionStateStore.swift in Sources */,
 				24F40AF221E818DD5326EDC0 /* BrowserLauncher.swift in Sources */,
@@ -389,6 +400,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD16BA4E94069B29D9219449 /* AppInstanceCheckerTests.swift in Sources */,
 				E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */,
 				0B5D9CBBC3BE1DCB7978188D /* DeploymentStoreTests.swift in Sources */,
 				79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */,
