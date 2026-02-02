@@ -31,5 +31,13 @@
       </array>
     </dict>
   </array>
+  <key>VercelClientId</key>
+  <string></string>
+  <key>VercelClientSecret</key>
+  <string></string>
+  <key>VercelRedirectURI</key>
+  <string>vercelbar://oauth/callback</string>
+  <key>VercelScopes</key>
+  <string>offline_access</string>
 </dict>
 </plist>

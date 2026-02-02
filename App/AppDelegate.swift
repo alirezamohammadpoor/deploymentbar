@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   func application(_ application: NSApplication, open urls: [URL]) {
-    // TODO: forward OAuth callback URLs to OAuthCallbackHandler.
+    guard let url = urls.first else { return }
+    OAuthCallbackHandler.shared.handle(url: url)
   }
 }
