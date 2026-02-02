@@ -32,6 +32,7 @@
 		9416FF69C87E9D8F69FA3E78 /* VercelEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D811C25E71FE8B0AA37B64 /* VercelEndpoints.swift */; };
 		94B9058959C8690A0571C775 /* VercelAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D62BBC1D044771B370566A9 /* VercelAPIClient.swift */; };
 		9EE5EA1C97628CDC790FD781 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E40D9EAC57E7FBFC750DC46 /* NotificationSettingsView.swift */; };
+		B174933ED6DF56DE957CF540 /* AuthSessionStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0141273F800345B6BF035DF3 /* AuthSessionStateStore.swift */; };
 		B2C053B994321F2336C82E33 /* RefreshEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0498B38099C57B81B87234 /* RefreshEngine.swift */; };
 		B9D3514B953546AE4D70E2DB /* AuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877E9B1658821600DD874233 /* AuthSession.swift */; };
 		BB63CD15167417B307D423EC /* OAuthFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76D5B160947CF068AEB9199 /* OAuthFlowView.swift */; };
@@ -45,6 +46,7 @@
 		DB7222F279BAE14F6C57BE77 /* VercelBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D9DF0A5BA572AA0D3AB120 /* VercelBarApp.swift */; };
 		DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20CF436D58E6113D6762394 /* KeychainWrapper.swift */; };
 		E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */; };
+		E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */; };
 		EBE49FDB1E196C43B86233E4 /* RefreshEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5688759D6355B9677C342B /* RefreshEngineTests.swift */; };
 		F055321721D66116AA629334 /* VercelAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EC52EE24AF127D16FFBB44 /* VercelAuthConfig.swift */; };
 		F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98C31D628F9124DE94E6764 /* DeploymentStore.swift */; };
@@ -61,6 +63,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0141273F800345B6BF035DF3 /* AuthSessionStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionStateStore.swift; sourceTree = "<group>"; };
 		0A111B06747AA9A2D8177780 /* ProjectFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectFilterView.swift; sourceTree = "<group>"; };
 		128B13E91A3709E676BFE3A3 /* VercelAPIClientImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPIClientImpl.swift; sourceTree = "<group>"; };
 		17D9DF0A5BA572AA0D3AB120 /* VercelBarApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelBarApp.swift; sourceTree = "<group>"; };
@@ -96,6 +99,7 @@
 		A76D5B160947CF068AEB9199 /* OAuthFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthFlowView.swift; sourceTree = "<group>"; };
 		B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshEngineErrorTests.swift; sourceTree = "<group>"; };
 		B4094CDDBC2EA3628B60665B /* RefreshStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshStatus.swift; sourceTree = "<group>"; };
+		B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionStateStoreTests.swift; sourceTree = "<group>"; };
 		BEA38A045D7A14692EB0E4B4 /* RefreshStatusStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshStatusStore.swift; sourceTree = "<group>"; };
 		C20CF436D58E6113D6762394 /* KeychainWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
 		C8107F52C1BFD541EBE01BDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -190,6 +194,7 @@
 		7272A1A72C0391A8D5C64D63 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */,
 				65BAF22C6F9F36C993CCBEDB /* DeploymentStoreTests.swift */,
 				1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */,
 				1AC3442B3EC967E019B078AE /* ProjectStoreTests.swift */,
@@ -227,6 +232,7 @@
 		C37321AE78A5AE529D1D52EE /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				0141273F800345B6BF035DF3 /* AuthSessionStateStore.swift */,
 				8691E7898183191AC14EA0F4 /* BrowserLauncher.swift */,
 				E21E89679C5915C2E0733CDB /* BrowserOption.swift */,
 				CB93D721C2845DECD4F56363 /* CredentialStore.swift */,
@@ -344,6 +350,7 @@
 				C45D090556521BAED2E21CA4 /* APIError.swift in Sources */,
 				7F95418D6985ADB0D7C51DB3 /* AppDelegate.swift in Sources */,
 				B9D3514B953546AE4D70E2DB /* AuthSession.swift in Sources */,
+				B174933ED6DF56DE957CF540 /* AuthSessionStateStore.swift in Sources */,
 				24F40AF221E818DD5326EDC0 /* BrowserLauncher.swift in Sources */,
 				125F140EE36EA9E53D95175D /* BrowserOption.swift in Sources */,
 				3E8358BF729387745452FBBD /* CredentialStore.swift in Sources */,
@@ -382,6 +389,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */,
 				0B5D9CBBC3BE1DCB7978188D /* DeploymentStoreTests.swift in Sources */,
 				79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */,
 				8E7DA912210E03148E1DDA3F /* ProjectStoreTests.swift in Sources */,

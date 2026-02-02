@@ -15,6 +15,7 @@ final class AuthSession: ObservableObject {
   @Published private(set) var status: Status = .signedOut
 
   private let credentialStore = CredentialStore()
+  private let stateStore = AuthSessionStateStore()
   private var client: VercelAPIClientImpl?
   private var pendingState: String?
   private var codeVerifier: String?
@@ -23,6 +24,12 @@ final class AuthSession: ObservableObject {
   private init() {
     if credentialStore.loadTokens() != nil {
       status = .signedIn
+    }
+
+    if let pending = stateStore.load() {
+      pendingState = pending.state
+      codeVerifier = pending.verifier
+      redirectURI = pending.redirectURI
     }
   }
 
@@ -39,6 +46,7 @@ final class AuthSession: ObservableObject {
     pendingState = state
     codeVerifier = verifier
     redirectURI = config.redirectURI
+    stateStore.save(.init(state: state, verifier: verifier, redirectURI: config.redirectURI))
     client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
       self?.credentialStore.loadTokens()?.accessToken
     })
@@ -57,12 +65,20 @@ final class AuthSession: ObservableObject {
     let code = components.queryItems?.first { $0.name == "code" }?.value
     let state = components.queryItems?.first { $0.name == "state" }?.value
 
+    if pendingState == nil, let pending = stateStore.load() {
+      pendingState = pending.state
+      codeVerifier = pending.verifier
+      redirectURI = pending.redirectURI
+    }
+
     guard let code, let state, state == pendingState else {
+      stateStore.clear()
       status = .error("OAuth state mismatch")
       return
     }
 
     guard let client, let redirectURI else {
+      stateStore.clear()
       status = .error("OAuth session not initialized")
       return
     }
@@ -72,10 +88,13 @@ final class AuthSession: ObservableObject {
       do {
         let tokens = try await client.exchangeCode(code, codeVerifier: codeVerifier, redirectURI: redirectURI)
         credentialStore.saveTokens(tokens)
+        stateStore.clear()
         self.status = .signedIn
       } catch let error as APIError {
+        stateStore.clear()
         self.status = .error(errorMessage(for: error))
       } catch {
+        stateStore.clear()
         self.status = .error("Token exchange failed")
       }
     }
@@ -84,6 +103,7 @@ final class AuthSession: ObservableObject {
   func signOut(revokeToken: Bool = false) {
     let tokens = credentialStore.loadTokens()
     credentialStore.clearTokens()
+    stateStore.clear()
     status = .signedOut
 
     guard revokeToken, let tokens else { return }
