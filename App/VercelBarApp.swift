@@ -6,7 +6,7 @@ struct VercelBarApp: App {
 
   var body: some Scene {
     Settings {
-      Text("VercelBar")
+      SettingsView()
     }
   }
 }

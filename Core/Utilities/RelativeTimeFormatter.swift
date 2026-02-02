@@ -1,8 +1,13 @@
 import Foundation
 
 struct RelativeTimeFormatter {
+  private static let formatter: RelativeDateTimeFormatter = {
+    let formatter = RelativeDateTimeFormatter()
+    formatter.unitsStyle = .abbreviated
+    return formatter
+  }()
+
   static func string(from date: Date, now: Date = Date()) -> String {
-    // TODO: return relative string like "2m ago".
-    return "--"
+    formatter.localizedString(for: date, relativeTo: now)
   }
 }
