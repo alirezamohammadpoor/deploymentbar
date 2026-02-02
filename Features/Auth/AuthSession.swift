@@ -21,7 +21,7 @@ final class AuthSession: ObservableObject {
   private var redirectURI: String?
 
   private init() {
-    if let tokens = credentialStore.loadTokens(), tokens.expiresAt > Date() {
+    if credentialStore.loadTokens() != nil {
       status = .signedIn
     }
   }

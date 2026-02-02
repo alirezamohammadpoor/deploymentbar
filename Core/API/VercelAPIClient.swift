@@ -13,3 +13,13 @@ struct TokenPair: Codable, Equatable {
   let refreshToken: String
   let expiresAt: Date
 }
+
+extension TokenPair {
+  var isExpired: Bool {
+    expiresAt <= Date()
+  }
+
+  var shouldRefreshSoon: Bool {
+    expiresAt <= Date().addingTimeInterval(60)
+  }
+}

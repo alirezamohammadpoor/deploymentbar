@@ -49,3 +49,36 @@ struct DeploymentDetailDTO: Codable, Equatable {
     let ref: String?
   }
 }
+
+extension Deployment {
+  static func from(dto: DeploymentDTO) -> Deployment {
+    let createdAt = Date(timeIntervalSince1970: TimeInterval(dto.createdAt) / 1000)
+    let readyAt = dto.ready.map { Date(timeIntervalSince1970: TimeInterval($0) / 1000) }
+    return Deployment(
+      id: dto.uid,
+      projectName: dto.name,
+      branch: dto.gitSource?.ref,
+      state: DeploymentState.from(readyState: dto.readyState, state: dto.state),
+      url: dto.url,
+      createdAt: createdAt,
+      readyAt: readyAt
+    )
+  }
+}
+
+extension DeploymentState {
+  static func from(readyState: String?, state: String?) -> DeploymentState {
+    let value = (readyState ?? state ?? "").lowercased()
+
+    if value.contains("ready") || value.contains("success") {
+      return .ready
+    }
+    if value.contains("error") || value.contains("failed") {
+      return .error
+    }
+    if value.contains("canceled") || value.contains("cancelled") {
+      return .canceled
+    }
+    return .building
+  }
+}
