@@ -20,6 +20,16 @@ targets:
       - Resources
     info:
       path: App/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.example.VercelBar
+            CFBundleURLSchemes:
+              - vercelbar
+        VercelClientId: ""
+        VercelClientSecret: ""
+        VercelRedirectURI: vercelbar://oauth/callback
+        VercelScopes: offline_access
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
