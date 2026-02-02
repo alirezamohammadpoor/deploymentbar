@@ -1,0 +1,34 @@
+name: VercelBar
+options:
+  bundleIdPrefix: com.example
+  createIntermediateGroups: true
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.9
+
+targets:
+  VercelBar:
+    type: application
+    platform: macOS
+    sources:
+      - App
+      - Features
+      - Core
+    resources:
+      - Resources
+    info:
+      path: App/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
+        INFOPLIST_FILE: App/Info.plist
+        CODE_SIGN_STYLE: Automatic
+  VercelBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests
+    dependencies:
+      - target: VercelBar
