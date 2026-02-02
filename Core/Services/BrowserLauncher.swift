@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 
+@MainActor
 final class BrowserLauncher {
   private let settings: SettingsStore
   private let workspace: NSWorkspace

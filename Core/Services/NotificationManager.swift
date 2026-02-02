@@ -25,28 +25,30 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
   }
 
   func postDeploymentNotification(deployment: Deployment) {
-    guard shouldNotify(for: deployment.state) else { return }
-    guard historyStore.shouldNotify(id: deployment.id, state: deployment.state) else { return }
+    Task { @MainActor in
+      guard shouldNotify(for: deployment.state) else { return }
+      guard historyStore.shouldNotify(id: deployment.id, state: deployment.state) else { return }
 
-    let content = UNMutableNotificationContent()
-    content.title = deployment.projectName
-    content.body = deployment.state == .ready
-      ? "Deployment ready"
-      : "Deployment failed"
+      let content = UNMutableNotificationContent()
+      content.title = deployment.projectName
+      content.body = deployment.state == .ready
+        ? "Deployment ready"
+        : "Deployment failed"
 
-    if let url = deployment.url {
-      content.userInfo["url"] = url
-    }
+      if let url = deployment.url {
+        content.userInfo["url"] = url
+      }
 
-    let request = UNNotificationRequest(
-      identifier: "vercelbar.deployment.\(deployment.id).\(deployment.state.rawValue)",
-      content: content,
-      trigger: nil
-    )
+      let request = UNNotificationRequest(
+        identifier: "vercelbar.deployment.\(deployment.id).\(deployment.state.rawValue)",
+        content: content,
+        trigger: nil
+      )
 
-    center.add(request) { [weak self] error in
-      guard error == nil else { return }
-      self?.historyStore.markNotified(id: deployment.id, state: deployment.state)
+      center.add(request) { [weak self] error in
+        guard error == nil else { return }
+        self?.historyStore.markNotified(id: deployment.id, state: deployment.state)
+      }
     }
   }
 
@@ -57,7 +59,9 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
   ) {
     if let urlValue = response.notification.request.content.userInfo["url"] as? String,
        let url = URL(string: urlValue) ?? URL(string: "https://\(urlValue)") {
-      browserLauncher.open(url: url)
+      Task { @MainActor in
+        browserLauncher.open(url: url)
+      }
     }
     completionHandler()
   }
@@ -70,6 +74,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     completionHandler([.banner, .sound])
   }
 
+  @MainActor
   private func shouldNotify(for state: DeploymentState) -> Bool {
     switch state {
     case .ready:

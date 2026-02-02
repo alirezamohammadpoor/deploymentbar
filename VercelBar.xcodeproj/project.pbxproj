@@ -22,6 +22,7 @@
 		547AA3E69B941C24A87B3AFE /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A2468F9E31C2C6BE877D53 /* LaunchAtLoginManager.swift */; };
 		6D3867F2C3839A54E8811329 /* RefreshStatusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA38A045D7A14692EB0E4B4 /* RefreshStatusStore.swift */; };
 		6F0C058B18430A68669D3FBA /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D44649339F8B2D758C69 /* NotificationManager.swift */; };
+		763CF1A318C93534FE50B30C /* StatusBarControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06CECD6CA0683A7F18BD08D /* StatusBarControllerTests.swift */; };
 		7F95418D6985ADB0D7C51DB3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D8686A3E00B125D8A82D2 /* AppDelegate.swift */; };
 		8DA1AF88BF7F33A83422F8EE /* OAuthCallbackHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7609E89BDA38B6AD650669F5 /* OAuthCallbackHandler.swift */; };
 		9257299009A49D4C3F5B3AA5 /* NotificationHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0ADD84E0FF0D08B9AB51EC /* NotificationHistoryStore.swift */; };
@@ -78,6 +79,7 @@
 		8A5688759D6355B9677C342B /* RefreshEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshEngineTests.swift; sourceTree = "<group>"; };
 		9A37A799DA4EE5AFA228FAC8 /* DeploymentRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentRowView.swift; sourceTree = "<group>"; };
 		9BF7091D038B145BAAB0D4D9 /* VercelAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPITests.swift; sourceTree = "<group>"; };
+		A06CECD6CA0683A7F18BD08D /* StatusBarControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarControllerTests.swift; sourceTree = "<group>"; };
 		A0814DA98F46D7F680A0F3E8 /* VercelBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VercelBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0B6ABBDE02520467CD38DCD /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		A5EC52EE24AF127D16FFBB44 /* VercelAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAuthConfig.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 			children = (
 				65BAF22C6F9F36C993CCBEDB /* DeploymentStoreTests.swift */,
 				8A5688759D6355B9677C342B /* RefreshEngineTests.swift */,
+				A06CECD6CA0683A7F18BD08D /* StatusBarControllerTests.swift */,
 				9BF7091D038B145BAAB0D4D9 /* VercelAPITests.swift */,
 			);
 			path = Tests;
@@ -354,6 +357,7 @@
 			files = (
 				0B5D9CBBC3BE1DCB7978188D /* DeploymentStoreTests.swift in Sources */,
 				EBE49FDB1E196C43B86233E4 /* RefreshEngineTests.swift in Sources */,
+				763CF1A318C93534FE50B30C /* StatusBarControllerTests.swift in Sources */,
 				D0BA53C2483C2CA1CDA391BA /* VercelAPITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -374,6 +378,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -541,6 +546,7 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

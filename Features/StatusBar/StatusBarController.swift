@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import SwiftUI
 
+@MainActor
 final class StatusBarController: NSObject {
   private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
   private let popover = NSPopover()

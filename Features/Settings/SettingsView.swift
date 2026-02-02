@@ -18,7 +18,7 @@ struct SettingsView: View {
             Text(option.displayName).tag(option.id)
           }
         }
-        .pickerStyle(.popUpButton)
+        .pickerStyle(PopUpButtonPickerStyle())
       }
 
       Section("Startup") {
