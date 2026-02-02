@@ -103,16 +103,42 @@ final class VercelAPIClientImpl: VercelAPIClient {
     request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
     request.httpBody = formBody(body)
 
-    let response: OAuthTokenResponse = try await execute(request, requiresAuth: false)
-    guard let refresh = response.refreshToken ?? fallbackRefreshToken else {
+    let (data, response) = try await session.data(for: request)
+    guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+
+    if (200...299).contains(http.statusCode) {
+      do {
+        let response: OAuthTokenResponse = try JSONDecoder.vercelDecoder.decode(OAuthTokenResponse.self, from: data)
+        guard let refresh = response.refreshToken ?? fallbackRefreshToken else {
+          throw APIError.invalidResponse
+        }
+        let expiresIn = TimeInterval(response.expiresIn ?? 3600)
+        return TokenPair(
+          accessToken: response.accessToken,
+          refreshToken: refresh,
+          expiresAt: Date().addingTimeInterval(expiresIn)
+        )
+      } catch {
+        throw APIError.decodingFailed
+      }
+    }
+
+    if let message = OAuthErrorParser.parseMessage(data: data) {
+      throw APIError.oauthError(message)
+    }
+
+    switch http.statusCode {
+    case 401:
+      throw APIError.unauthorized
+    case 429:
+      let reset = http.value(forHTTPHeaderField: "X-RateLimit-Reset").flatMap { TimeInterval($0) }
+      let resetDate = reset.map { Date(timeIntervalSince1970: $0) }
+      throw APIError.rateLimited(resetAt: resetDate)
+    case 500...599:
+      throw APIError.serverError
+    default:
       throw APIError.invalidResponse
     }
-    let expiresIn = TimeInterval(response.expiresIn ?? 3600)
-    return TokenPair(
-      accessToken: response.accessToken,
-      refreshToken: refresh,
-      expiresAt: Date().addingTimeInterval(expiresIn)
-    )
   }
 
   private func formBody(_ body: [String: String]) -> Data? {

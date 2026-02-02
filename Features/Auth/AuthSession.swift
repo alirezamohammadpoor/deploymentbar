@@ -73,6 +73,8 @@ final class AuthSession: ObservableObject {
         let tokens = try await client.exchangeCode(code, codeVerifier: codeVerifier, redirectURI: redirectURI)
         credentialStore.saveTokens(tokens)
         self.status = .signedIn
+      } catch let error as APIError {
+        self.status = .error(errorMessage(for: error))
       } catch {
         self.status = .error("Token exchange failed")
       }
@@ -94,5 +96,36 @@ final class AuthSession: ObservableObject {
         return
       }
     }
+  }
+
+  private func errorMessage(for error: APIError) -> String {
+    switch error {
+    case .oauthError(let message):
+      return message
+    case .unauthorized:
+      return "Unauthorized"
+    case .rateLimited(let resetAt):
+      if let resetAt {
+        return "Rate limited until \(DateFormatter.shortTime.string(from: resetAt))"
+      }
+      return "Rate limited"
+    case .serverError:
+      return "Server error"
+    case .decodingFailed:
+      return "Decode error"
+    case .networkFailure:
+      return "Network error"
+    case .invalidResponse:
+      return "Invalid response"
+    }
+  }
+}
+
+private extension DateFormatter {
+  static var shortTime: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.timeStyle = .short
+    formatter.dateStyle = .none
+    return formatter
   }
 }

@@ -7,4 +7,5 @@ enum APIError: Error, Equatable {
   case serverError
   case decodingFailed
   case networkFailure
+  case oauthError(String)
 }
