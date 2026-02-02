@@ -5,6 +5,7 @@ final class RefreshEngine {
   private let credentialStore: CredentialStore
   private let apiClient: VercelAPIClientImpl
   private let authSession: AuthSession
+  private let statusStore: RefreshStatusStore
   private let baseInterval: TimeInterval
   private let maxBackoff: TimeInterval = 300
 
@@ -16,12 +17,14 @@ final class RefreshEngine {
     credentialStore: CredentialStore,
     apiClient: VercelAPIClientImpl,
     authSession: AuthSession,
+    statusStore: RefreshStatusStore,
     interval: TimeInterval = 30.0
   ) {
     self.store = store
     self.credentialStore = credentialStore
     self.apiClient = apiClient
     self.authSession = authSession
+    self.statusStore = statusStore
     self.baseInterval = interval
   }
 
@@ -36,6 +39,9 @@ final class RefreshEngine {
     task?.cancel()
     task = nil
     backoffStep = 0
+    Task { [weak self] in
+      await self?.updateStatus(isStale: false, error: nil)
+    }
   }
 
   func triggerImmediateRefresh() {
@@ -48,6 +54,7 @@ final class RefreshEngine {
     await fetchOnce(resetBackoff: false)
     while !Task.isCancelled {
       let delay = currentDelay
+      await updateNextRefresh(after: delay)
       try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
       await fetchOnce(resetBackoff: false)
     }
@@ -65,6 +72,7 @@ final class RefreshEngine {
 
     guard let tokens = credentialStore.loadTokens() else {
       await MainActor.run { authSession.signOut() }
+      await updateStatus(isStale: true, error: "Missing credentials")
       return
     }
 
@@ -82,13 +90,67 @@ final class RefreshEngine {
       }
 
       backoffStep = 0
+      await updateStatus(isStale: false, error: nil, markRefresh: true)
     } catch let error as APIError {
       if case .unauthorized = error {
         await MainActor.run { authSession.signOut() }
       }
       backoffStep = min(backoffStep + 1, 4)
+      await updateStatus(isStale: true, error: errorMessage(for: error))
     } catch {
       backoffStep = min(backoffStep + 1, 4)
+      await updateStatus(isStale: true, error: "Network error")
     }
+  }
+
+  private func updateNextRefresh(after delay: TimeInterval) async {
+    let nextDate = Date().addingTimeInterval(delay)
+    await MainActor.run {
+      statusStore.mutate { status in
+        status.nextRefresh = nextDate
+      }
+    }
+  }
+
+  private func updateStatus(isStale: Bool, error: String?, markRefresh: Bool = false) async {
+    let now = Date()
+    await MainActor.run {
+      statusStore.mutate { status in
+        if markRefresh {
+          status.lastRefresh = now
+        }
+        status.isStale = isStale
+        status.error = error
+      }
+    }
+  }
+
+  private func errorMessage(for error: APIError) -> String {
+    switch error {
+    case .unauthorized:
+      return "Unauthorized"
+    case .rateLimited(let resetAt):
+      if let resetAt {
+        return "Rate limited until \(DateFormatter.shortTime.string(from: resetAt))"
+      }
+      return "Rate limited"
+    case .serverError:
+      return "Server error"
+    case .decodingFailed:
+      return "Decode error"
+    case .networkFailure:
+      return "Network error"
+    case .invalidResponse:
+      return "Invalid response"
+    }
+  }
+}
+
+private extension DateFormatter {
+  static var shortTime: DateFormatter {
+    let formatter = DateFormatter()
+    formatter.timeStyle = .short
+    formatter.dateStyle = .none
+    return formatter
   }
 }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct StatusBarMenu: View {
   @ObservedObject var store: DeploymentStore
+  @ObservedObject var refreshStatusStore: RefreshStatusStore
   let openURL: (URL) -> Void
 
   @StateObject private var authSession = AuthSession.shared
@@ -42,6 +43,28 @@ struct StatusBarMenu: View {
           .buttonStyle(.plain)
           .disabled(url == nil)
         }
+      }
+
+      refreshFooter
+    }
+  }
+
+  private var refreshFooter: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      if let lastRefresh = refreshStatusStore.status.lastRefresh {
+        Text("Updated \(RelativeTimeFormatter.string(from: lastRefresh))")
+          .font(.caption2)
+          .foregroundColor(.secondary)
+      } else {
+        Text("Waiting for first refresh")
+          .font(.caption2)
+          .foregroundColor(.secondary)
+      }
+
+      if refreshStatusStore.status.isStale, let error = refreshStatusStore.status.error {
+        Text(error)
+          .font(.caption2)
+          .foregroundColor(.red)
       }
     }
   }

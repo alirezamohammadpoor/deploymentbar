@@ -7,14 +7,21 @@ final class StatusBarController: NSObject {
   private let popover = NSPopover()
   private let browserLauncher = BrowserLauncher()
   private let deploymentStore = DeploymentStore()
+  private let refreshStatusStore = RefreshStatusStore()
   private let authSession = AuthSession.shared
   private let credentialStore = CredentialStore()
+  private let notificationManager: NotificationManager
 
   private var refreshEngine: RefreshEngine?
   private var cancellables = Set<AnyCancellable>()
+  private var latestDeploymentState: DeploymentState?
+  private var isStale: Bool = false
 
   override init() {
+    notificationManager = NotificationManager(browserLauncher: browserLauncher)
     super.init()
+
+    notificationManager.configure()
 
     if let config = VercelAuthConfig.load() {
       let client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
@@ -24,7 +31,8 @@ final class StatusBarController: NSObject {
         store: deploymentStore,
         credentialStore: credentialStore,
         apiClient: client,
-        authSession: authSession
+        authSession: authSession,
+        statusStore: refreshStatusStore
       )
     }
 
@@ -39,11 +47,33 @@ final class StatusBarController: NSObject {
     popover.contentViewController = NSHostingController(
       rootView: StatusBarMenu(
         store: deploymentStore,
+        refreshStatusStore: refreshStatusStore,
         openURL: { [weak self] url in
           self?.browserLauncher.open(url: url)
         }
       )
     )
+
+    deploymentStore.onStateChange = { [weak self] deployment, _, newState in
+      guard newState == .ready || newState == .error else { return }
+      self?.notificationManager.postDeploymentNotification(deployment: deployment)
+    }
+
+    deploymentStore.$deployments
+      .receive(on: RunLoop.main)
+      .sink { [weak self] deployments in
+        self?.latestDeploymentState = deployments.first?.state
+        self?.updateStatusIcon()
+      }
+      .store(in: &cancellables)
+
+    refreshStatusStore.$status
+      .receive(on: RunLoop.main)
+      .sink { [weak self] status in
+        self?.isStale = status.isStale
+        self?.updateStatusIcon()
+      }
+      .store(in: &cancellables)
 
     authSession.$status
       .receive(on: RunLoop.main)
@@ -68,6 +98,7 @@ final class StatusBarController: NSObject {
   private func handleAuthStatus(_ status: AuthSession.Status) {
     switch status {
     case .signedIn:
+      notificationManager.requestAuthorizationIfNeeded()
       refreshEngine?.start()
     case .signedOut:
       refreshEngine?.stop()
@@ -77,5 +108,28 @@ final class StatusBarController: NSObject {
     case .error:
       break
     }
+  }
+
+  private func updateStatusIcon() {
+    guard let button = statusItem.button else { return }
+    let symbolName: String
+
+    switch latestDeploymentState {
+    case .some(.ready):
+      symbolName = "checkmark.circle"
+    case .some(.building):
+      symbolName = "arrow.triangle.2.circlepath"
+    case .some(.error):
+      symbolName = "xmark.octagon"
+    case .some(.canceled):
+      symbolName = "slash.circle"
+    case .none:
+      symbolName = "bolt.horizontal"
+    }
+
+    button.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "VercelBar")
+    button.image?.isTemplate = true
+    button.alphaValue = isStale ? 0.4 : 1.0
+    button.toolTip = isStale ? "Last refresh failed" : "VercelBar"
   }
 }
