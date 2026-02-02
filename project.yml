@@ -34,14 +34,14 @@ targets:
         VercelClientSecret: $(VERCEL_CLIENT_SECRET)
         VercelRedirectURI: $(VERCEL_REDIRECT_URI)
         VercelScopes: $(VERCEL_SCOPES)
+    configFiles:
+      Debug: Config/Secrets.xcconfig
+      Release: Config/Secrets.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_STYLE: Automatic
-      configFiles:
-        Debug: Config/Secrets.xcconfig
-        Release: Config/Secrets.xcconfig
   VercelBarTests:
     type: bundle.unit-test
     platform: macOS

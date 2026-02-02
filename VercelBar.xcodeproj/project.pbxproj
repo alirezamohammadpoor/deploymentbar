@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -76,6 +76,7 @@
 		6D62BBC1D044771B370566A9 /* VercelAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPIClient.swift; sourceTree = "<group>"; };
 		7609E89BDA38B6AD650669F5 /* OAuthCallbackHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthCallbackHandler.swift; sourceTree = "<group>"; };
 		7D23F0D2F6ED1E675C469327 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		858A57344C72FDF789217A19 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		8691E7898183191AC14EA0F4 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
 		877E9B1658821600DD874233 /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
 		8A5688759D6355B9677C342B /* RefreshEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshEngineTests.swift; sourceTree = "<group>"; };
@@ -160,6 +161,14 @@
 			path = Features;
 			sourceTree = "<group>";
 		};
+		69E17C3B6D511BE398435B41 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				858A57344C72FDF789217A19 /* Secrets.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		70AC473253CE3F3321888D69 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
@@ -226,6 +235,7 @@
 			isa = PBXGroup;
 			children = (
 				40D3F92F8C7174B190CEAC79 /* App */,
+				69E17C3B6D511BE398435B41 /* Config */,
 				4F6401752982023170F0615D /* Core */,
 				59F99FEFB8D36D2930691471 /* Features */,
 				7272A1A72C0391A8D5C64D63 /* Tests */,
@@ -304,7 +314,6 @@
 			);
 			mainGroup = CA336A55543E6D0363C99991;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -396,6 +405,7 @@
 		};
 		1EAE12208DDE8DC4D231F927 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 858A57344C72FDF789217A19 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -539,6 +549,7 @@
 		};
 		D04EA2E8272656240CD6AB2D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 858A57344C72FDF789217A19 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
