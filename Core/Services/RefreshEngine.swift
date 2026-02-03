@@ -77,13 +77,16 @@ final class RefreshEngine {
       backoffStep = 0
     }
 
-    guard let tokens = credentialStore.loadTokens() else {
+    let personalToken = credentialStore.loadPersonalToken()
+    let tokens = credentialStore.loadTokens()
+
+    if tokens == nil && personalToken == nil {
       await MainActor.run { authSession.signOut() }
       await updateStatus(isStale: true, error: "Missing credentials")
       return
     }
 
-    if tokens.isExpired, !tokens.canRefresh {
+    if let tokens, tokens.isExpired, !tokens.canRefresh {
       await MainActor.run { authSession.signOut() }
       await updateStatus(isStale: true, error: "Session expired. Sign in again.")
       return
@@ -93,7 +96,7 @@ final class RefreshEngine {
     let projectIds = selectedIds.isEmpty ? nil : Array(selectedIds)
 
     do {
-      if tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
+      if let tokens, tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
         let refreshed = try await apiClient.refreshToken(refreshToken)
         credentialStore.saveTokens(refreshed)
       }

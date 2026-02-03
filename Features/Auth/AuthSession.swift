@@ -22,7 +22,7 @@ final class AuthSession: ObservableObject {
   private var redirectURI: String?
 
   private init() {
-    if credentialStore.loadTokens() != nil {
+    if credentialStore.loadTokens() != nil || credentialStore.loadPersonalToken() != nil {
       status = .signedIn
     }
 
@@ -113,6 +113,7 @@ final class AuthSession: ObservableObject {
   func signOut(revokeToken: Bool = false) {
     let tokens = credentialStore.loadTokens()
     credentialStore.clearTokens()
+    credentialStore.clearPersonalToken()
     stateStore.clear()
     status = .signedOut
 
@@ -159,6 +160,13 @@ final class AuthSession: ObservableObject {
     }
     let expectedValue = expected ?? "nil"
     return "OAuth state mismatch (expected \(expectedValue), got \(received))"
+  }
+
+  func usePersonalToken(_ token: String) {
+    let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !trimmed.isEmpty else { return }
+    credentialStore.savePersonalToken(trimmed)
+    status = .signedIn
   }
 }
 

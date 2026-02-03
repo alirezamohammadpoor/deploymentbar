@@ -27,7 +27,10 @@ final class ProjectStore: ObservableObject {
 
     Task.detached { [weak self] in
       guard let self else { return }
-      guard let tokens = self.credentialStore.loadTokens() else {
+      let tokens = self.credentialStore.loadTokens()
+      let personalToken = self.credentialStore.loadPersonalToken()
+
+      guard tokens != nil || personalToken != nil else {
         await MainActor.run {
           self.isLoading = false
         }
@@ -35,7 +38,7 @@ final class ProjectStore: ObservableObject {
       }
 
       do {
-        if tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
+        if let tokens, tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
           let refreshed = try await apiClient.refreshToken(refreshToken)
           self.credentialStore.saveTokens(refreshed)
         }

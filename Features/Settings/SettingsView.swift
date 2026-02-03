@@ -27,6 +27,10 @@ struct SettingsView: View {
         ProjectFilterView()
       }
 
+      Section("Personal Token") {
+        PersonalTokenView()
+      }
+
       Section("Browser") {
         Picker("Open links in", selection: $settings.browserBundleId) {
           ForEach(browserOptions) { option in

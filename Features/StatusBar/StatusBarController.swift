@@ -31,7 +31,7 @@ final class StatusBarController: NSObject {
 
     if let config = VercelAuthConfig.load() {
       let client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
-        self?.credentialStore.loadTokens()?.accessToken
+        self?.credentialStore.loadPersonalToken() ?? self?.credentialStore.loadTokens()?.accessToken
       })
       projectStore.configure(apiClient: client)
       refreshEngine = RefreshEngine(

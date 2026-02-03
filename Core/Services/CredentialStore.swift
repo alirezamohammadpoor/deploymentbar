@@ -2,6 +2,7 @@ import Foundation
 
 final class CredentialStore {
   private let account = "vercel.tokens"
+  private let personalTokenAccount = "vercel.pat"
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
 
@@ -36,6 +37,32 @@ final class CredentialStore {
   func clearTokens() {
     do {
       try KeychainWrapper.delete(account)
+    } catch {
+      // TODO: log error.
+    }
+  }
+
+  func loadPersonalToken() -> String? {
+    do {
+      guard let data = try KeychainWrapper.get(personalTokenAccount) else { return nil }
+      return String(data: data, encoding: .utf8)
+    } catch {
+      return nil
+    }
+  }
+
+  func savePersonalToken(_ token: String) {
+    do {
+      guard let data = token.data(using: .utf8) else { return }
+      try KeychainWrapper.set(data, account: personalTokenAccount)
+    } catch {
+      // TODO: log error.
+    }
+  }
+
+  func clearPersonalToken() {
+    do {
+      try KeychainWrapper.delete(personalTokenAccount)
     } catch {
       // TODO: log error.
     }
