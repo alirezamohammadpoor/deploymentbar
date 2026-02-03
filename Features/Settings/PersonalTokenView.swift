@@ -7,7 +7,7 @@ struct PersonalTokenView: View {
   @StateObject private var authSession = AuthSession.shared
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
       SecureField("Paste Vercel Personal Access Token", text: $tokenInput)
 
       HStack {
@@ -33,13 +33,13 @@ struct PersonalTokenView: View {
 
       if let statusMessage {
         Text(statusMessage)
-          .font(.caption2)
-          .foregroundColor(.secondary)
+          .font(Theme.Typography.captionSmall)
+          .foregroundColor(Theme.Colors.textSecondary)
       }
 
       Text("Personal tokens skip OAuth and unlock deployment access immediately.")
-        .font(.caption2)
-        .foregroundColor(.secondary)
+        .font(Theme.Typography.captionSmall)
+        .foregroundColor(Theme.Colors.textSecondary)
     }
   }
 }

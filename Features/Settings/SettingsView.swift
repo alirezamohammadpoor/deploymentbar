@@ -50,8 +50,8 @@ struct SettingsView: View {
           }
       }
     }
-    .padding(16)
-    .frame(width: 420)
+    .padding(Theme.Layout.spacingLG)
+    .frame(width: Theme.Layout.settingsWidth)
     .onAppear {
       browserOptions = BrowserOption.availableOptions()
     }

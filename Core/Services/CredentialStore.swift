@@ -1,6 +1,15 @@
 import Foundation
 
-final class CredentialStore {
+protocol CredentialStoring {
+  func loadTokens() -> TokenPair?
+  func saveTokens(_ tokens: TokenPair)
+  func clearTokens()
+  func loadPersonalToken() -> String?
+  func savePersonalToken(_ token: String)
+  func clearPersonalToken()
+}
+
+final class CredentialStore: CredentialStoring {
   private let account = "vercel.tokens"
   private let personalTokenAccount = "vercel.pat"
   private let encoder: JSONEncoder

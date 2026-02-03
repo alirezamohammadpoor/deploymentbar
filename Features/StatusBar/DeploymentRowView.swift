@@ -4,53 +4,40 @@ struct DeploymentRowView: View {
   let deployment: Deployment
   let relativeTime: String
 
+  @State private var isHovered = false
+
   var body: some View {
-    HStack(alignment: .center, spacing: 12) {
-      VStack(alignment: .leading, spacing: 2) {
-        Text(deployment.projectName)
-          .font(.subheadline)
-        Text(deployment.branch ?? "-")
-          .font(.caption)
-          .foregroundColor(.secondary)
-      }
+    HStack(spacing: Theme.Layout.spacingSM) {
+      Circle()
+        .fill(Theme.Colors.status(for: deployment.state))
+        .frame(width: Theme.Layout.statusDotSize, height: Theme.Layout.statusDotSize)
+
+      Text(deployment.projectName)
+        .font(Theme.Typography.projectName)
+        .foregroundColor(Theme.Colors.textPrimary)
+        .lineLimit(1)
+
+      Text(deployment.branch ?? "-")
+        .font(Theme.Typography.branchName)
+        .foregroundColor(Theme.Colors.textSecondary)
+        .lineLimit(1)
+        .padding(.horizontal, Theme.Layout.badgePaddingH)
+        .padding(.vertical, Theme.Layout.badgePaddingV)
+        .background(Theme.Colors.backgroundSecondary)
+        .cornerRadius(Theme.Layout.badgeCornerRadius)
 
       Spacer()
 
-      VStack(alignment: .trailing, spacing: 4) {
-        statusBadge
-        Text(relativeTime)
-          .font(.caption2)
-          .foregroundColor(.secondary)
-      }
+      Text(relativeTime)
+        .font(Theme.Typography.timestamp)
+        .foregroundColor(Theme.Colors.textTertiary)
     }
-    .padding(.vertical, 6)
-  }
-
-  private var statusBadge: some View {
-    Text(statusText)
-      .font(.caption2)
-      .padding(.horizontal, 6)
-      .padding(.vertical, 2)
-      .background(statusColor.opacity(0.15))
-      .foregroundColor(statusColor)
-      .clipShape(Capsule())
-  }
-
-  private var statusText: String {
-    switch deployment.state {
-    case .building: return "Building"
-    case .ready: return "Ready"
-    case .error: return "Failed"
-    case .canceled: return "Canceled"
-    }
-  }
-
-  private var statusColor: Color {
-    switch deployment.state {
-    case .building: return .orange
-    case .ready: return .green
-    case .error: return .red
-    case .canceled: return .gray
+    .frame(height: Theme.Layout.rowHeight)
+    .padding(.horizontal, Theme.Layout.spacingSM)
+    .background(isHovered ? Theme.Colors.backgroundSecondary : Color.clear)
+    .contentShape(Rectangle())
+    .onHover { hovering in
+      isHovered = hovering
     }
   }
 }

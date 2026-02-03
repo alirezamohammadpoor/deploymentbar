@@ -5,16 +5,16 @@ struct ProjectFilterView: View {
   @StateObject private var settingsStore = SettingsStore.shared
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
       HStack {
         Text("Monitor projects")
-          .font(.subheadline)
+          .font(Theme.Typography.projectName)
         Spacer()
         Button("Reload") {
           projectStore.refresh()
         }
         .buttonStyle(.plain)
-        .font(.caption)
+        .font(Theme.Typography.caption)
       }
 
       if projectStore.isLoading {
@@ -22,14 +22,14 @@ struct ProjectFilterView: View {
           .controlSize(.small)
       } else if let error = projectStore.error {
         Text(error)
-          .font(.caption)
-          .foregroundColor(.red)
+          .font(Theme.Typography.caption)
+          .foregroundColor(Theme.Colors.statusError)
       } else if projectStore.projects.isEmpty {
         Text("No projects found")
-          .font(.caption)
-          .foregroundColor(.secondary)
+          .font(Theme.Typography.caption)
+          .foregroundColor(Theme.Colors.textSecondary)
       } else {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Theme.Layout.spacingXS) {
           ForEach(projectStore.projects) { project in
             Toggle(project.name, isOn: binding(for: project.id))
           }
@@ -37,8 +37,8 @@ struct ProjectFilterView: View {
       }
 
       Text("Leave all unchecked to monitor every project.")
-        .font(.caption2)
-        .foregroundColor(.secondary)
+        .font(Theme.Typography.captionSmall)
+        .foregroundColor(Theme.Colors.textSecondary)
     }
     .onAppear {
       if projectStore.projects.isEmpty {

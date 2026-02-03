@@ -3,7 +3,10 @@ import Foundation
 
 @MainActor
 final class AuthSession: ObservableObject {
-  static let shared = AuthSession()
+  static let shared = AuthSession(
+    credentialStore: CredentialStore(),
+    stateStore: AuthSessionStateStore()
+  )
 
   enum Status: Equatable {
     case signedOut
@@ -14,22 +17,49 @@ final class AuthSession: ObservableObject {
 
   @Published private(set) var status: Status = .signedOut
 
-  private let credentialStore = CredentialStore()
-  private let stateStore = AuthSessionStateStore()
+  private let credentialStore: CredentialStoring
+  private let stateStore: AuthSessionStateStore
   private var client: VercelAPIClientImpl?
   private var pendingState: String?
   private var codeVerifier: String?
   private var redirectURI: String?
+  private var didLoadInitialStatus = false
 
-  private init() {
-    if credentialStore.loadTokens() != nil || credentialStore.loadPersonalToken() != nil {
-      status = .signedIn
-    }
-
+  private init(credentialStore: CredentialStoring, stateStore: AuthSessionStateStore) {
+    self.credentialStore = credentialStore
+    self.stateStore = stateStore
     if let pending = stateStore.load() {
       pendingState = pending.state
       codeVerifier = pending.verifier
       redirectURI = pending.redirectURI
+    }
+  }
+
+  static func makeForTesting(
+    credentialStore: CredentialStoring,
+    stateStore: AuthSessionStateStore
+  ) -> AuthSession {
+    AuthSession(credentialStore: credentialStore, stateStore: stateStore)
+  }
+
+  func loadInitialStatusIfNeeded() {
+    guard !didLoadInitialStatus else { return }
+    didLoadInitialStatus = true
+    let store = credentialStore
+    DebugLog.write("loadInitialStatus: dispatching keychain check")
+    DispatchQueue.global(qos: .userInitiated).async {
+      let hasOAuth = store.loadTokens() != nil
+      let hasPAT = store.loadPersonalToken() != nil
+      DebugLog.write("loadInitialStatus: hasOAuth=\(hasOAuth), hasPAT=\(hasPAT)")
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        if hasOAuth || hasPAT {
+          self.status = .signedIn
+        } else {
+          self.status = .signedOut
+        }
+        DebugLog.write("loadInitialStatus: status set to \(self.status)")
+      }
     }
   }
 

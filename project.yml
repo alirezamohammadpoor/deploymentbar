@@ -12,6 +12,15 @@ settings:
     VERCEL_REDIRECT_URI: $(VERCEL_REDIRECT_URI)
     VERCEL_SCOPES: $(VERCEL_SCOPES)
 
+schemes:
+  VercelBar:
+    build:
+      targets:
+        VercelBar: all
+    test:
+      targets:
+        - VercelBarTests
+
 targets:
   VercelBar:
     type: application
