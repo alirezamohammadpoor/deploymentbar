@@ -10,12 +10,16 @@ protocol CredentialStoring {
 }
 
 final class CredentialStore: CredentialStoring {
-  private let account = "vercel.tokens"
-  private let personalTokenAccount = "vercel.pat"
+  private let directory: URL
+  private let tokensFile = "oauth-tokens.json"
+  private let patFile = "personal-token"
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
 
   init() {
+    let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+    self.directory = appSupport.appendingPathComponent("VercelBar", isDirectory: true)
+
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .iso8601
     self.encoder = encoder
@@ -23,57 +27,55 @@ final class CredentialStore: CredentialStoring {
     let decoder = JSONDecoder()
     decoder.dateDecodingStrategy = .iso8601
     self.decoder = decoder
+
+    try? FileManager.default.createDirectory(
+      at: directory,
+      withIntermediateDirectories: true,
+      attributes: [.posixPermissions: 0o700]
+    )
   }
 
   func loadTokens() -> TokenPair? {
-    do {
-      guard let data = try KeychainWrapper.get(account) else { return nil }
-      return try decoder.decode(TokenPair.self, from: data)
-    } catch {
-      return nil
-    }
+    let url = directory.appendingPathComponent(tokensFile)
+    guard let data = try? Data(contentsOf: url) else { return nil }
+    return try? decoder.decode(TokenPair.self, from: data)
   }
 
   func saveTokens(_ tokens: TokenPair) {
     do {
       let data = try encoder.encode(tokens)
-      try KeychainWrapper.set(data, account: account)
+      let url = directory.appendingPathComponent(tokensFile)
+      try data.write(to: url, options: [.atomic])
+      try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
     } catch {
-      // TODO: log error.
+      DebugLog.write("CredentialStore.saveTokens failed: \(error)")
     }
   }
 
   func clearTokens() {
-    do {
-      try KeychainWrapper.delete(account)
-    } catch {
-      // TODO: log error.
-    }
+    let url = directory.appendingPathComponent(tokensFile)
+    try? FileManager.default.removeItem(at: url)
   }
 
   func loadPersonalToken() -> String? {
-    do {
-      guard let data = try KeychainWrapper.get(personalTokenAccount) else { return nil }
-      return String(data: data, encoding: .utf8)
-    } catch {
-      return nil
-    }
+    let url = directory.appendingPathComponent(patFile)
+    guard let data = try? Data(contentsOf: url) else { return nil }
+    return String(data: data, encoding: .utf8)
   }
 
   func savePersonalToken(_ token: String) {
     do {
       guard let data = token.data(using: .utf8) else { return }
-      try KeychainWrapper.set(data, account: personalTokenAccount)
+      let url = directory.appendingPathComponent(patFile)
+      try data.write(to: url, options: [.atomic])
+      try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
     } catch {
-      // TODO: log error.
+      DebugLog.write("CredentialStore.savePersonalToken failed: \(error)")
     }
   }
 
   func clearPersonalToken() {
-    do {
-      try KeychainWrapper.delete(personalTokenAccount)
-    } catch {
-      // TODO: log error.
-    }
+    let url = directory.appendingPathComponent(patFile)
+    try? FileManager.default.removeItem(at: url)
   }
 }
