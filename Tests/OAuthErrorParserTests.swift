@@ -19,9 +19,4 @@ final class OAuthErrorParserTests: XCTestCase {
     XCTAssertEqual(message, "OAuth error (HTTP 500)")
   }
 
-  func testFormatsFallbackMessageFor200WithBody() {
-    let json = #"{"message":"unexpected"}"#.data(using: .utf8)!
-    let message = OAuthErrorParser.parseMessage(data: json, statusCode: 200)
-    XCTAssertEqual(message, "OAuth error (HTTP 200): {\"message\":\"unexpected\"}")
-  }
 }

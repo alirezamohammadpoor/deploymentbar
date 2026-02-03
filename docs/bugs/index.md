@@ -17,3 +17,4 @@
 - 2026-02-03: OAuth callback missing client (`docs/bugs/20260203-oauth-callback-missing-client.md`)
 - 2026-02-03: OAuth AppleEvent handler (`docs/bugs/20260203-oauth-appleevent-handler.md`)
 - 2026-02-03: OAuth token decode details (`docs/bugs/20260203-oauth-token-decode-details.md`)
+- 2026-02-03: OAuth token JSON decode (`docs/bugs/20260203-oauth-token-json-decode.md`)

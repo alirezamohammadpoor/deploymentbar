@@ -113,21 +113,20 @@ final class VercelAPIClientImpl: VercelAPIClient {
     guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
 
     if (200...299).contains(http.statusCode) {
-      do {
-        let response: OAuthTokenResponse = try JSONDecoder.vercelDecoder.decode(OAuthTokenResponse.self, from: data)
-        guard let refresh = response.refreshToken ?? fallbackRefreshToken else {
+      if let parsed = TokenResponseParser.parse(data: data) {
+        guard let refresh = parsed.refreshToken ?? fallbackRefreshToken else {
           throw APIError.invalidResponse
         }
-        let expiresIn = TimeInterval(response.expiresIn ?? 3600)
+        let expiresIn = TimeInterval(parsed.expiresIn ?? 3600)
         return TokenPair(
-          accessToken: response.accessToken,
+          accessToken: parsed.accessToken,
           refreshToken: refresh,
           expiresAt: Date().addingTimeInterval(expiresIn)
         )
-      } catch {
-        let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
-        throw APIError.oauthError(message ?? "OAuth token decode failed (HTTP \(http.statusCode))")
       }
+
+      let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
+      throw APIError.oauthError(message ?? "OAuth token decode failed (HTTP \(http.statusCode))")
     }
 
     let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
@@ -213,24 +212,4 @@ private struct DeploymentsResponse: Decodable {
 
 private struct ProjectsResponse: Decodable {
   let projects: [ProjectDTO]
-}
-
-private struct OAuthTokenResponse: Decodable {
-  let accessToken: String
-  let refreshToken: String?
-  let expiresIn: Int?
-
-  enum CodingKeys: String, CodingKey {
-    case accessToken = "access_token"
-    case refreshToken = "refresh_token"
-    case expiresIn = "expires_in"
-  }
-}
-
-private extension JSONDecoder {
-  static var vercelDecoder: JSONDecoder {
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .useDefaultKeys
-    return decoder
-  }
 }
