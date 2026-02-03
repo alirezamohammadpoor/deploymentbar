@@ -1,5 +1,19 @@
 import SwiftUI
 
+enum EnvironmentFilter: String, CaseIterable {
+  case all
+  case production
+  case preview
+
+  var title: String {
+    switch self {
+    case .all: return "All"
+    case .production: return "Production"
+    case .preview: return "Preview"
+    }
+  }
+}
+
 struct StatusBarMenu: View {
   @ObservedObject var store: DeploymentStore
   @ObservedObject var refreshStatusStore: RefreshStatusStore
@@ -8,6 +22,7 @@ struct StatusBarMenu: View {
   let signOut: () -> Void
 
   @StateObject private var authSession = AuthSession.shared
+  @State private var filter: EnvironmentFilter = .all
 
   var body: some View {
     VStack(spacing: 0) {
@@ -32,9 +47,30 @@ struct StatusBarMenu: View {
       Text("Deployments")
         .sectionHeaderStyle()
       Spacer()
+      filterTabs
     }
     .padding(.horizontal, Theme.Layout.spacingMD)
     .padding(.vertical, Theme.Layout.spacingSM)
+  }
+
+  private var filterTabs: some View {
+    HStack(spacing: Theme.Layout.spacingSM) {
+      ForEach(EnvironmentFilter.allCases, id: \.self) { tab in
+        Button {
+          filter = tab
+        } label: {
+          VStack(spacing: 2) {
+            Text(tab.title)
+              .font(Theme.Typography.caption)
+              .foregroundColor(filter == tab ? Theme.Colors.textPrimary : Theme.Colors.textTertiary)
+            Rectangle()
+              .fill(filter == tab ? Theme.Colors.textPrimary : Color.clear)
+              .frame(height: 2)
+          }
+        }
+        .buttonStyle(.plain)
+      }
+    }
   }
 
   // MARK: - Content
@@ -50,6 +86,17 @@ struct StatusBarMenu: View {
   }
 
   // MARK: - Deployments
+
+  private var filteredDeployments: [Deployment] {
+    switch filter {
+    case .all:
+      return store.deployments
+    case .production:
+      return store.deployments.filter { $0.target == "production" }
+    case .preview:
+      return store.deployments.filter { $0.target != "production" }
+    }
+  }
 
   private var deploymentsView: some View {
     Group {
@@ -99,7 +146,7 @@ struct StatusBarMenu: View {
   private var deploymentList: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        ForEach(store.deployments) { deployment in
+        ForEach(filteredDeployments) { deployment in
           let url = previewURL(for: deployment)
           Button {
             if let url { openURL(url) }
@@ -132,6 +179,15 @@ struct StatusBarMenu: View {
 
         Spacer()
 
+        SettingsLink {
+          Text("Settings")
+            .font(Theme.Typography.caption)
+            .foregroundColor(Theme.Colors.textSecondary)
+        }
+        .buttonStyle(.plain)
+
+        Spacer()
+
         Button("Sign Out") {
           signOut()
         }
@@ -140,7 +196,6 @@ struct StatusBarMenu: View {
         .foregroundColor(Theme.Colors.textSecondary)
       }
 
-      buildStamp
     }
     .padding(.horizontal, Theme.Layout.spacingMD)
     .padding(.vertical, Theme.Layout.spacingSM)
@@ -167,18 +222,4 @@ struct StatusBarMenu: View {
     return URL(string: "https://\(value)")
   }
 
-  private var buildStamp: some View {
-    Text(Bundle.main.buildStamp)
-      .font(Theme.Typography.captionSmall)
-      .foregroundColor(Theme.Colors.textTertiary)
-      .frame(maxWidth: .infinity, alignment: .leading)
-  }
-}
-
-private extension Bundle {
-  var buildStamp: String {
-    let version = infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
-    let build = infoDictionary?["CFBundleVersion"] as? String ?? "0"
-    return "Build \(version) (\(build))"
-  }
 }

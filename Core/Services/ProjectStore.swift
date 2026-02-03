@@ -43,7 +43,8 @@ final class ProjectStore: ObservableObject {
           self.credentialStore.saveTokens(refreshed)
         }
 
-        let dtos = try await apiClient.fetchProjects()
+        let teamId = tokens?.teamId
+        let dtos = try await apiClient.fetchProjects(teamId: teamId)
         let projects = dtos.map(Project.from(dto:)).sorted { $0.name.lowercased() < $1.name.lowercased() }
 
         await MainActor.run {

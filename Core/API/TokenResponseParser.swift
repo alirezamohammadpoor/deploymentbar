@@ -5,6 +5,7 @@ struct TokenResponseParser {
     let accessToken: String
     let refreshToken: String?
     let expiresIn: Int?
+    let teamId: String?
   }
 
   static func parse(data: Data) -> Parsed? {
@@ -23,7 +24,8 @@ struct TokenResponseParser {
     }
     let refreshToken = json["refresh_token"] as? String
     let expiresIn = json["expires_in"] as? Int
-    return Parsed(accessToken: accessToken, refreshToken: refreshToken, expiresIn: expiresIn)
+    let teamId = json["team_id"] as? String
+    return Parsed(accessToken: accessToken, refreshToken: refreshToken, expiresIn: expiresIn, teamId: teamId)
   }
 
   private static func parseForm(data: Data) -> Parsed? {
@@ -43,6 +45,7 @@ struct TokenResponseParser {
     }
     let refreshToken = values["refresh_token"]
     let expiresIn = values["expires_in"].flatMap { Int($0) }
-    return Parsed(accessToken: accessToken, refreshToken: refreshToken, expiresIn: expiresIn)
+    let teamId = values["team_id"]
+    return Parsed(accessToken: accessToken, refreshToken: refreshToken, expiresIn: expiresIn, teamId: teamId)
   }
 }

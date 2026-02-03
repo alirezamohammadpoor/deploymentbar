@@ -32,7 +32,11 @@ final class RefreshEngine {
   }
 
   func start() {
-    guard task == nil else { return }
+    guard task == nil else {
+      DebugLog.write("RefreshEngine.start(): already running")
+      return
+    }
+    DebugLog.write("RefreshEngine.start(): launching runLoop")
     task = Task { [weak self] in
       await self?.runLoop()
     }
@@ -73,14 +77,17 @@ final class RefreshEngine {
   }
 
   private func fetchOnce(resetBackoff: Bool) async {
+    DebugLog.write("RefreshEngine.fetchOnce start")
     if resetBackoff {
       backoffStep = 0
     }
 
     let personalToken = credentialStore.loadPersonalToken()
     let tokens = credentialStore.loadTokens()
+    DebugLog.write("RefreshEngine credentials: hasPAT=\(personalToken != nil), hasOAuth=\(tokens != nil)")
 
     if tokens == nil && personalToken == nil {
+      DebugLog.write("RefreshEngine: no credentials, signing out")
       await MainActor.run { authSession.signOut() }
       await updateStatus(isStale: true, error: "Missing credentials")
       return
@@ -97,11 +104,27 @@ final class RefreshEngine {
 
     do {
       if let tokens, tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
-        let refreshed = try await apiClient.refreshToken(refreshToken)
+        var refreshed = try await apiClient.refreshToken(refreshToken)
+        // Preserve teamId if the refresh response didn't include one
+        if refreshed.teamId == nil, let existingTeamId = tokens.teamId {
+          refreshed = refreshed.withTeamId(existingTeamId)
+        }
         credentialStore.saveTokens(refreshed)
       }
 
-      let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: projectIds)
+      let teamId = tokens?.teamId
+      DebugLog.write("RefreshEngine: fetching deployments (teamId=\(teamId ?? "nil"), filterProjects=\(selectedIds.count))")
+      let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: nil, teamId: teamId)
+      DebugLog.write("RefreshEngine: received \(dtos.count) DTOs")
+      if dtos.isEmpty {
+        DebugLog.write("RefreshEngine: 0 results — probing user and team context")
+        do {
+          let userInfo = try await apiClient.fetchCurrentUser()
+          DebugLog.write("RefreshEngine: user=\(userInfo)")
+        } catch {
+          DebugLog.write("RefreshEngine: user fetch failed: \(error)")
+        }
+      }
       let deployments = dtos.map(Deployment.from(dto:))
       let filtered = selectedIds.isEmpty
         ? deployments
@@ -110,6 +133,7 @@ final class RefreshEngine {
             return selectedIds.contains(projectId)
           }
 
+      DebugLog.write("RefreshEngine: \(filtered.count) deployments after filtering")
       await MainActor.run {
         store.apply(deployments: filtered)
       }
@@ -117,12 +141,14 @@ final class RefreshEngine {
       backoffStep = 0
       await updateStatus(isStale: false, error: nil, markRefresh: true)
     } catch let error as APIError {
+      DebugLog.write("RefreshEngine API error: \(Self.errorMessage(for: error))")
       if case .unauthorized = error {
         await MainActor.run { authSession.signOut() }
       }
       backoffStep = min(backoffStep + 1, 4)
       await updateStatus(isStale: true, error: Self.errorMessage(for: error))
     } catch {
+      DebugLog.write("RefreshEngine error: \(error)")
       backoffStep = min(backoffStep + 1, 4)
       await updateStatus(isStale: true, error: "Network error")
     }

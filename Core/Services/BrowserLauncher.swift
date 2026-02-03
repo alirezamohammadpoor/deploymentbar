@@ -18,12 +18,14 @@ final class BrowserLauncher {
       return
     }
 
-    guard let appURL = workspace.urlForApplication(withBundleIdentifier: bundleId) else {
+    guard workspace.urlForApplication(withBundleIdentifier: bundleId) != nil else {
       workspace.open(url)
       return
     }
 
-    let configuration = NSWorkspace.OpenConfiguration()
-    workspace.open([url], withApplicationAt: appURL, configuration: configuration, completionHandler: nil)
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+    process.arguments = ["-b", bundleId, url.absoluteString]
+    try? process.run()
   }
 }

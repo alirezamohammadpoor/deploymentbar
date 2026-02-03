@@ -5,16 +5,15 @@ struct ProjectFilterView: View {
   @StateObject private var settingsStore = SettingsStore.shared
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+    VStack(alignment: .leading, spacing: 12) {
       HStack {
         Text("Monitor projects")
-          .font(Theme.Typography.projectName)
+          .font(Theme.Typography.Settings.fieldLabel)
+          .foregroundColor(Theme.Colors.Settings.foreground)
         Spacer()
-        Button("Reload") {
+        VercelIconButton(systemName: "arrow.clockwise") {
           projectStore.refresh()
         }
-        .buttonStyle(.plain)
-        .font(Theme.Typography.caption)
       }
 
       if projectStore.isLoading {
@@ -22,23 +21,23 @@ struct ProjectFilterView: View {
           .controlSize(.small)
       } else if let error = projectStore.error {
         Text(error)
-          .font(Theme.Typography.caption)
+          .font(Theme.Typography.Settings.helperText)
           .foregroundColor(Theme.Colors.statusError)
       } else if projectStore.projects.isEmpty {
         Text("No projects found")
-          .font(Theme.Typography.caption)
-          .foregroundColor(Theme.Colors.textSecondary)
+          .font(Theme.Typography.Settings.helperText)
+          .foregroundColor(Theme.Colors.Settings.accents5)
       } else {
-        VStack(alignment: .leading, spacing: Theme.Layout.spacingXS) {
+        VStack(alignment: .leading, spacing: 0) {
           ForEach(projectStore.projects) { project in
-            Toggle(project.name, isOn: binding(for: project.id))
+            VercelCheckmarkRow(name: project.name, isSelected: binding(for: project.id))
           }
         }
       }
 
       Text("Leave all unchecked to monitor every project.")
-        .font(Theme.Typography.captionSmall)
-        .foregroundColor(Theme.Colors.textSecondary)
+        .font(Theme.Typography.Settings.helperText)
+        .foregroundColor(Theme.Colors.Settings.accents4)
     }
     .onAppear {
       if projectStore.projects.isEmpty {

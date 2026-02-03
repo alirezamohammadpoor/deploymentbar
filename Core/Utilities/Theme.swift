@@ -24,6 +24,18 @@ enum Theme {
       }))
     }
 
+    // Settings-specific hardcoded dark-mode palette
+    enum Settings {
+      static let background100 = Color(red: 0, green: 0, blue: 0)
+      static let accents1 = Color(red: 0x11/255.0, green: 0x11/255.0, blue: 0x11/255.0)
+      static let accents2 = Color(red: 0x1a/255.0, green: 0x1a/255.0, blue: 0x1a/255.0)
+      static let accents4 = Color(red: 0x66/255.0, green: 0x66/255.0, blue: 0x66/255.0)
+      static let accents5 = Color(red: 0x88/255.0, green: 0x88/255.0, blue: 0x88/255.0)
+      static let foreground = Color.white
+      static let border = Color(red: 0x33/255.0, green: 0x33/255.0, blue: 0x33/255.0)
+      static let success = Color(red: 0x50/255.0, green: 0xe3/255.0, blue: 0xc2/255.0)
+    }
+
     // Status colors (invariant across light/dark)
     static let statusReady = Color(red: 0.18, green: 0.80, blue: 0.44)
     static let statusBuilding = Color(red: 0.95, green: 0.62, blue: 0.07)
@@ -51,6 +63,15 @@ enum Theme {
     static let captionSmall: Font = .system(size: 10)
 
     static let sectionHeaderTracking: CGFloat = 0.5
+
+    // Settings-specific typography
+    enum Settings {
+      static let sectionHeader: Font = .system(size: 11, weight: .medium)
+      static let fieldLabel: Font = .system(size: 13)
+      static let helperText: Font = .system(size: 11)
+      static let inputText: Font = .system(size: 13, design: .monospaced)
+      static let button: Font = .system(size: 13, weight: .medium)
+    }
   }
 
   // MARK: - Layout
@@ -77,7 +98,12 @@ enum Theme {
     static let badgeCornerRadius: CGFloat = 4
 
     // Settings
-    static let settingsWidth: CGFloat = 420
+    static let settingsWidth: CGFloat = 400
+    static let settingsHPadding: CGFloat = 24
+    static let settingsVPadding: CGFloat = 20
+    static let settingsInputHeight: CGFloat = 36
+    static let settingsInputRadius: CGFloat = 6
+    static let settingsIconButtonSize: CGFloat = 28
   }
 
   // MARK: - Section Header Style

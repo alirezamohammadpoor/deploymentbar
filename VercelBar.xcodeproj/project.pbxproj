@@ -68,6 +68,8 @@
 		F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98C31D628F9124DE94E6764 /* DeploymentStore.swift */; };
 		F6B3A867F27162E4A5FBE7D8 /* AppInstanceMessenger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3268ABB41413559BB04B3AF4 /* AppInstanceMessenger.swift */; };
 		FD0F0AD11E15169BC9BC6908 /* JSONDecoder+Vercel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901B11A916D5FAFC0F3D02CA /* JSONDecoder+Vercel.swift */; };
+		F1A2B3C4D5E6F7A8B9C0D1E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets */; };
+		A1B2C3D4E5F6A7B8C9D0E1F3 /* VercelComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1F4 /* VercelComponents.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,6 +148,8 @@
 		E21E89679C5915C2E0733CDB /* BrowserOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserOption.swift; sourceTree = "<group>"; };
 		E8733EA8F63C7DF65A4F74C2 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		ED7EFCE5A4BC80199BB0B660 /* AppInstanceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceChecker.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1F4 /* VercelComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelComponents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -156,6 +160,7 @@
 				BB3938D74ABD8BE1F727CF33 /* PersonalTokenView.swift */,
 				0A111B06747AA9A2D8177780 /* ProjectFilterView.swift */,
 				2059CB0908FBF2598B74EDB6 /* SettingsView.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F4 /* VercelComponents.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -301,6 +306,14 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		B1C2D3E4F5A6B7C8D9E0F1A2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		CA336A55543E6D0363C99991 = {
 			isa = PBXGroup;
 			children = (
@@ -308,6 +321,7 @@
 				69E17C3B6D511BE398435B41 /* Config */,
 				4F6401752982023170F0615D /* Core */,
 				59F99FEFB8D36D2930691471 /* Features */,
+				B1C2D3E4F5A6B7C8D9E0F1A2 /* Resources */,
 				7272A1A72C0391A8D5C64D63 /* Tests */,
 				93AD1F44453B0CA72C6196EE /* Products */,
 			);
@@ -350,6 +364,7 @@
 			buildConfigurationList = 0C14AE027459AB594C884136 /* Build configuration list for PBXNativeTarget "VercelBar" */;
 			buildPhases = (
 				588F5D5EA5D058D26986B62E /* Sources */,
+				C1D2E3F4A5B6C7D8E9F0A1B2 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -394,6 +409,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C1D2E3F4A5B6C7D8E9F0A1B2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1A2B3C4D5E6F7A8B9C0D1E2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		588F5D5EA5D058D26986B62E /* Sources */ = {
@@ -445,6 +471,7 @@
 				F055321721D66116AA629334 /* VercelAuthConfig.swift in Sources */,
 				DB7222F279BAE14F6C57BE77 /* VercelBarApp.swift in Sources */,
 				9416FF69C87E9D8F69FA3E78 /* VercelEndpoints.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F3 /* VercelComponents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

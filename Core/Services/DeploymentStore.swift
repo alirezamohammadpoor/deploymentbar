@@ -36,6 +36,7 @@ extension DeploymentStore {
         projectId: "project-\(index)",
         projectName: "Project \(10 - index)",
         branch: index % 2 == 0 ? "main" : "feature/alpha",
+        target: index % 2 == 0 ? "production" : nil,
         state: state,
         url: "project-\(index).vercel.app",
         createdAt: now.addingTimeInterval(TimeInterval(-index * 90)),

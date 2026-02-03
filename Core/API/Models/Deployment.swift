@@ -5,6 +5,7 @@ struct Deployment: Identifiable, Equatable {
   let projectId: String?
   let projectName: String
   let branch: String?
+  let target: String?
   let state: DeploymentState
   let url: String?
   let createdAt: Date
@@ -28,10 +29,18 @@ struct DeploymentDTO: Codable, Equatable {
   let ready: Int64?
   let projectId: String?
   let target: String?
+  let meta: [String: String]?
   let gitSource: GitSource?
 
   struct GitSource: Codable, Equatable {
     let ref: String?
+  }
+
+  var branchRef: String? {
+    if let ref = meta?["githubCommitRef"], !ref.isEmpty { return ref }
+    if let ref = meta?["gitlabCommitRef"], !ref.isEmpty { return ref }
+    if let ref = meta?["bitbucketCommitRef"], !ref.isEmpty { return ref }
+    return gitSource?.ref
   }
 }
 
@@ -59,7 +68,8 @@ extension Deployment {
       id: dto.uid,
       projectId: dto.projectId,
       projectName: dto.name,
-      branch: dto.gitSource?.ref,
+      branch: dto.branchRef,
+      target: dto.target,
       state: DeploymentState.from(readyState: dto.readyState, state: dto.state),
       url: dto.url,
       createdAt: createdAt,

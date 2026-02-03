@@ -75,13 +75,20 @@ final class VercelAPIClientImpl: VercelAPIClient {
     try await executeNoContent(request)
   }
 
-  func fetchDeployments(limit: Int, projectIds: [String]?) async throws -> [DeploymentDTO] {
+  func fetchDeployments(limit: Int, projectIds: [String]?, teamId: String? = nil) async throws -> [DeploymentDTO] {
     var items = [URLQueryItem(name: "limit", value: String(limit))]
     if let projectIds, !projectIds.isEmpty {
       items.append(URLQueryItem(name: "projectIds", value: projectIds.joined(separator: ",")))
     }
+    if let teamId, !teamId.isEmpty {
+      items.append(URLQueryItem(name: "teamId", value: teamId))
+    }
     let request = try authorizedRequest(path: "/v6/deployments", queryItems: items)
-    let response: DeploymentsResponse = try await execute(request)
+    let (data, _) = try await session.data(for: request)
+    if let raw = String(data: data, encoding: .utf8)?.prefix(500) {
+      DebugLog.write("API /v6/deployments raw: \(raw)")
+    }
+    let response = try JSONDecoder.vercelDecoder.decode(DeploymentsResponse.self, from: data)
     return response.deployments
   }
 
@@ -91,10 +98,28 @@ final class VercelAPIClientImpl: VercelAPIClient {
     return try await execute(request)
   }
 
-  func fetchProjects() async throws -> [ProjectDTO] {
-    let request = try authorizedRequest(path: "/v9/projects", queryItems: [])
+  func fetchProjects(teamId: String? = nil) async throws -> [ProjectDTO] {
+    var items: [URLQueryItem] = []
+    if let teamId, !teamId.isEmpty {
+      items.append(URLQueryItem(name: "teamId", value: teamId))
+    }
+    let request = try authorizedRequest(path: "/v9/projects", queryItems: items)
     let response: ProjectsResponse = try await execute(request)
     return response.projects
+  }
+
+  func fetchTeams() async throws -> [TeamDTO] {
+    let request = try authorizedRequest(path: "/v2/teams", queryItems: [])
+    let response: TeamsResponse = try await execute(request)
+    return response.teams
+  }
+
+  func fetchCurrentUser() async throws -> String {
+    let request = try authorizedRequest(path: "/v2/user", queryItems: [])
+    let (data, response) = try await session.data(for: request)
+    guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+    DebugLog.write("API /v2/user → \(http.statusCode) (\(data.count) bytes)")
+    return String(data: data, encoding: .utf8) ?? "unreadable"
   }
 
   private func tokenRequest(body: [String: String], fallbackRefreshToken: String? = nil) async throws -> TokenPair {
@@ -113,13 +138,18 @@ final class VercelAPIClientImpl: VercelAPIClient {
     guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
 
     if (200...299).contains(http.statusCode) {
+      if let raw = String(data: data, encoding: .utf8)?.prefix(500) {
+        DebugLog.write("Token exchange raw response: \(raw)")
+      }
       if let parsed = TokenResponseParser.parse(data: data) {
         let refresh = parsed.refreshToken ?? fallbackRefreshToken
         let expiresIn = TimeInterval(parsed.expiresIn ?? 3600)
+        DebugLog.write("Token exchange: teamId=\(parsed.teamId ?? "nil")")
         return TokenPair(
           accessToken: parsed.accessToken,
           refreshToken: refresh,
-          expiresAt: Date().addingTimeInterval(expiresIn)
+          expiresAt: Date().addingTimeInterval(expiresIn),
+          teamId: parsed.teamId
         )
       }
 
@@ -153,11 +183,16 @@ final class VercelAPIClientImpl: VercelAPIClient {
     do {
       let (data, response) = try await session.data(for: request)
       guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+      DebugLog.write("API \(request.url?.path ?? "?") → \(http.statusCode) (\(data.count) bytes)")
       switch http.statusCode {
       case 200...299:
         do {
           return try JSONDecoder.vercelDecoder.decode(Response.self, from: data)
         } catch {
+          DebugLog.write("API decode failed: \(error)")
+          if let raw = String(data: data, encoding: .utf8)?.prefix(500) {
+            DebugLog.write("API raw response: \(raw)")
+          }
           throw APIError.decodingFailed
         }
       case 401:
@@ -210,4 +245,8 @@ private struct DeploymentsResponse: Decodable {
 
 private struct ProjectsResponse: Decodable {
   let projects: [ProjectDTO]
+}
+
+private struct TeamsResponse: Decodable {
+  let teams: [TeamDTO]
 }

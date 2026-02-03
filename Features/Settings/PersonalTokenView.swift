@@ -7,10 +7,12 @@ struct PersonalTokenView: View {
   @StateObject private var authSession = AuthSession.shared
 
   var body: some View {
-    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+    VStack(alignment: .leading, spacing: 12) {
       SecureField("Paste Vercel Personal Access Token", text: $tokenInput)
+        .textFieldStyle(.plain)
+        .vercelTextField()
 
-      HStack {
+      HStack(spacing: 8) {
         Button("Save Token") {
           let trimmed = tokenInput.trimmingCharacters(in: .whitespacesAndNewlines)
           guard !trimmed.isEmpty else {
@@ -21,25 +23,25 @@ struct PersonalTokenView: View {
           tokenInput = ""
           statusMessage = "Token saved."
         }
-        .buttonStyle(.plain)
+        .buttonStyle(VercelSecondaryButtonStyle())
 
         Button("Clear Token") {
           credentialStore.clearPersonalToken()
           authSession.signOut()
           statusMessage = "Token cleared."
         }
-        .buttonStyle(.plain)
+        .buttonStyle(VercelSecondaryButtonStyle())
       }
 
       if let statusMessage {
         Text(statusMessage)
-          .font(Theme.Typography.captionSmall)
-          .foregroundColor(Theme.Colors.textSecondary)
+          .font(Theme.Typography.Settings.helperText)
+          .foregroundColor(statusMessage == "Token saved." ? Theme.Colors.Settings.success : Theme.Colors.Settings.accents5)
       }
 
       Text("Personal tokens skip OAuth and unlock deployment access immediately.")
-        .font(Theme.Typography.captionSmall)
-        .foregroundColor(Theme.Colors.textSecondary)
+        .font(Theme.Typography.Settings.helperText)
+        .foregroundColor(Theme.Colors.Settings.accents4)
     }
   }
 }

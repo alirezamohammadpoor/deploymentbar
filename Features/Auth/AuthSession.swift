@@ -126,7 +126,22 @@ final class AuthSession: ObservableObject {
     status = .signingIn
     Task {
       do {
-        let tokens = try await client.exchangeCode(code, codeVerifier: codeVerifier, redirectURI: redirectURI)
+        var tokens = try await client.exchangeCode(code, codeVerifier: codeVerifier, redirectURI: redirectURI)
+
+        // Discover team if token response didn't include team_id
+        if tokens.teamId == nil {
+          credentialStore.saveTokens(tokens)
+          do {
+            let teams = try await client.fetchTeams()
+            if let team = teams.first {
+              DebugLog.write("OAuth: using team '\(team.name)' (id=\(team.id))")
+              tokens = tokens.withTeamId(team.id)
+            }
+          } catch {
+            DebugLog.write("OAuth: team discovery failed (non-fatal): \(error)")
+          }
+        }
+
         credentialStore.saveTokens(tokens)
         stateStore.clear()
         self.status = .signedIn

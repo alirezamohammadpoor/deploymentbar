@@ -37,7 +37,7 @@ final class StatusBarController: NSObject {
         button.imagePosition = .noImage
       } else {
         button.title = ""
-        button.image = NSImage(systemSymbolName: "bolt.horizontal", accessibilityDescription: "VercelBar")
+        button.image = NSImage(named: "vercel-icon")
         button.image?.isTemplate = true
         button.imagePosition = .imageOnly
       }
@@ -112,8 +112,13 @@ final class StatusBarController: NSObject {
     }
 
     if let config = VercelAuthConfig.load() {
+      DebugLog.write("VercelAuthConfig loaded: clientId=\(config.clientId.prefix(8))…")
       let client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
-        self?.credentialStore?.loadPersonalToken() ?? self?.credentialStore?.loadTokens()?.accessToken
+        let pat = self?.credentialStore?.loadPersonalToken()
+        let oauth = self?.credentialStore?.loadTokens()?.accessToken
+        let token = pat ?? oauth
+        DebugLog.write("tokenProvider called: hasPAT=\(pat != nil), hasOAuth=\(oauth != nil)")
+        return token
       })
       projectStore.configure(apiClient: client)
       refreshEngine = RefreshEngine(
@@ -125,6 +130,9 @@ final class StatusBarController: NSObject {
         settingsStore: settingsStore,
         interval: settingsStore.pollingInterval
       )
+      DebugLog.write("RefreshEngine created")
+    } else {
+      DebugLog.write("VercelAuthConfig.load() returned nil — no RefreshEngine")
     }
 
     let hostingController = NSHostingController(
@@ -194,11 +202,13 @@ final class StatusBarController: NSObject {
   }
 
   private func handleAuthStatus(_ status: AuthSession.Status) {
+    DebugLog.write("handleAuthStatus: \(status), refreshEngine=\(refreshEngine != nil)")
     switch status {
     case .signedIn:
       notificationManager?.requestAuthorizationIfNeeded()
       refreshEngine?.start()
       projectStore?.refresh()
+      DebugLog.write("handleAuthStatus: called refreshEngine.start()")
     case .signedOut:
       refreshEngine?.stop()
       deploymentStore?.apply(deployments: [])
@@ -211,22 +221,7 @@ final class StatusBarController: NSObject {
 
   private func updateStatusIcon() {
     guard let button = statusItem.button else { return }
-    let symbolName: String
-
-    switch latestDeploymentState {
-    case .some(.ready):
-      symbolName = "checkmark.circle"
-    case .some(.building):
-      symbolName = "arrow.triangle.2.circlepath"
-    case .some(.error):
-      symbolName = "xmark.octagon"
-    case .some(.canceled):
-      symbolName = "slash.circle"
-    case .none:
-      symbolName = "bolt.horizontal"
-    }
-
-    button.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: "VercelBar")
+    button.image = NSImage(named: "vercel-icon")
     button.image?.isTemplate = true
     button.toolTip = isStale ? "Last refresh failed" : "VercelBar"
 

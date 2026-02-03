@@ -5,18 +5,32 @@ protocol VercelAPIClient {
   func exchangeCode(_ code: String, codeVerifier: String?, redirectURI: String) async throws -> TokenPair
   func refreshToken(_ refreshToken: String) async throws -> TokenPair
   func revokeToken(_ token: String) async throws
-  func fetchDeployments(limit: Int, projectIds: [String]?) async throws -> [DeploymentDTO]
+  func fetchDeployments(limit: Int, projectIds: [String]?, teamId: String?) async throws -> [DeploymentDTO]
   func fetchDeploymentDetail(idOrUrl: String) async throws -> DeploymentDetailDTO
-  func fetchProjects() async throws -> [ProjectDTO]
+  func fetchProjects(teamId: String?) async throws -> [ProjectDTO]
+  func fetchTeams() async throws -> [TeamDTO]
+  func fetchCurrentUser() async throws -> String
+}
+
+struct TeamDTO: Codable {
+  let id: String
+  let name: String
+  let slug: String
 }
 
 struct TokenPair: Codable, Equatable {
   let accessToken: String
   let refreshToken: String?
   let expiresAt: Date
+  let teamId: String?
 }
 
 extension TokenPair {
+  func withTeamId(_ teamId: String) -> TokenPair {
+    TokenPair(accessToken: accessToken, refreshToken: refreshToken,
+              expiresAt: expiresAt, teamId: teamId)
+  }
+
   var canRefresh: Bool {
     guard let refreshToken else { return false }
     return !refreshToken.isEmpty
