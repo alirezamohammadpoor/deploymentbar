@@ -1,4 +1,5 @@
 .DS_Store
+.claude/
 .derivedData/
 Config/Secrets.xcconfig
 VercelBar.xcodeproj/xcuserdata/

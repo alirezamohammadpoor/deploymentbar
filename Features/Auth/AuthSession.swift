@@ -75,6 +75,12 @@ final class AuthSession: ObservableObject {
       redirectURI = pending.redirectURI
     }
 
+    if client == nil, let config = VercelAuthConfig.load() {
+      client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
+        self?.credentialStore.loadTokens()?.accessToken
+      })
+    }
+
     guard let code, let state, state == pendingState else {
       stateStore.clear()
       status = .error(Self.stateMismatchMessage(expected: pendingState, received: state, code: code))
