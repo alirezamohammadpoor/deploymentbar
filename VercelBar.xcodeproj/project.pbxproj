@@ -62,6 +62,7 @@
 		F055321721D66116AA629334 /* VercelAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EC52EE24AF127D16FFBB44 /* VercelAuthConfig.swift */; };
 		F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98C31D628F9124DE94E6764 /* DeploymentStore.swift */; };
 		F6B3A867F27162E4A5FBE7D8 /* AppInstanceMessenger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3268ABB41413559BB04B3AF4 /* AppInstanceMessenger.swift */; };
+		FD0F0AD11E15169BC9BC6908 /* JSONDecoder+Vercel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 901B11A916D5FAFC0F3D02CA /* JSONDecoder+Vercel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -109,6 +110,7 @@
 		8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceCheckerTests.swift; sourceTree = "<group>"; };
 		8FA1EF317C800D73883DFC2C /* AppInstanceLockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceLockTests.swift; sourceTree = "<group>"; };
 		8FCBD7D4E6DC72573158C14D /* AuthSessionStateMismatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionStateMismatchTests.swift; sourceTree = "<group>"; };
+		901B11A916D5FAFC0F3D02CA /* JSONDecoder+Vercel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSONDecoder+Vercel.swift"; sourceTree = "<group>"; };
 		9665DD5EF7FBA996E8AA0C5B /* AppInstanceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceCoordinatorTests.swift; sourceTree = "<group>"; };
 		9A37A799DA4EE5AFA228FAC8 /* DeploymentRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentRowView.swift; sourceTree = "<group>"; };
 		9BF7091D038B145BAAB0D4D9 /* VercelAPITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPITests.swift; sourceTree = "<group>"; };
@@ -248,6 +250,7 @@
 		A9CF8804148C9336DC209ED4 /* API */ = {
 			isa = PBXGroup;
 			children = (
+				901B11A916D5FAFC0F3D02CA /* JSONDecoder+Vercel.swift */,
 				6EB217019D4BCB181B46B7CC /* OAuthErrorParser.swift */,
 				4B8AEC6768A1FF3F68979F94 /* PKCE.swift */,
 				5CB4FD2D12DB5A088B1C1B16 /* TokenResponseParser.swift */,
@@ -397,6 +400,7 @@
 				D153EA9866E052C3EE0EAA72 /* Deployment.swift in Sources */,
 				1C98A3873E036909D59D1C05 /* DeploymentRowView.swift in Sources */,
 				F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */,
+				FD0F0AD11E15169BC9BC6908 /* JSONDecoder+Vercel.swift in Sources */,
 				DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */,
 				547AA3E69B941C24A87B3AFE /* LaunchAtLoginManager.swift in Sources */,
 				9257299009A49D4C3F5B3AA5 /* NotificationHistoryStore.swift in Sources */,
