@@ -56,8 +56,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         : "Deployment failed"
       content.sound = .default
 
-      if let url = deployment.url {
-        content.userInfo["url"] = url
+      if let rawURL = deployment.url, !rawURL.isEmpty {
+        if let parsed = URL(string: rawURL), parsed.scheme != nil {
+          content.userInfo["url"] = rawURL
+        } else {
+          content.userInfo["url"] = "https://\(rawURL)"
+        }
       }
 
       let request = UNNotificationRequest(
@@ -83,9 +87,17 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     withCompletionHandler completionHandler: @escaping () -> Void
   ) {
     if let urlValue = response.notification.request.content.userInfo["url"] as? String,
-       let url = URL(string: urlValue) ?? URL(string: "https://\(urlValue)") {
-      Task { @MainActor in
-        browserLauncher.open(url: url)
+       !urlValue.isEmpty {
+      let url: URL?
+      if let parsed = URL(string: urlValue), parsed.scheme != nil {
+        url = parsed
+      } else {
+        url = URL(string: "https://\(urlValue)")
+      }
+      if let url {
+        Task { @MainActor in
+          browserLauncher.open(url: url)
+        }
       }
     }
     completionHandler()
