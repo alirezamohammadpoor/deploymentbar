@@ -125,7 +125,8 @@ final class VercelAPIClientImpl: VercelAPIClient {
           expiresAt: Date().addingTimeInterval(expiresIn)
         )
       } catch {
-        throw APIError.decodingFailed
+        let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
+        throw APIError.oauthError(message ?? "OAuth token decode failed (HTTP \(http.statusCode))")
       }
     }
 
