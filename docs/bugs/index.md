@@ -12,3 +12,4 @@
 - 2026-02-02: OAuth token error details (`docs/bugs/20260202-oauth-token-error-details.md`)
 - 2026-02-02: OAuth state mismatch details (`docs/bugs/20260202-oauth-state-mismatch-details.md`)
 - 2026-02-02: OAuth secondary instance guard (`docs/bugs/20260202-oauth-secondary-instance-guard.md`)
+- 2026-02-02: OAuth callback before launch (`docs/bugs/20260202-oauth-open-before-launch.md`)

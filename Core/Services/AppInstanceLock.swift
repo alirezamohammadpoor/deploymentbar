@@ -1,6 +1,8 @@
 import Foundation
 
-final class AppInstanceLock {
+protocol AppInstanceLockToken: AnyObject {}
+
+final class AppInstanceLock: AppInstanceLockToken {
   private let fd: Int32
 
   private init(fd: Int32) {

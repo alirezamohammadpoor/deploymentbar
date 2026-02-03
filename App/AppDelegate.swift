@@ -2,13 +2,13 @@ import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusBarController: StatusBarController?
-  private var instanceLock: AppInstanceLock?
-  private var isSecondaryInstance = false
+  private let instanceCoordinator = AppInstanceCoordinator(
+    lockProvider: DefaultAppInstanceLockProvider(),
+    messenger: AppInstanceMessenger.shared
+  )
 
   func applicationDidFinishLaunching(_ notification: Notification) {
-    instanceLock = AppInstanceLock.acquire()
-    if instanceLock == nil {
-      isSecondaryInstance = true
+    if !instanceCoordinator.startPrimaryIfPossible() {
       Task { @MainActor in
         try? await Task.sleep(nanoseconds: 2_000_000_000)
         NSApp.terminate(nil)
@@ -24,12 +24,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   func application(_ application: NSApplication, open urls: [URL]) {
     guard let url = urls.first else { return }
-    if isSecondaryInstance {
-      AppInstanceMessenger.shared.post(url: url)
+    instanceCoordinator.handleOpenURL(url, onForward: {
       NSApp.terminate(nil)
-      return
-    }
-
-    OAuthCallbackHandler.shared.handle(url: url)
+    }, onHandle: {
+      OAuthCallbackHandler.shared.handle(url: url)
+    })
   }
 }
