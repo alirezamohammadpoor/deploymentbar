@@ -116,12 +116,12 @@ final class AuthSession: ObservableObject {
     stateStore.clear()
     status = .signedOut
 
-    guard revokeToken, let tokens else { return }
+    guard revokeToken, let tokens, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty else { return }
     Task.detached {
       guard let config = VercelAuthConfig.load() else { return }
       let client = VercelAPIClientImpl(config: config, tokenProvider: { tokens.accessToken })
       do {
-        try await client.revokeToken(tokens.refreshToken)
+        try await client.revokeToken(refreshToken)
       } catch {
         return
       }

@@ -83,12 +83,18 @@ final class RefreshEngine {
       return
     }
 
+    if tokens.isExpired, !tokens.canRefresh {
+      await MainActor.run { authSession.signOut() }
+      await updateStatus(isStale: true, error: "Session expired. Sign in again.")
+      return
+    }
+
     let selectedIds = await MainActor.run { settingsStore.selectedProjectIds }
     let projectIds = selectedIds.isEmpty ? nil : Array(selectedIds)
 
     do {
-      if tokens.shouldRefreshSoon {
-        let refreshed = try await apiClient.refreshToken(tokens.refreshToken)
+      if tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
+        let refreshed = try await apiClient.refreshToken(refreshToken)
         credentialStore.saveTokens(refreshed)
       }
 

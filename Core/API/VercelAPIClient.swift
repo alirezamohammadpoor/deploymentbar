@@ -12,16 +12,22 @@ protocol VercelAPIClient {
 
 struct TokenPair: Codable, Equatable {
   let accessToken: String
-  let refreshToken: String
+  let refreshToken: String?
   let expiresAt: Date
 }
 
 extension TokenPair {
+  var canRefresh: Bool {
+    guard let refreshToken else { return false }
+    return !refreshToken.isEmpty
+  }
+
   var isExpired: Bool {
     expiresAt <= Date()
   }
 
   var shouldRefreshSoon: Bool {
-    expiresAt <= Date().addingTimeInterval(60)
+    guard canRefresh else { return false }
+    return expiresAt <= Date().addingTimeInterval(60)
   }
 }

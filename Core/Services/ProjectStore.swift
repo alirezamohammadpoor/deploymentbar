@@ -35,8 +35,8 @@ final class ProjectStore: ObservableObject {
       }
 
       do {
-        if tokens.shouldRefreshSoon {
-          let refreshed = try await apiClient.refreshToken(tokens.refreshToken)
+        if tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
+          let refreshed = try await apiClient.refreshToken(refreshToken)
           self.credentialStore.saveTokens(refreshed)
         }
 

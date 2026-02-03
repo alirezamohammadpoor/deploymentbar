@@ -114,9 +114,7 @@ final class VercelAPIClientImpl: VercelAPIClient {
 
     if (200...299).contains(http.statusCode) {
       if let parsed = TokenResponseParser.parse(data: data) {
-        guard let refresh = parsed.refreshToken ?? fallbackRefreshToken else {
-          throw APIError.invalidResponse
-        }
+        let refresh = parsed.refreshToken ?? fallbackRefreshToken
         let expiresIn = TimeInterval(parsed.expiresIn ?? 3600)
         return TokenPair(
           accessToken: parsed.accessToken,

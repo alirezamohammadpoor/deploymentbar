@@ -18,4 +18,5 @@
 - 2026-02-03: OAuth AppleEvent handler (`docs/bugs/20260203-oauth-appleevent-handler.md`)
 - 2026-02-03: OAuth token decode details (`docs/bugs/20260203-oauth-token-decode-details.md`)
 - 2026-02-03: OAuth token JSON decode (`docs/bugs/20260203-oauth-token-json-decode.md`)
+- 2026-02-03: OAuth missing refresh token (`docs/bugs/20260203-oauth-missing-refresh-token.md`)
 - 2026-02-03: Missing vercelDecoder (`docs/bugs/20260203-verceldecoder-missing.md`)
