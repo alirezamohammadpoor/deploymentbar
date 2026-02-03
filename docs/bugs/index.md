@@ -13,3 +13,4 @@
 - 2026-02-02: OAuth state mismatch details (`docs/bugs/20260202-oauth-state-mismatch-details.md`)
 - 2026-02-02: OAuth secondary instance guard (`docs/bugs/20260202-oauth-secondary-instance-guard.md`)
 - 2026-02-02: OAuth callback before launch (`docs/bugs/20260202-oauth-open-before-launch.md`)
+- 2026-02-03: OAuth stale URL handler (`docs/bugs/20260203-oauth-stale-url-handler.md`)

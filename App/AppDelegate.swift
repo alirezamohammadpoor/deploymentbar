@@ -16,6 +16,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       return
     }
 
+    _ = URLSchemeRegistrar.registerCurrentBundle()
     AppInstanceMessenger.shared.startObserving { url in
       OAuthCallbackHandler.shared.handle(url: url)
     }
