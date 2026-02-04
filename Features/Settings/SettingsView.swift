@@ -6,6 +6,8 @@ struct SettingsView: View {
   private let launchAtLoginManager = LaunchAtLoginManager()
 
   private let pollingOptions: [(value: TimeInterval, label: String)] = [
+    (10.0, "10s"),
+    (15.0, "15s"),
     (30.0, "30s"),
     (60.0, "1m"),
     (300.0, "5m"),
@@ -80,7 +82,7 @@ struct SettingsView: View {
       browserOptions = BrowserOption.availableOptions()
 
       // Snap non-standard polling values to 30s
-      let validIntervals: Set<TimeInterval> = [30, 60, 300]
+      let validIntervals: Set<TimeInterval> = [10, 15, 30, 60, 300]
       if !validIntervals.contains(settings.pollingInterval) {
         settings.pollingInterval = 30
       }

@@ -8,10 +8,12 @@ final class RefreshEngine {
   private let statusStore: RefreshStatusStore
   private let settingsStore: SettingsStore
   private let maxBackoff: TimeInterval = 300
+  private static let activePollingInterval: TimeInterval = 5
 
   private var task: Task<Void, Never>?
   private var backoffStep: Int = 0
   private var baseInterval: TimeInterval
+  private var hasActiveBuilds = false
 
   init(
     store: DeploymentStore,
@@ -72,8 +74,9 @@ final class RefreshEngine {
   }
 
   private var currentDelay: TimeInterval {
+    let base = hasActiveBuilds ? min(baseInterval, Self.activePollingInterval) : baseInterval
     let multiplier = pow(2.0, Double(backoffStep))
-    return min(baseInterval * multiplier, maxBackoff)
+    return min(base * multiplier, maxBackoff)
   }
 
   private func fetchOnce(resetBackoff: Bool) async {
@@ -133,7 +136,8 @@ final class RefreshEngine {
             return selectedIds.contains(projectId)
           }
 
-      DebugLog.write("RefreshEngine: \(filtered.count) deployments after filtering")
+      hasActiveBuilds = filtered.contains { $0.state == .building }
+      DebugLog.write("RefreshEngine: \(filtered.count) deployments after filtering (activeBuilds=\(hasActiveBuilds))")
       await MainActor.run {
         store.apply(deployments: filtered)
       }

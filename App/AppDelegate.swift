@@ -10,6 +10,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   )
 
   func applicationDidFinishLaunching(_ notification: Notification) {
+    if let icnsPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
+       let icon = NSImage(contentsOfFile: icnsPath) {
+      NSApplication.shared.applicationIconImage = icon
+      NSWorkspace.shared.setIcon(icon, forFile: Bundle.main.bundlePath)
+    }
     DebugLog.write("AppDelegate did finish launching")
     NSAppleEventManager.shared().setEventHandler(
       self,
