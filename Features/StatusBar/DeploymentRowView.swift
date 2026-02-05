@@ -192,9 +192,34 @@ struct DeploymentRowView: View {
       Divider()
         .padding(.vertical, 4)
 
-      // Action buttons
+      // For failed deployments, show prominent View Build Log button
+      if deployment.state == .error {
+        failedDeploymentActions
+      } else {
+        regularActions
+      }
+    }
+  }
+
+  private var failedDeploymentActions: some View {
+    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+      // Primary action: View Build Log
+      Button {
+        viewBuildLog()
+      } label: {
+        HStack(spacing: 6) {
+          Image(systemName: "doc.text.magnifyingglass")
+            .font(.system(size: 12))
+          Text("View Build Log")
+            .font(Theme.Typography.caption)
+        }
+      }
+      .buttonStyle(.borderedProminent)
+      .tint(Theme.Colors.statusError)
+      .controlSize(.small)
+
+      // Secondary actions
       HStack(spacing: Theme.Layout.spacingSM) {
-        // Copy URL button
         Button {
           copyDeploymentURL()
         } label: {
@@ -209,7 +234,6 @@ struct DeploymentRowView: View {
         .buttonStyle(.bordered)
         .controlSize(.small)
 
-        // Open in Vercel button
         if let url = vercelDashboardURL {
           Button {
             openURL(url)
@@ -226,27 +250,70 @@ struct DeploymentRowView: View {
           .controlSize(.small)
         }
 
-        // Open PR button
-        if let prURL = deployment.prURL {
-          Button {
-            openURL(prURL)
-          } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "arrow.up.right.square")
-                .font(.system(size: 11))
-              Text("Open PR")
-                .font(Theme.Typography.caption)
-            }
-            .foregroundColor(Theme.Colors.textSecondary)
-          }
-          .buttonStyle(.bordered)
-          .controlSize(.small)
-        }
-
         Spacer()
       }
-      .padding(.leading, Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
     }
+    .padding(.leading, Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+  }
+
+  private var regularActions: some View {
+    HStack(spacing: Theme.Layout.spacingSM) {
+      // Copy URL button
+      Button {
+        copyDeploymentURL()
+      } label: {
+        HStack(spacing: 4) {
+          Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
+            .font(.system(size: 11))
+          Text(copiedURL ? "Copied!" : "Copy URL")
+            .font(Theme.Typography.caption)
+        }
+        .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.textSecondary)
+      }
+      .buttonStyle(.bordered)
+      .controlSize(.small)
+
+      // Open in Vercel button
+      if let url = vercelDashboardURL {
+        Button {
+          openURL(url)
+        } label: {
+          HStack(spacing: 4) {
+            Image(systemName: "safari")
+              .font(.system(size: 11))
+            Text("Open in Vercel")
+              .font(Theme.Typography.caption)
+          }
+          .foregroundColor(Theme.Colors.textSecondary)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+      }
+
+      // Open PR button
+      if let prURL = deployment.prURL {
+        Button {
+          openURL(prURL)
+        } label: {
+          HStack(spacing: 4) {
+            Image(systemName: "arrow.up.right.square")
+              .font(.system(size: 11))
+            Text("Open PR")
+              .font(Theme.Typography.caption)
+          }
+          .foregroundColor(Theme.Colors.textSecondary)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+      }
+
+      Spacer()
+    }
+    .padding(.leading, Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+  }
+
+  private func viewBuildLog() {
+    BuildLogWindowController.shared.showLogs(for: deployment, openURL: openURL)
   }
 
   // MARK: - Helpers
