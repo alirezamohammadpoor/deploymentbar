@@ -135,21 +135,31 @@ final class StatusBarController: NSObject {
       DebugLog.write("VercelAuthConfig.load() returned nil — no RefreshEngine")
     }
 
-    let hostingController = NSHostingController(
-      rootView: StatusBarMenu(
-        store: deploymentStore,
-        refreshStatusStore: refreshStatusStore,
-        openURL: { [weak self] url in
-          self?.browserLauncher?.open(url: url)
-        },
-        refreshNow: { [weak self] in
-          self?.refreshEngine?.triggerImmediateRefresh()
-        },
-        signOut: { [weak self] in
-          self?.authSession?.signOut(revokeToken: true)
-        }
-      )
+    let menuView = StatusBarMenu(
+      store: deploymentStore,
+      refreshStatusStore: refreshStatusStore,
+      openURL: { [weak self] url in
+        self?.browserLauncher?.open(url: url)
+      },
+      refreshNow: { [weak self] in
+        self?.refreshEngine?.triggerImmediateRefresh()
+      },
+      signOut: { [weak self] in
+        self?.authSession?.signOut(revokeToken: true)
+      }
     )
+    let hostingController = NSHostingController(rootView: menuView)
+
+    // Add vibrancy effect to the popover
+    let visualEffectView = NSVisualEffectView()
+    visualEffectView.material = .popover
+    visualEffectView.blendingMode = .behindWindow
+    visualEffectView.state = .active
+
+    // Wrap the hosting view inside the visual effect view
+    hostingController.view.wantsLayer = true
+    hostingController.view.layer?.backgroundColor = .clear
+
     popover.contentViewController = hostingController
 
     deploymentStore.onStateChange = { [weak self] deployment, _, newState in

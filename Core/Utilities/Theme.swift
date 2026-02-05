@@ -83,8 +83,8 @@ enum Theme {
 
   enum Layout {
     // Popover
-    static let popoverWidth: CGFloat = 320
-    static let popoverMaxHeight: CGFloat = 400
+    static let popoverWidth: CGFloat = 380
+    static let popoverMaxHeight: CGFloat = 480
     static let popoverCornerRadius: CGFloat = 10
     static let popoverBorderWidth: CGFloat = 1
 

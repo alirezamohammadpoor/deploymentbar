@@ -22,12 +22,17 @@ struct StatusBarMenu: View {
   let signOut: () -> Void
 
   @StateObject private var authSession = AuthSession.shared
+  @StateObject private var networkMonitor = NetworkMonitor.shared
   @State private var filter: EnvironmentFilter = .all
   @State private var refreshRotation: Double = 0
   @State private var isRefreshing: Bool = false
+  @State private var isInitialLoad: Bool = true
 
   var body: some View {
     VStack(spacing: 0) {
+      if !networkMonitor.isConnected {
+        offlineBanner
+      }
       header
       Divider()
       content
@@ -38,6 +43,26 @@ struct StatusBarMenu: View {
       RoundedRectangle(cornerRadius: Theme.Layout.popoverCornerRadius)
         .strokeBorder(Theme.Colors.border, lineWidth: Theme.Layout.popoverBorderWidth)
     )
+    .onReceive(store.$deployments) { deployments in
+      if !deployments.isEmpty && isInitialLoad {
+        isInitialLoad = false
+      }
+    }
+  }
+
+  // MARK: - Offline Banner
+
+  private var offlineBanner: some View {
+    HStack(spacing: Theme.Layout.spacingSM) {
+      Image(systemName: "wifi.slash")
+        .font(.system(size: 12))
+      Text("No internet connection")
+        .font(Theme.Typography.caption)
+    }
+    .foregroundColor(Theme.Colors.statusBuilding)
+    .frame(maxWidth: .infinity)
+    .padding(.vertical, Theme.Layout.spacingXS)
+    .background(Theme.Colors.statusBuilding.opacity(0.15))
   }
 
   // MARK: - Header
@@ -126,14 +151,48 @@ struct StatusBarMenu: View {
 
   private var deploymentsView: some View {
     Group {
-      if store.deployments.isEmpty {
+      if store.deployments.isEmpty && isInitialLoad && !refreshStatusStore.status.isStale {
+        // Show skeleton while loading initial data
+        SkeletonLoadingView()
+      } else if store.deployments.isEmpty && !isInitialLoad {
         emptyState
+      } else if store.deployments.isEmpty && refreshStatusStore.status.isStale {
+        if let error = refreshStatusStore.status.error {
+          errorState(error)
+        } else {
+          emptyState
+        }
       } else if refreshStatusStore.status.isStale, let error = refreshStatusStore.status.error {
-        errorState(error)
+        // Show error state but keep existing data
+        VStack(spacing: 0) {
+          errorBanner(error)
+          deploymentList
+        }
       } else {
         deploymentList
       }
     }
+  }
+
+  private func errorBanner(_ error: String) -> some View {
+    HStack(spacing: Theme.Layout.spacingSM) {
+      Image(systemName: "exclamationmark.triangle.fill")
+        .font(.system(size: 12))
+      Text(error)
+        .font(Theme.Typography.caption)
+        .lineLimit(1)
+      Spacer()
+      Button("Retry") {
+        performRefresh()
+      }
+      .buttonStyle(.plain)
+      .font(Theme.Typography.caption)
+      .foregroundColor(Theme.Colors.textSecondary)
+    }
+    .foregroundColor(Theme.Colors.statusError)
+    .padding(.horizontal, Theme.Layout.spacingMD)
+    .padding(.vertical, Theme.Layout.spacingXS)
+    .background(Theme.Colors.statusError.opacity(0.1))
   }
 
   private var emptyState: some View {
