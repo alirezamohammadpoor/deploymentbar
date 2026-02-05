@@ -53,6 +53,47 @@ struct DeploymentRowView: View {
         }
       }
     }
+    .contextMenu {
+      Button {
+        copyDeploymentURL()
+      } label: {
+        Label("Copy Deploy URL", systemImage: "doc.on.doc")
+      }
+
+      if let sha = deployment.shortCommitSha {
+        Button {
+          copyCommitHash()
+        } label: {
+          Label("Copy Commit Hash (\(sha))", systemImage: "number")
+        }
+      }
+
+      Divider()
+
+      if let url = vercelDashboardURL {
+        Button {
+          openURL(url)
+        } label: {
+          Label("Open in Vercel", systemImage: "safari")
+        }
+      }
+
+      if let url = previewURL {
+        Button {
+          openURL(url)
+        } label: {
+          Label("Open Preview URL", systemImage: "globe")
+        }
+      }
+
+      if let prURL = deployment.prURL {
+        Button {
+          openURL(prURL)
+        } label: {
+          Label("Open PR in GitHub", systemImage: "arrow.up.right.square")
+        }
+      }
+    }
   }
 
   // MARK: - Collapsed Content
@@ -215,6 +256,14 @@ struct DeploymentRowView: View {
     return URL(string: "https://vercel.com/~/\(projectId)/\(deployment.id)")
   }
 
+  private var previewURL: URL? {
+    guard let urlString = deployment.url, !urlString.isEmpty else { return nil }
+    if urlString.hasPrefix("http") {
+      return URL(string: urlString)
+    }
+    return URL(string: "https://\(urlString)")
+  }
+
   private func copyDeploymentURL() {
     guard let urlString = deployment.url else { return }
     let url = urlString.hasPrefix("http") ? urlString : "https://\(urlString)"
@@ -230,6 +279,12 @@ struct DeploymentRowView: View {
         copiedURL = false
       }
     }
+  }
+
+  private func copyCommitHash() {
+    guard let sha = deployment.commitSha else { return }
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(sha, forType: .string)
   }
 
   private func startPulseAnimation() {
