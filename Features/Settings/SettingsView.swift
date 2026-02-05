@@ -15,6 +15,12 @@ struct SettingsView: View {
     (300.0, "5m"),
   ]
 
+  private let logLineOptions: [(value: Int, label: String)] = [
+    (50, "50"),
+    (100, "100"),
+    (200, "200"),
+  ]
+
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
@@ -74,6 +80,9 @@ struct SettingsView: View {
           }
         }
 
+        // BUILD LOGS
+        buildLogsSection
+
         // ACCOUNT
         if authSession.status == .signedIn {
           section("Account") {
@@ -120,6 +129,22 @@ struct SettingsView: View {
           window.backgroundColor = .black
           window.titlebarAppearsTransparent = true
         }
+      }
+    }
+  }
+
+  // MARK: - Build Logs Section
+
+  private var buildLogsSection: some View {
+    section("Build Logs") {
+      VStack(alignment: .leading, spacing: 6) {
+        Text("Default log lines")
+          .font(Theme.Typography.Settings.fieldLabel)
+          .foregroundColor(Theme.Colors.Settings.foreground)
+        VercelSegmentedControl(
+          selection: $settings.defaultLogLines,
+          options: logLineOptions
+        )
       }
     }
   }

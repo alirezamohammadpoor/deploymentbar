@@ -28,9 +28,9 @@ struct VercelToggleStyle: ToggleStyle {
 
 // MARK: - VercelSegmentedControl
 
-struct VercelSegmentedControl: View {
-  @Binding var selection: TimeInterval
-  let options: [(value: TimeInterval, label: String)]
+struct VercelSegmentedControl<T: Hashable>: View {
+  @Binding var selection: T
+  let options: [(value: T, label: String)]
 
   var body: some View {
     HStack(spacing: 0) {

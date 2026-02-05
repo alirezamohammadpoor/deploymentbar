@@ -28,6 +28,10 @@ final class SettingsStore: ObservableObject {
     didSet { defaults.set(Array(selectedProjectIds), forKey: Keys.selectedProjectIds) }
   }
 
+  @Published var defaultLogLines: Int {
+    didSet { defaults.set(defaultLogLines, forKey: Keys.defaultLogLines) }
+  }
+
   private let defaults: UserDefaults
   private let launchAtLoginManager = LaunchAtLoginManager()
 
@@ -38,7 +42,8 @@ final class SettingsStore: ObservableObject {
       Keys.notifyOnFailed: true,
       Keys.browserBundleId: "",
       Keys.pollingInterval: 30.0,
-      Keys.selectedProjectIds: []
+      Keys.selectedProjectIds: [],
+      Keys.defaultLogLines: 100
     ])
 
     self.notifyOnReady = defaults.bool(forKey: Keys.notifyOnReady)
@@ -48,6 +53,7 @@ final class SettingsStore: ObservableObject {
 
     let storedProjects = defaults.array(forKey: Keys.selectedProjectIds) as? [String] ?? []
     self.selectedProjectIds = Set(storedProjects)
+    self.defaultLogLines = defaults.integer(forKey: Keys.defaultLogLines)
 
     if let storedLaunch = defaults.object(forKey: Keys.launchAtLogin) as? Bool {
       self.launchAtLogin = storedLaunch
@@ -65,5 +71,6 @@ final class SettingsStore: ObservableObject {
     static let launchAtLogin = "settings.launchAtLogin"
     static let pollingInterval = "settings.pollingInterval"
     static let selectedProjectIds = "settings.selectedProjectIds"
+    static let defaultLogLines = "settings.defaultLogLines"
   }
 }
