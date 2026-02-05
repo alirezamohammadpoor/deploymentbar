@@ -2,7 +2,9 @@ import SwiftUI
 
 struct SettingsView: View {
   @StateObject private var settings = SettingsStore.shared
+  @StateObject private var authSession = AuthSession.shared
   @State private var browserOptions: [BrowserOption] = BrowserOption.availableOptions()
+  @State private var showSignOutConfirmation = false
   private let launchAtLoginManager = LaunchAtLoginManager()
 
   private let pollingOptions: [(value: TimeInterval, label: String)] = [
@@ -71,6 +73,23 @@ struct SettingsView: View {
               }
           }
         }
+
+        // ACCOUNT
+        if authSession.status == .signedIn {
+          section("Account") {
+            Button {
+              showSignOutConfirmation = true
+            } label: {
+              HStack {
+                Image(systemName: "rectangle.portrait.and.arrow.right")
+                Text("Sign Out")
+              }
+              .font(Theme.Typography.Settings.button)
+              .foregroundColor(.red)
+            }
+            .buttonStyle(.plain)
+          }
+        }
       }
       .padding(.horizontal, Theme.Layout.settingsHPadding)
       .padding(.vertical, Theme.Layout.settingsVPadding)
@@ -78,6 +97,14 @@ struct SettingsView: View {
     .frame(width: Theme.Layout.settingsWidth)
     .background(Theme.Colors.Settings.background100)
     .preferredColorScheme(.dark)
+    .alert("Sign Out", isPresented: $showSignOutConfirmation) {
+      Button("Cancel", role: .cancel) { }
+      Button("Sign Out", role: .destructive) {
+        authSession.signOut()
+      }
+    } message: {
+      Text("Are you sure you want to sign out?")
+    }
     .onAppear {
       browserOptions = BrowserOption.availableOptions()
 
