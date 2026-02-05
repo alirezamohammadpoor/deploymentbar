@@ -28,6 +28,7 @@ struct StatusBarMenu: View {
   @State private var isRefreshing: Bool = false
   @State private var isInitialLoad: Bool = true
   @State private var expandedDeploymentId: String?
+  @State private var focusedDeploymentId: String?
 
   var body: some View {
     VStack(spacing: 0) {
@@ -49,6 +50,27 @@ struct StatusBarMenu: View {
         isInitialLoad = false
       }
     }
+    .onKeyPress(keys: [.upArrow]) { _ in
+      navigateUp()
+      return .handled
+    }
+    .onKeyPress(keys: [.downArrow]) { _ in
+      navigateDown()
+      return .handled
+    }
+    .onKeyPress(keys: [.return]) { _ in
+      toggleExpandFocused()
+      return .handled
+    }
+    .onKeyPress(keys: [.space]) { _ in
+      toggleExpandFocused()
+      return .handled
+    }
+    .onKeyPress(keys: [.escape]) { _ in
+      handleEscape()
+      return .handled
+    }
+    .keyboardShortcut("r", modifiers: .command)
   }
 
   // MARK: - Offline Banner
@@ -241,6 +263,7 @@ struct StatusBarMenu: View {
             deployment: deployment,
             relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt),
             isExpanded: expandedDeploymentId == deployment.id,
+            isFocused: focusedDeploymentId == deployment.id,
             onToggleExpand: {
               toggleExpand(for: deployment.id)
             },
@@ -270,6 +293,57 @@ struct StatusBarMenu: View {
       return url
     }
     return URL(string: "https://\(value)")
+  }
+
+  // MARK: - Keyboard Navigation
+
+  private func navigateUp() {
+    let deployments = filteredDeployments
+    guard !deployments.isEmpty else { return }
+
+    if let currentId = focusedDeploymentId,
+       let currentIndex = deployments.firstIndex(where: { $0.id == currentId }),
+       currentIndex > 0 {
+      focusedDeploymentId = deployments[currentIndex - 1].id
+    } else {
+      focusedDeploymentId = deployments.last?.id
+    }
+  }
+
+  private func navigateDown() {
+    let deployments = filteredDeployments
+    guard !deployments.isEmpty else { return }
+
+    if let currentId = focusedDeploymentId,
+       let currentIndex = deployments.firstIndex(where: { $0.id == currentId }),
+       currentIndex < deployments.count - 1 {
+      focusedDeploymentId = deployments[currentIndex + 1].id
+    } else {
+      focusedDeploymentId = deployments.first?.id
+    }
+  }
+
+  private func toggleExpandFocused() {
+    guard let focusedId = focusedDeploymentId else {
+      // If nothing focused, focus the first deployment
+      focusedDeploymentId = filteredDeployments.first?.id
+      return
+    }
+
+    toggleExpand(for: focusedId)
+  }
+
+  private func handleEscape() {
+    if expandedDeploymentId != nil {
+      // First escape: collapse expanded row
+      withAnimation(.spring(dampingFraction: 0.85)) {
+        expandedDeploymentId = nil
+      }
+    } else if focusedDeploymentId != nil {
+      // Second escape: clear focus
+      focusedDeploymentId = nil
+    }
+    // Note: Third escape would close the popover, but that's handled by the popover behavior
   }
 
 }

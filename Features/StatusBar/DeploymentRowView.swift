@@ -5,6 +5,7 @@ struct DeploymentRowView: View {
   let deployment: Deployment
   let relativeTime: String
   let isExpanded: Bool
+  let isFocused: Bool
   let onToggleExpand: () -> Void
   let openURL: (URL) -> Void
   let onRefresh: () -> Void
@@ -38,6 +39,12 @@ struct DeploymentRowView: View {
     .padding(.horizontal, Theme.Layout.spacingSM)
     .padding(.vertical, Theme.Layout.spacingXS)
     .background(isHovered || isExpanded ? Theme.Colors.backgroundSecondary : Color.clear)
+    .overlay(
+      RoundedRectangle(cornerRadius: 6)
+        .strokeBorder(Color.accentColor, lineWidth: 2)
+        .opacity(isFocused ? 1 : 0)
+        .padding(2)
+    )
     .contentShape(Rectangle())
     .onTapGesture {
       withAnimation(.spring(dampingFraction: 0.85)) {
