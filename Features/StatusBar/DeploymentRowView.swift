@@ -99,6 +99,33 @@ struct DeploymentRowView: View {
           Label("Open PR in GitHub", systemImage: "arrow.up.right.square")
         }
       }
+
+      Divider()
+
+      // View Build Log
+      Button {
+        viewBuildLog()
+      } label: {
+        Label("View Build Log", systemImage: "doc.text.magnifyingglass")
+      }
+
+      // Redeploy
+      Button {
+        showRedeployAlert = true
+      } label: {
+        Label("Redeploy...", systemImage: "arrow.clockwise.circle")
+      }
+      .disabled(isRedeploying)
+
+      // Rollback (only for production deploys)
+      if deployment.target == "production" && deployment.state == .ready {
+        Button(role: .destructive) {
+          showRollbackAlert = true
+        } label: {
+          Label("Rollback to Previous...", systemImage: "arrow.uturn.backward.circle")
+        }
+        .disabled(isRollingBack)
+      }
     }
     .alert("Redeploy", isPresented: $showRedeployAlert) {
       Button("Cancel", role: .cancel) { }
