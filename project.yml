@@ -29,8 +29,8 @@ targets:
       - App
       - Features
       - Core
-    resources:
-      - Resources
+      - path: Resources
+        buildPhase: resources
     info:
       path: App/Info.plist
       properties:

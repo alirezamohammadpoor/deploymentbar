@@ -9,14 +9,20 @@ enum Theme {
                                             dark: .init(white: 0, alpha: 1))
     static let backgroundSecondary = adaptive(light: .init(white: 0.98, alpha: 1),
                                               dark: .init(white: 0.039, alpha: 1))
+    // Semi-transparent hover background for vibrancy support
+    static let rowHoverBackground = adaptive(light: .init(white: 0, alpha: 0.05),
+                                             dark: .init(white: 1, alpha: 0.08))
     static let border = adaptive(light: .init(white: 0.898, alpha: 1),
                                  dark: .init(white: 0.2, alpha: 1))
     static let textPrimary = adaptive(light: .init(white: 0, alpha: 1),
                                       dark: .init(white: 1, alpha: 1))
     static let textSecondary = adaptive(light: .init(srgbRed: 0.4, green: 0.4, blue: 0.4, alpha: 1),
-                                        dark: .init(srgbRed: 0.533, green: 0.533, blue: 0.533, alpha: 1))
+                                        dark: .init(srgbRed: 0.75, green: 0.75, blue: 0.75, alpha: 1))
     static let textTertiary = adaptive(light: .init(srgbRed: 0.6, green: 0.6, blue: 0.6, alpha: 1),
-                                       dark: .init(srgbRed: 0.4, green: 0.4, blue: 0.4, alpha: 1))
+                                       dark: .init(srgbRed: 0.55, green: 0.55, blue: 0.55, alpha: 1))
+    // Button text - high visibility
+    static let buttonText = adaptive(light: .init(srgbRed: 0.15, green: 0.15, blue: 0.15, alpha: 1),
+                                     dark: .init(srgbRed: 0.92, green: 0.92, blue: 0.92, alpha: 1))
 
     private static func adaptive(light: NSColor, dark: NSColor) -> Color {
       Color(nsColor: NSColor(name: nil, dynamicProvider: { appearance in
@@ -43,6 +49,9 @@ enum Theme {
     static let statusCanceled = Color(red: 0.53, green: 0.53, blue: 0.53)
     static let statusQueued = Color(red: 0.4, green: 0.6, blue: 0.9)
 
+    // Badge background - subtle quaternary fill
+    static let badgeBackground = Color(nsColor: .quaternarySystemFill)
+
     static func status(for state: DeploymentState) -> Color {
       switch state {
       case .ready: return statusReady
@@ -50,6 +59,25 @@ enum Theme {
       case .error: return statusError
       case .canceled: return statusCanceled
       case .queued: return statusQueued
+      }
+    }
+
+    // NSColor versions for status bar icon tinting
+    enum StatusBarIcon {
+      static let ready = NSColor(srgbRed: 0.18, green: 0.80, blue: 0.44, alpha: 1)
+      static let building = NSColor(srgbRed: 0.95, green: 0.62, blue: 0.07, alpha: 1)
+      static let queued = NSColor(srgbRed: 0.95, green: 0.62, blue: 0.07, alpha: 1)
+      static let error = NSColor(srgbRed: 0.93, green: 0.26, blue: 0.26, alpha: 1)
+
+      /// Returns the NSColor for a deployment state, or nil for states that should use template rendering.
+      static func color(for state: DeploymentState?) -> NSColor? {
+        switch state {
+        case .ready: return ready
+        case .building: return building
+        case .queued: return queued
+        case .error: return error
+        case .canceled, nil: return nil
+        }
       }
     }
   }
@@ -97,7 +125,7 @@ enum Theme {
 
     // Row
     static let rowHeight: CGFloat = 64
-    static let rowExpandedHeight: CGFloat = 120
+    static let rowExpandedHeight: CGFloat = 140
     static let statusDotSize: CGFloat = 8
     static let badgePaddingH: CGFloat = 6
     static let badgePaddingV: CGFloat = 2

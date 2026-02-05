@@ -149,17 +149,6 @@ final class StatusBarController: NSObject {
       }
     )
     let hostingController = NSHostingController(rootView: menuView)
-
-    // Add vibrancy effect to the popover
-    let visualEffectView = NSVisualEffectView()
-    visualEffectView.material = .popover
-    visualEffectView.blendingMode = .behindWindow
-    visualEffectView.state = .active
-
-    // Wrap the hosting view inside the visual effect view
-    hostingController.view.wantsLayer = true
-    hostingController.view.layer?.backgroundColor = .clear
-
     popover.contentViewController = hostingController
 
     deploymentStore.onStateChange = { [weak self] deployment, _, newState in
@@ -231,15 +220,33 @@ final class StatusBarController: NSObject {
 
   private func updateStatusIcon() {
     guard let button = statusItem.button else { return }
-    button.image = NSImage(named: "vercel-icon")
-    button.image?.isTemplate = true
     button.toolTip = isStale ? "Last refresh failed" : "VercelBar"
+
+    if let tintColor = Theme.Colors.StatusBarIcon.color(for: latestDeploymentState) {
+      button.image = tintedIcon(color: tintColor)
+      button.image?.isTemplate = false
+    } else {
+      button.image = NSImage(named: "vercel-icon")
+      button.image?.isTemplate = true
+    }
 
     if latestDeploymentState == .building && !isStale {
       startPulse()
     } else {
       stopPulse()
     }
+  }
+
+  private func tintedIcon(color: NSColor) -> NSImage? {
+    guard let base = NSImage(named: "vercel-icon") else { return nil }
+    let img = NSImage(size: base.size, flipped: false) { rect in
+      base.draw(in: rect)
+      color.setFill()
+      rect.fill(using: .sourceAtop)
+      return true
+    }
+    img.isTemplate = false
+    return img
   }
 
   // MARK: - Pulse Animation
