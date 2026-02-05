@@ -7,10 +7,16 @@ struct DeploymentRowView: View {
   let isExpanded: Bool
   let onToggleExpand: () -> Void
   let openURL: (URL) -> Void
+  let onRefresh: () -> Void
 
   @State private var isHovered = false
   @State private var pulseOpacity: Double = 1.0
   @State private var copiedURL = false
+  @State private var showRedeployAlert = false
+  @State private var showRollbackAlert = false
+  @State private var isRedeploying = false
+  @State private var isRollingBack = false
+  @State private var actionError: String?
 
   private var shouldAnimate: Bool {
     (deployment.state == .building || deployment.state == .queued) &&
@@ -92,6 +98,31 @@ struct DeploymentRowView: View {
         } label: {
           Label("Open PR in GitHub", systemImage: "arrow.up.right.square")
         }
+      }
+    }
+    .alert("Redeploy", isPresented: $showRedeployAlert) {
+      Button("Cancel", role: .cancel) { }
+      Button("Redeploy") {
+        performRedeploy()
+      }
+    } message: {
+      Text("Are you sure you want to redeploy \(deployment.projectName)?")
+    }
+    .alert("Rollback", isPresented: $showRollbackAlert) {
+      Button("Cancel", role: .cancel) { }
+      Button("Rollback", role: .destructive) {
+        performRollback()
+      }
+    } message: {
+      Text("Are you sure you want to rollback \(deployment.projectName) to this deployment?")
+    }
+    .alert("Error", isPresented: .constant(actionError != nil)) {
+      Button("OK") {
+        actionError = nil
+      }
+    } message: {
+      if let error = actionError {
+        Text(error)
       }
     }
   }
@@ -257,54 +288,109 @@ struct DeploymentRowView: View {
   }
 
   private var regularActions: some View {
-    HStack(spacing: Theme.Layout.spacingSM) {
-      // Copy URL button
-      Button {
-        copyDeploymentURL()
-      } label: {
-        HStack(spacing: 4) {
-          Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
-            .font(.system(size: 11))
-          Text(copiedURL ? "Copied!" : "Copy URL")
-            .font(Theme.Typography.caption)
-        }
-        .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.textSecondary)
-      }
-      .buttonStyle(.bordered)
-      .controlSize(.small)
-
-      // Open in Vercel button
-      if let url = vercelDashboardURL {
+    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Theme.Layout.spacingSM) {
+        // Copy URL button
         Button {
-          openURL(url)
+          copyDeploymentURL()
         } label: {
           HStack(spacing: 4) {
-            Image(systemName: "safari")
+            Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
               .font(.system(size: 11))
-            Text("Open in Vercel")
+            Text(copiedURL ? "Copied!" : "Copy URL")
+              .font(Theme.Typography.caption)
+          }
+          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.textSecondary)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+
+        // Open in Vercel button
+        if let url = vercelDashboardURL {
+          Button {
+            openURL(url)
+          } label: {
+            HStack(spacing: 4) {
+              Image(systemName: "safari")
+                .font(.system(size: 11))
+              Text("Open in Vercel")
+                .font(Theme.Typography.caption)
+            }
+            .foregroundColor(Theme.Colors.textSecondary)
+          }
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+        }
+
+        // Open PR button
+        if let prURL = deployment.prURL {
+          Button {
+            openURL(prURL)
+          } label: {
+            HStack(spacing: 4) {
+              Image(systemName: "arrow.up.right.square")
+                .font(.system(size: 11))
+              Text("Open PR")
+                .font(Theme.Typography.caption)
+            }
+            .foregroundColor(Theme.Colors.textSecondary)
+          }
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+        }
+
+        Spacer()
+      }
+
+      // Action buttons row (Redeploy, Rollback)
+      HStack(spacing: Theme.Layout.spacingSM) {
+        // Redeploy button
+        Button {
+          showRedeployAlert = true
+        } label: {
+          HStack(spacing: 4) {
+            if isRedeploying {
+              ProgressView()
+                .scaleEffect(0.6)
+                .frame(width: 12, height: 12)
+            } else {
+              Image(systemName: "arrow.clockwise.circle")
+                .font(.system(size: 11))
+            }
+            Text("Redeploy")
               .font(Theme.Typography.caption)
           }
           .foregroundColor(Theme.Colors.textSecondary)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
-      }
+        .disabled(isRedeploying || isRollingBack)
 
-      // Open PR button
-      if let prURL = deployment.prURL {
-        Button {
-          openURL(prURL)
-        } label: {
-          HStack(spacing: 4) {
-            Image(systemName: "arrow.up.right.square")
-              .font(.system(size: 11))
-            Text("Open PR")
-              .font(Theme.Typography.caption)
+        // Rollback button (only for production deploys)
+        if deployment.target == "production" && deployment.state == .ready {
+          Button {
+            showRollbackAlert = true
+          } label: {
+            HStack(spacing: 4) {
+              if isRollingBack {
+                ProgressView()
+                  .scaleEffect(0.6)
+                  .frame(width: 12, height: 12)
+              } else {
+                Image(systemName: "arrow.uturn.backward.circle")
+                  .font(.system(size: 11))
+              }
+              Text("Rollback")
+                .font(Theme.Typography.caption)
+            }
+            .foregroundColor(Theme.Colors.statusError)
           }
-          .foregroundColor(Theme.Colors.textSecondary)
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+          .disabled(isRedeploying || isRollingBack)
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
+
+        Spacer()
       }
 
       Spacer()
@@ -357,6 +443,125 @@ struct DeploymentRowView: View {
   private func startPulseAnimation() {
     withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
       pulseOpacity = 0.3
+    }
+  }
+
+  // MARK: - Redeploy / Rollback
+
+  private func performRedeploy() {
+    guard !isRedeploying else { return }
+    isRedeploying = true
+    actionError = nil
+
+    Task {
+      do {
+        guard let config = VercelAuthConfig.load() else {
+          throw APIError.invalidResponse
+        }
+
+        let credentialStore = CredentialStore()
+        let tokenProvider: () -> String? = {
+          credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
+        }
+
+        let client = VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
+        let teamId = credentialStore.loadTokens()?.teamId
+
+        // We need the git source info from the original deployment
+        // For now, we'll use the branch info we have
+        guard let branch = deployment.branch else {
+          throw APIError.invalidResponse
+        }
+
+        // Note: A real redeploy would need the git source info from the deployment metadata
+        // This is a simplified version that would need enhancement
+        let gitSource = GitDeploymentSource(
+          type: "github",
+          ref: branch,
+          repoId: "" // Would need to be extracted from deployment meta
+        )
+
+        _ = try await client.createDeployment(
+          name: deployment.projectName,
+          target: deployment.target,
+          gitSource: gitSource,
+          teamId: teamId
+        )
+
+        await MainActor.run {
+          isRedeploying = false
+          onRefresh()
+        }
+      } catch let error as APIError {
+        await MainActor.run {
+          isRedeploying = false
+          actionError = errorMessage(for: error)
+        }
+      } catch {
+        await MainActor.run {
+          isRedeploying = false
+          actionError = "Redeploy failed"
+        }
+      }
+    }
+  }
+
+  private func performRollback() {
+    guard !isRollingBack else { return }
+    guard let projectId = deployment.projectId else { return }
+    isRollingBack = true
+    actionError = nil
+
+    Task {
+      do {
+        guard let config = VercelAuthConfig.load() else {
+          throw APIError.invalidResponse
+        }
+
+        let credentialStore = CredentialStore()
+        let tokenProvider: () -> String? = {
+          credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
+        }
+
+        let client = VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
+        let teamId = credentialStore.loadTokens()?.teamId
+
+        try await client.rollbackProject(
+          projectId: projectId,
+          deploymentId: deployment.id,
+          teamId: teamId
+        )
+
+        await MainActor.run {
+          isRollingBack = false
+          onRefresh()
+        }
+      } catch let error as APIError {
+        await MainActor.run {
+          isRollingBack = false
+          actionError = errorMessage(for: error)
+        }
+      } catch {
+        await MainActor.run {
+          isRollingBack = false
+          actionError = "Rollback failed"
+        }
+      }
+    }
+  }
+
+  private func errorMessage(for error: APIError) -> String {
+    switch error {
+    case .forbidden:
+      return "You don't have permission to perform this action"
+    case .unauthorized:
+      return "Please sign in again"
+    case .rateLimited:
+      return "Rate limited - try again later"
+    case .serverError:
+      return "Server error - try again"
+    default:
+      return "Action failed"
     }
   }
 }

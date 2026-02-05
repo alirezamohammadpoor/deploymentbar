@@ -244,7 +244,10 @@ struct StatusBarMenu: View {
             onToggleExpand: {
               toggleExpand(for: deployment.id)
             },
-            openURL: openURL
+            openURL: openURL,
+            onRefresh: {
+              performRefresh()
+            }
           )
         }
       }
