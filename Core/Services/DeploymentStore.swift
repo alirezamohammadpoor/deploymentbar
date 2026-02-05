@@ -4,14 +4,20 @@ import Foundation
 final class DeploymentStore: ObservableObject {
   @Published private(set) var deployments: [Deployment] = []
   var onStateChange: ((Deployment, DeploymentState, DeploymentState) -> Void)?
+  private var didInitialLoad = false
 
   func apply(deployments: [Deployment]) {
     let previousById = Dictionary(uniqueKeysWithValues: deploymentsById())
     for deployment in deployments {
-      if let previous = previousById[deployment.id], previous.state != deployment.state {
-        onStateChange?(deployment, previous.state, deployment.state)
+      if let previous = previousById[deployment.id] {
+        if previous.state != deployment.state {
+          onStateChange?(deployment, previous.state, deployment.state)
+        }
+      } else if didInitialLoad, deployment.state == .ready || deployment.state == .error {
+        onStateChange?(deployment, .building, deployment.state)
       }
     }
+    didInitialLoad = true
     self.deployments = deployments.sorted { $0.createdAt > $1.createdAt }
   }
 
