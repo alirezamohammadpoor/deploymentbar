@@ -27,6 +27,7 @@ struct StatusBarMenu: View {
   @State private var refreshRotation: Double = 0
   @State private var isRefreshing: Bool = false
   @State private var isInitialLoad: Bool = true
+  @State private var expandedDeploymentId: String?
 
   var body: some View {
     VStack(spacing: 0) {
@@ -236,18 +237,26 @@ struct StatusBarMenu: View {
     ScrollView {
       LazyVStack(spacing: 0) {
         ForEach(filteredDeployments) { deployment in
-          let url = previewURL(for: deployment)
-          Button {
-            if let url { openURL(url) }
-          } label: {
-            DeploymentRowView(
-              deployment: deployment,
-              relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt)
-            )
-          }
-          .buttonStyle(.plain)
-          .disabled(url == nil)
+          DeploymentRowView(
+            deployment: deployment,
+            relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt),
+            isExpanded: expandedDeploymentId == deployment.id,
+            onToggleExpand: {
+              toggleExpand(for: deployment.id)
+            },
+            openURL: openURL
+          )
         }
+      }
+    }
+  }
+
+  private func toggleExpand(for deploymentId: String) {
+    withAnimation(.spring(dampingFraction: 0.85)) {
+      if expandedDeploymentId == deploymentId {
+        expandedDeploymentId = nil
+      } else {
+        expandedDeploymentId = deploymentId
       }
     }
   }

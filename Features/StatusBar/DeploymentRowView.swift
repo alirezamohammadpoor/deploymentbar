@@ -1,11 +1,16 @@
 import SwiftUI
+import AppKit
 
 struct DeploymentRowView: View {
   let deployment: Deployment
   let relativeTime: String
+  let isExpanded: Bool
+  let onToggleExpand: () -> Void
+  let openURL: (URL) -> Void
 
   @State private var isHovered = false
   @State private var pulseOpacity: Double = 1.0
+  @State private var copiedURL = false
 
   private var shouldAnimate: Bool {
     (deployment.state == .building || deployment.state == .queued) &&
@@ -13,6 +18,46 @@ struct DeploymentRowView: View {
   }
 
   var body: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      // Collapsed content (always shown)
+      collapsedContent
+
+      // Expanded content
+      if isExpanded {
+        expandedContent
+          .transition(.opacity.combined(with: .move(edge: .top)))
+      }
+    }
+    .frame(height: isExpanded ? Theme.Layout.rowExpandedHeight : Theme.Layout.rowHeight)
+    .padding(.horizontal, Theme.Layout.spacingSM)
+    .padding(.vertical, Theme.Layout.spacingXS)
+    .background(isHovered || isExpanded ? Theme.Colors.backgroundSecondary : Color.clear)
+    .contentShape(Rectangle())
+    .onTapGesture {
+      withAnimation(.spring(dampingFraction: 0.85)) {
+        onToggleExpand()
+      }
+    }
+    .onHover { hovering in
+      isHovered = hovering
+    }
+    .onAppear {
+      if shouldAnimate {
+        startPulseAnimation()
+      }
+    }
+    .onChange(of: deployment.state) { _, newState in
+      if newState == .building || newState == .queued {
+        if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
+          startPulseAnimation()
+        }
+      }
+    }
+  }
+
+  // MARK: - Collapsed Content
+
+  private var collapsedContent: some View {
     VStack(alignment: .leading, spacing: 4) {
       // Line 1: Status dot, project name, build duration, relative time
       HStack(spacing: Theme.Layout.spacingSM) {
@@ -48,7 +93,7 @@ struct DeploymentRowView: View {
           Text(commitMessage)
             .font(Theme.Typography.commitMessage)
             .foregroundColor(Theme.Colors.textSecondary)
-            .lineLimit(1)
+            .lineLimit(isExpanded ? 3 : 1)
         } else {
           Text("No commit message")
             .font(Theme.Typography.commitMessage)
@@ -97,24 +142,92 @@ struct DeploymentRowView: View {
         }
       }
     }
-    .frame(height: Theme.Layout.rowHeight)
-    .padding(.horizontal, Theme.Layout.spacingSM)
-    .padding(.vertical, Theme.Layout.spacingXS)
-    .background(isHovered ? Theme.Colors.backgroundSecondary : Color.clear)
-    .contentShape(Rectangle())
-    .onHover { hovering in
-      isHovered = hovering
-    }
-    .onAppear {
-      if shouldAnimate {
-        startPulseAnimation()
-      }
-    }
-    .onChange(of: deployment.state) { _, newState in
-      if newState == .building || newState == .queued {
-        if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-          startPulseAnimation()
+  }
+
+  // MARK: - Expanded Content
+
+  private var expandedContent: some View {
+    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+      Divider()
+        .padding(.vertical, 4)
+
+      // Action buttons
+      HStack(spacing: Theme.Layout.spacingSM) {
+        // Copy URL button
+        Button {
+          copyDeploymentURL()
+        } label: {
+          HStack(spacing: 4) {
+            Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
+              .font(.system(size: 11))
+            Text(copiedURL ? "Copied!" : "Copy URL")
+              .font(Theme.Typography.caption)
+          }
+          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.textSecondary)
         }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+
+        // Open in Vercel button
+        if let url = vercelDashboardURL {
+          Button {
+            openURL(url)
+          } label: {
+            HStack(spacing: 4) {
+              Image(systemName: "safari")
+                .font(.system(size: 11))
+              Text("Open in Vercel")
+                .font(Theme.Typography.caption)
+            }
+            .foregroundColor(Theme.Colors.textSecondary)
+          }
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+        }
+
+        // Open PR button
+        if let prURL = deployment.prURL {
+          Button {
+            openURL(prURL)
+          } label: {
+            HStack(spacing: 4) {
+              Image(systemName: "arrow.up.right.square")
+                .font(.system(size: 11))
+              Text("Open PR")
+                .font(Theme.Typography.caption)
+            }
+            .foregroundColor(Theme.Colors.textSecondary)
+          }
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+        }
+
+        Spacer()
+      }
+      .padding(.leading, Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+    }
+  }
+
+  // MARK: - Helpers
+
+  private var vercelDashboardURL: URL? {
+    guard let projectId = deployment.projectId else { return nil }
+    return URL(string: "https://vercel.com/~/\(projectId)/\(deployment.id)")
+  }
+
+  private func copyDeploymentURL() {
+    guard let urlString = deployment.url else { return }
+    let url = urlString.hasPrefix("http") ? urlString : "https://\(urlString)"
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(url, forType: .string)
+
+    withAnimation {
+      copiedURL = true
+    }
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+      withAnimation {
+        copiedURL = false
       }
     }
   }
