@@ -63,6 +63,9 @@ enum Theme {
     static let sectionHeader: Font = .system(size: 11, weight: .semibold)
     static let caption: Font = .system(size: 11)
     static let captionSmall: Font = .system(size: 10)
+    static let commitMessage: Font = .system(size: 12)
+    static let buildDuration: Font = .system(size: 11, design: .monospaced)
+    static let author: Font = .system(size: 11)
 
     static let sectionHeaderTracking: CGFloat = 0.5
 
@@ -93,7 +96,8 @@ enum Theme {
     static let spacingXL: CGFloat = 24
 
     // Row
-    static let rowHeight: CGFloat = 44
+    static let rowHeight: CGFloat = 64
+    static let rowExpandedHeight: CGFloat = 120
     static let statusDotSize: CGFloat = 8
     static let badgePaddingH: CGFloat = 6
     static let badgePaddingV: CGFloat = 2
