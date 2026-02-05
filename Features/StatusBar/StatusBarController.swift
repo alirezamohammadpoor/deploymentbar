@@ -17,7 +17,9 @@ final class StatusBarController: NSObject {
   private var refreshEngine: RefreshEngine?
   private var cancellables = Set<AnyCancellable>()
   private var latestDeploymentState: DeploymentState?
+  private var latestDeploymentDate: Date?
   private var isStale: Bool = false
+  private var staleTimer: Timer?
 
   // Pulse animation state
   private var pulseTimer: Timer?
@@ -160,6 +162,8 @@ final class StatusBarController: NSObject {
       .receive(on: RunLoop.main)
       .sink { [weak self] deployments in
         self?.latestDeploymentState = deployments.first?.state
+        self?.latestDeploymentDate = deployments.first?.createdAt
+        self?.scheduleStaleTimer()
         self?.updateStatusIcon()
       }
       .store(in: &cancellables)
@@ -218,11 +222,31 @@ final class StatusBarController: NSObject {
     }
   }
 
+  private func scheduleStaleTimer() {
+    staleTimer?.invalidate()
+    staleTimer = nil
+    guard let created = latestDeploymentDate else { return }
+    let elapsed = Date().timeIntervalSince(created)
+    let remaining = 300 - elapsed
+    guard remaining > 0 else { return }
+    staleTimer = Timer.scheduledTimer(withTimeInterval: remaining, repeats: false) { [weak self] _ in
+      DispatchQueue.main.async {
+        self?.updateStatusIcon()
+      }
+    }
+  }
+
   private func updateStatusIcon() {
     guard let button = statusItem.button else { return }
+
+    let isRecent: Bool = {
+      guard let created = latestDeploymentDate else { return false }
+      return Date().timeIntervalSince(created) < 300
+    }()
+
     button.toolTip = isStale ? "Last refresh failed" : "VercelBar"
 
-    if let tintColor = Theme.Colors.StatusBarIcon.color(for: latestDeploymentState) {
+    if isRecent, let tintColor = Theme.Colors.StatusBarIcon.color(for: latestDeploymentState) {
       button.image = tintedIcon(color: tintColor)
       button.image?.isTemplate = false
     } else {
@@ -230,7 +254,7 @@ final class StatusBarController: NSObject {
       button.image?.isTemplate = true
     }
 
-    if latestDeploymentState == .building && !isStale {
+    if isRecent && latestDeploymentState == .building && !isStale {
       startPulse()
     } else {
       stopPulse()
