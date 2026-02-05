@@ -122,6 +122,88 @@ final class VercelAPIClientImpl: VercelAPIClient {
     return String(data: data, encoding: .utf8) ?? "unreadable"
   }
 
+  func fetchDeploymentEvents(deploymentId: String, teamId: String? = nil) async throws -> [LogLine] {
+    var items: [URLQueryItem] = []
+    if let teamId, !teamId.isEmpty {
+      items.append(URLQueryItem(name: "teamId", value: teamId))
+    }
+    let request = try authorizedRequest(path: "/v2/deployments/\(deploymentId)/events", queryItems: items)
+    let (data, response) = try await session.data(for: request)
+    guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
+    DebugLog.write("API /v2/deployments/\(deploymentId)/events → \(http.statusCode) (\(data.count) bytes)")
+
+    switch http.statusCode {
+    case 200...299:
+      let events = try JSONDecoder.vercelDecoder.decode([DeploymentEventDTO].self, from: data)
+      var lineNumber = 1
+      var logLines: [LogLine] = []
+      for event in events {
+        if event.type == "stdout" || event.type == "stderr" {
+          if let line = LogLine.from(dto: event, lineNumber: lineNumber) {
+            logLines.append(line)
+            lineNumber += 1
+          }
+        }
+      }
+      return logLines
+    case 401:
+      throw APIError.unauthorized
+    case 403:
+      throw APIError.forbidden
+    case 404:
+      throw APIError.notFound
+    case 429:
+      let reset = http.value(forHTTPHeaderField: "X-RateLimit-Reset").flatMap { TimeInterval($0) }
+      throw APIError.rateLimited(resetAt: reset.map { Date(timeIntervalSince1970: $0) })
+    default:
+      throw APIError.invalidResponse
+    }
+  }
+
+  func createDeployment(name: String, target: String?, gitSource: GitDeploymentSource, teamId: String? = nil) async throws -> DeploymentDTO {
+    var items: [URLQueryItem] = []
+    if let teamId, !teamId.isEmpty {
+      items.append(URLQueryItem(name: "teamId", value: teamId))
+    }
+
+    var request = try authorizedRequest(path: "/v13/deployments", queryItems: items)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    var body: [String: Any] = [
+      "name": name,
+      "gitSource": [
+        "type": gitSource.type,
+        "ref": gitSource.ref,
+        "repoId": gitSource.repoId
+      ]
+    ]
+    if let target {
+      body["target"] = target
+    }
+
+    request.httpBody = try JSONSerialization.data(withJSONObject: body)
+    return try await execute(request)
+  }
+
+  func rollbackProject(projectId: String, deploymentId: String, teamId: String? = nil) async throws {
+    var items: [URLQueryItem] = []
+    if let teamId, !teamId.isEmpty {
+      items.append(URLQueryItem(name: "teamId", value: teamId))
+    }
+
+    var request = try authorizedRequest(path: "/v9/projects/\(projectId)/rollback", queryItems: items)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let body: [String: Any] = [
+      "deploymentId": deploymentId
+    ]
+    request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+    try await executeNoContent(request)
+  }
+
   private func tokenRequest(body: [String: String], fallbackRefreshToken: String? = nil) async throws -> TokenPair {
     var request = URLRequest(url: VercelEndpoints.oauthToken)
     request.httpMethod = "POST"

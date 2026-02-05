@@ -184,6 +184,10 @@ final class RefreshEngine {
     switch error {
     case .unauthorized:
       return "Unauthorized"
+    case .forbidden:
+      return "Access denied"
+    case .notFound:
+      return "Not found"
     case .rateLimited(let resetAt):
       if let resetAt {
         return "Rate limited until \(DateFormatter.shortTime.string(from: resetAt))"

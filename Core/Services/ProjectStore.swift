@@ -74,6 +74,10 @@ final class ProjectStore: ObservableObject {
     switch error {
     case .unauthorized:
       return "Unauthorized"
+    case .forbidden:
+      return "Access denied"
+    case .notFound:
+      return "Not found"
     case .rateLimited:
       return "Rate limited"
     case .serverError:
