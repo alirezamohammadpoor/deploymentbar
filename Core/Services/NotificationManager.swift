@@ -118,7 +118,7 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
       return settings.notifyOnReady
     case .error:
       return settings.notifyOnFailed
-    case .building, .canceled:
+    case .building, .canceled, .queued:
       return false
     }
   }

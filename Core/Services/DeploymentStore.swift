@@ -23,13 +23,30 @@ final class DeploymentStore: ObservableObject {
 extension DeploymentStore {
   static var mockDeployments: [Deployment] {
     let now = Date()
+    let commitMessages = [
+      "fix: resolve hydration error on cart page",
+      "feat: add dark mode support",
+      "chore: update dependencies",
+      "fix: correct typo in login form",
+      "feat: implement user profile page",
+      "refactor: extract common components",
+      "docs: update README with new API",
+      "test: add unit tests for auth flow",
+      "fix: handle edge case in checkout",
+      "feat: add search functionality"
+    ]
+    let authors = ["Ali K.", "Jane D.", "John S.", "Sarah M.", "Mike B."]
+
     return (0..<10).map { index in
       let state: DeploymentState
-      switch index % 3 {
+      switch index % 4 {
       case 0: state = .ready
       case 1: state = .building
-      default: state = .error
+      case 2: state = .error
+      default: state = .queued
       }
+
+      let hasPR = index % 3 == 0
 
       return Deployment(
         id: "mock-\(index)",
@@ -40,7 +57,13 @@ extension DeploymentStore {
         state: state,
         url: "project-\(index).vercel.app",
         createdAt: now.addingTimeInterval(TimeInterval(-index * 90)),
-        readyAt: state == .ready ? now.addingTimeInterval(TimeInterval(-index * 60)) : nil
+        readyAt: state == .ready ? now.addingTimeInterval(TimeInterval(-index * 60)) : nil,
+        commitMessage: commitMessages[index % commitMessages.count],
+        commitAuthor: authors[index % authors.count],
+        commitSha: "abc\(index)def\(index)123\(index)456",
+        githubOrg: hasPR ? "vercel" : nil,
+        githubRepo: hasPR ? "next.js" : nil,
+        prId: hasPR ? 42 + index : nil
       )
     }
   }

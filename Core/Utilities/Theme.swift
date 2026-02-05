@@ -41,6 +41,7 @@ enum Theme {
     static let statusBuilding = Color(red: 0.95, green: 0.62, blue: 0.07)
     static let statusError = Color(red: 0.93, green: 0.26, blue: 0.26)
     static let statusCanceled = Color(red: 0.53, green: 0.53, blue: 0.53)
+    static let statusQueued = Color(red: 0.4, green: 0.6, blue: 0.9)
 
     static func status(for state: DeploymentState) -> Color {
       switch state {
@@ -48,6 +49,7 @@ enum Theme {
       case .building: return statusBuilding
       case .error: return statusError
       case .canceled: return statusCanceled
+      case .queued: return statusQueued
       }
     }
   }
