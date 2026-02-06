@@ -8,8 +8,8 @@ struct ProjectFilterView: View {
     VStack(alignment: .leading, spacing: 12) {
       HStack {
         Text("Monitor projects")
-          .font(Theme.Typography.Settings.fieldLabel)
-          .foregroundColor(Theme.Colors.Settings.foreground)
+          .font(Geist.Typography.Settings.fieldLabel)
+          .foregroundColor(Geist.Colors.gray1000)
         Spacer()
         VercelIconButton(systemName: "arrow.clockwise") {
           projectStore.refresh()
@@ -21,12 +21,12 @@ struct ProjectFilterView: View {
           .controlSize(.small)
       } else if let error = projectStore.error {
         Text(error)
-          .font(Theme.Typography.Settings.helperText)
-          .foregroundColor(Theme.Colors.statusError)
+          .font(Geist.Typography.Settings.helperText)
+          .foregroundColor(Geist.Colors.statusError)
       } else if projectStore.projects.isEmpty {
         Text("No projects found")
-          .font(Theme.Typography.Settings.helperText)
-          .foregroundColor(Theme.Colors.Settings.accents5)
+          .font(Geist.Typography.Settings.helperText)
+          .foregroundColor(Geist.Colors.gray800)
       } else {
         VStack(alignment: .leading, spacing: 0) {
           ForEach(projectStore.projects) { project in
@@ -36,8 +36,8 @@ struct ProjectFilterView: View {
       }
 
       Text("Leave all unchecked to monitor every project.")
-        .font(Theme.Typography.Settings.helperText)
-        .foregroundColor(Theme.Colors.Settings.accents4)
+        .font(Geist.Typography.Settings.helperText)
+        .foregroundColor(Geist.Colors.gray700)
     }
     .onAppear {
       if projectStore.projects.isEmpty {

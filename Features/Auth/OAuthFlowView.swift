@@ -4,13 +4,13 @@ struct OAuthFlowView: View {
   @ObservedObject var authSession: AuthSession
 
   var body: some View {
-    VStack(spacing: Theme.Layout.spacingMD) {
+    VStack(spacing: Geist.Layout.spacingMD) {
       Image(systemName: "person.crop.circle")
         .font(.system(size: 32))
-        .foregroundColor(Theme.Colors.textTertiary)
+        .foregroundColor(Geist.Colors.textTertiary)
 
       Text("Sign in with Vercel")
-        .font(Theme.Typography.projectName)
+        .font(Geist.Typography.projectName)
 
       statusView
 
@@ -19,7 +19,7 @@ struct OAuthFlowView: View {
       }
       .disabled(authSessionIsBusy)
     }
-    .padding(Theme.Layout.spacingLG)
+    .padding(Geist.Layout.spacingLG)
   }
 
   private var authSessionIsBusy: Bool {
@@ -34,20 +34,20 @@ struct OAuthFlowView: View {
     switch authSession.status {
     case .signedOut:
       Text("Not signed in")
-        .font(Theme.Typography.caption)
-        .foregroundColor(Theme.Colors.textSecondary)
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.textSecondary)
     case .signingIn:
       Text("Waiting for Vercel authorization…")
-        .font(Theme.Typography.caption)
-        .foregroundColor(Theme.Colors.textSecondary)
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.textSecondary)
     case .signedIn:
       Text("Signed in")
-        .font(Theme.Typography.caption)
-        .foregroundColor(Theme.Colors.statusReady)
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.statusReady)
     case .error(let message):
       Text(message)
-        .font(Theme.Typography.caption)
-        .foregroundColor(Theme.Colors.statusError)
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.statusError)
         .multilineTextAlignment(.center)
     }
   }

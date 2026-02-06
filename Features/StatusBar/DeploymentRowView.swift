@@ -35,10 +35,10 @@ struct DeploymentRowView: View {
           .transition(.opacity.combined(with: .move(edge: .top)))
       }
     }
-    .frame(height: isExpanded ? Theme.Layout.rowExpandedHeight : Theme.Layout.rowHeight)
-    .padding(.horizontal, Theme.Layout.spacingSM)
-    .padding(.vertical, Theme.Layout.spacingXS)
-    .background(isHovered || isExpanded ? Theme.Colors.rowHoverBackground : Color.clear)
+    .frame(height: isExpanded ? Geist.Layout.rowExpandedHeight : Geist.Layout.rowHeight)
+    .padding(.horizontal, Geist.Layout.spacingSM)
+    .padding(.vertical, Geist.Layout.spacingXS)
+    .background(isExpanded ? Geist.Colors.rowExpanded : isHovered ? Geist.Colors.rowHover : Color.clear)
     .overlay(
       RoundedRectangle(cornerRadius: 6)
         .strokeBorder(Color.accentColor, lineWidth: 2)
@@ -166,74 +166,74 @@ struct DeploymentRowView: View {
   private var collapsedContent: some View {
     VStack(alignment: .leading, spacing: 4) {
       // Line 1: Status dot, project name, build duration, relative time
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingSM) {
         Circle()
-          .fill(Theme.Colors.status(for: deployment.state))
-          .frame(width: Theme.Layout.statusDotSize, height: Theme.Layout.statusDotSize)
+          .fill(Geist.Colors.status(for: deployment.state))
+          .frame(width: Geist.Layout.statusDotSize, height: Geist.Layout.statusDotSize)
           .opacity(shouldAnimate ? pulseOpacity : 1.0)
 
         Text(deployment.projectName)
-          .font(Theme.Typography.projectName)
-          .foregroundColor(Theme.Colors.textPrimary)
+          .font(Geist.Typography.projectName)
+          .foregroundColor(Geist.Colors.textPrimary)
           .lineLimit(1)
 
         Spacer()
 
         if deployment.state == .ready, let _ = deployment.buildDuration {
           Text(deployment.formattedBuildDuration)
-            .font(Theme.Typography.buildDuration)
-            .foregroundColor(Theme.Colors.textTertiary)
+            .font(Geist.Typography.buildDuration)
+            .foregroundColor(Geist.Colors.textTertiary)
 
           Text("·")
-            .font(Theme.Typography.timestamp)
-            .foregroundColor(Theme.Colors.textTertiary)
+            .font(Geist.Typography.timestamp)
+            .foregroundColor(Geist.Colors.textTertiary)
             .padding(.horizontal, 2)
         }
 
         Text(relativeTime)
-          .font(Theme.Typography.timestamp)
-          .foregroundColor(Theme.Colors.textTertiary)
+          .font(Geist.Typography.timestamp)
+          .foregroundColor(Geist.Colors.textTertiary)
       }
 
       // Line 2: Commit message (indented to align with project name)
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingSM) {
         Color.clear
-          .frame(width: Theme.Layout.statusDotSize)
+          .frame(width: Geist.Layout.statusDotSize)
 
         if let commitMessage = deployment.commitMessage {
           Text(commitMessage)
-            .font(Theme.Typography.commitMessage)
-            .foregroundColor(Theme.Colors.textSecondary)
+            .font(Geist.Typography.commitMessage)
+            .foregroundColor(Geist.Colors.textSecondary)
             .lineLimit(isExpanded ? 3 : 1)
         } else {
           Text("No commit message")
-            .font(Theme.Typography.commitMessage)
-            .foregroundColor(Theme.Colors.textTertiary)
+            .font(Geist.Typography.commitMessage)
+            .foregroundColor(Geist.Colors.textTertiary)
             .italic()
             .lineLimit(1)
         }
       }
 
       // Line 3: Branch badge, author, PR link
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingSM) {
         Color.clear
-          .frame(width: Theme.Layout.statusDotSize)
+          .frame(width: Geist.Layout.statusDotSize)
 
         // Branch badge
         Text(deployment.branch ?? "—")
-          .font(Theme.Typography.branchName)
-          .foregroundColor(Theme.Colors.textSecondary)
+          .font(Geist.Typography.branchName)
+          .foregroundColor(Geist.Colors.textSecondary)
           .lineLimit(1)
-          .padding(.horizontal, Theme.Layout.badgePaddingH)
-          .padding(.vertical, Theme.Layout.badgePaddingV)
-          .background(Theme.Colors.badgeBackground)
-          .cornerRadius(Theme.Layout.badgeCornerRadius)
+          .padding(.horizontal, Geist.Layout.badgePaddingH)
+          .padding(.vertical, Geist.Layout.badgePaddingV)
+          .background(Geist.Colors.badgeBackground)
+          .cornerRadius(Geist.Layout.badgeCornerRadius)
 
         // Author
         if let author = deployment.commitAuthor {
           Text("by \(author)")
-            .font(Theme.Typography.author)
-            .foregroundColor(Theme.Colors.textTertiary)
+            .font(Geist.Typography.author)
+            .foregroundColor(Geist.Colors.textTertiary)
             .lineLimit(1)
         }
 
@@ -246,10 +246,10 @@ struct DeploymentRowView: View {
               .font(.system(size: 10))
             if let prId = deployment.prId {
               Text("#\(prId)")
-                .font(Theme.Typography.captionSmall)
+                .font(Geist.Typography.captionSmall)
             }
           }
-          .foregroundColor(Theme.Colors.textTertiary)
+          .foregroundColor(Geist.Colors.textTertiary)
         }
       }
     }
@@ -274,7 +274,7 @@ struct DeploymentRowView: View {
   }
 
   private var failedDeploymentActions: some View {
-    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+    VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
       // Primary action: View Build Log
       Button {
         viewBuildLog()
@@ -283,11 +283,11 @@ struct DeploymentRowView: View {
           Image(systemName: "doc.text.magnifyingglass")
             .font(.system(size: 12))
           Text("View Build Log")
-            .font(Theme.Typography.caption)
+            .font(Geist.Typography.caption)
         }
       }
       .buttonStyle(.borderedProminent)
-      .tint(Theme.Colors.statusError)
+      .tint(Geist.Colors.statusError)
       .controlSize(.small)
 
       // Secondary actions
@@ -299,9 +299,9 @@ struct DeploymentRowView: View {
             Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
               .font(.system(size: 11))
             Text(copiedURL ? "Copied!" : "Copy URL")
-              .font(Theme.Typography.caption)
+              .font(Geist.Typography.caption)
           }
-          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.buttonText)
+          .foregroundColor(copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -314,9 +314,9 @@ struct DeploymentRowView: View {
               Image(systemName: "safari")
                 .font(.system(size: 11))
               Text("Open in Vercel")
-                .font(Theme.Typography.caption)
+                .font(Geist.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.buttonText)
+            .foregroundColor(Geist.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -325,7 +325,7 @@ struct DeploymentRowView: View {
         Spacer()
       }
     }
-    .padding(.leading, Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+    .padding(.leading, Geist.Layout.statusDotSize + Geist.Layout.spacingSM)
   }
 
   private var regularActions: some View {
@@ -339,9 +339,9 @@ struct DeploymentRowView: View {
             Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
               .font(.system(size: 11))
             Text(copiedURL ? "Copied!" : "Copy URL")
-              .font(Theme.Typography.caption)
+              .font(Geist.Typography.caption)
           }
-          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.buttonText)
+          .foregroundColor(copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -355,9 +355,9 @@ struct DeploymentRowView: View {
               Image(systemName: "globe")
                 .font(.system(size: 11))
               Text("Open in Browser")
-                .font(Theme.Typography.caption)
+                .font(Geist.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.buttonText)
+            .foregroundColor(Geist.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -372,9 +372,9 @@ struct DeploymentRowView: View {
               Image(systemName: "safari")
                 .font(.system(size: 11))
               Text("Open in Vercel")
-                .font(Theme.Typography.caption)
+                .font(Geist.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.buttonText)
+            .foregroundColor(Geist.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -389,9 +389,9 @@ struct DeploymentRowView: View {
               Image(systemName: "arrow.up.right.square")
                 .font(.system(size: 11))
               Text("#\(prId)")
-                .font(Theme.Typography.caption)
+                .font(Geist.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.buttonText)
+            .foregroundColor(Geist.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -416,9 +416,9 @@ struct DeploymentRowView: View {
                 .font(.system(size: 11))
             }
             Text("Redeploy")
-              .font(Theme.Typography.caption)
+              .font(Geist.Typography.caption)
           }
-          .foregroundColor(Theme.Colors.buttonText)
+          .foregroundColor(Geist.Colors.buttonText)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -439,9 +439,9 @@ struct DeploymentRowView: View {
                   .font(.system(size: 11))
               }
               Text("Rollback")
-                .font(Theme.Typography.caption)
+                .font(Geist.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.statusError)
+            .foregroundColor(Geist.Colors.statusError)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -453,7 +453,7 @@ struct DeploymentRowView: View {
 
       Spacer()
     }
-    .padding(.leading, Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+    .padding(.leading, Geist.Layout.statusDotSize + Geist.Layout.spacingSM)
   }
 
   private func viewBuildLog() {

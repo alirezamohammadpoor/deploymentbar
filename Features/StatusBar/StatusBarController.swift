@@ -246,7 +246,7 @@ final class StatusBarController: NSObject {
 
     button.toolTip = isStale ? "Last refresh failed" : "VercelBar"
 
-    if isRecent, let tintColor = Theme.Colors.StatusBarIcon.color(for: latestDeploymentState) {
+    if isRecent, let tintColor = Geist.Colors.StatusBarIcon.color(for: latestDeploymentState) {
       button.image = tintedIcon(color: tintColor)
       button.image?.isTemplate = false
     } else {

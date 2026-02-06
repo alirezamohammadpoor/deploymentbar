@@ -70,13 +70,14 @@ struct StatusBarMenu: View {
       Divider()
       content
     }
-    .frame(width: Theme.Layout.popoverWidth)
-    .frame(maxHeight: Theme.Layout.popoverMaxHeight)
-    .background(VisualEffectBackground())
+    .frame(width: Geist.Layout.popoverWidth)
+    .frame(maxHeight: Geist.Layout.popoverMaxHeight)
+    .background(Geist.Colors.backgroundPrimary)
     .overlay(
-      RoundedRectangle(cornerRadius: Theme.Layout.popoverCornerRadius)
-        .strokeBorder(Theme.Colors.border, lineWidth: Theme.Layout.popoverBorderWidth)
+      RoundedRectangle(cornerRadius: Geist.Layout.popoverCornerRadius)
+        .strokeBorder(Geist.Colors.border, lineWidth: Geist.Layout.popoverBorderWidth)
     )
+    .preferredColorScheme(.dark)
     .onReceive(store.$deployments) { deployments in
       if !deployments.isEmpty && isInitialLoad {
         isInitialLoad = false
@@ -108,22 +109,22 @@ struct StatusBarMenu: View {
   // MARK: - Offline Banner
 
   private var offlineBanner: some View {
-    HStack(spacing: Theme.Layout.spacingSM) {
+    HStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "wifi.slash")
         .font(.system(size: 12))
       Text("No internet connection")
-        .font(Theme.Typography.caption)
+        .font(Geist.Typography.caption)
     }
-    .foregroundColor(Theme.Colors.statusBuilding)
+    .foregroundColor(Geist.Colors.statusBuilding)
     .frame(maxWidth: .infinity)
-    .padding(.vertical, Theme.Layout.spacingXS)
-    .background(Theme.Colors.statusBuilding.opacity(0.15))
+    .padding(.vertical, Geist.Layout.spacingXS)
+    .background(Geist.Colors.statusBuilding.opacity(0.15))
   }
 
   // MARK: - Header
 
   private var header: some View {
-    HStack(spacing: Theme.Layout.spacingSM) {
+    HStack(spacing: Geist.Layout.spacingSM) {
       // Segmented filter picker
       Picker("", selection: $filter) {
         ForEach(EnvironmentFilter.allCases, id: \.self) { tab in
@@ -166,11 +167,11 @@ struct StatusBarMenu: View {
         } label: {
           HStack(spacing: 2) {
             Text(projectFilterLabel)
-              .font(Theme.Typography.caption)
+              .font(Geist.Typography.caption)
             Image(systemName: "chevron.down")
               .font(.system(size: 8, weight: .medium))
           }
-          .foregroundColor(Theme.Colors.textSecondary)
+          .foregroundColor(Geist.Colors.textSecondary)
         }
         .menuStyle(.borderlessButton)
         .fixedSize()
@@ -182,7 +183,7 @@ struct StatusBarMenu: View {
       } label: {
         Image(systemName: "arrow.clockwise")
           .font(.system(size: 12, weight: .medium))
-          .foregroundColor(Theme.Colors.textSecondary)
+          .foregroundColor(Geist.Colors.textSecondary)
           .rotationEffect(.degrees(refreshRotation))
       }
       .buttonStyle(.plain)
@@ -192,13 +193,13 @@ struct StatusBarMenu: View {
       SettingsLink {
         Image(systemName: "gearshape")
           .font(.system(size: 12, weight: .medium))
-          .foregroundColor(Theme.Colors.textSecondary)
+          .foregroundColor(Geist.Colors.textSecondary)
       }
       .buttonStyle(.plain)
       .help("Open settings")
     }
-    .padding(.horizontal, Theme.Layout.spacingMD)
-    .padding(.vertical, Theme.Layout.spacingSM)
+    .padding(.horizontal, Geist.Layout.spacingMD)
+    .padding(.vertical, Geist.Layout.spacingSM)
     .frame(height: 32)
   }
 
@@ -279,50 +280,50 @@ struct StatusBarMenu: View {
   }
 
   private func errorBanner(_ error: String) -> some View {
-    HStack(spacing: Theme.Layout.spacingSM) {
+    HStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: 12))
       Text(error)
-        .font(Theme.Typography.caption)
+        .font(Geist.Typography.caption)
         .lineLimit(1)
       Spacer()
       Button("Retry") {
         performRefresh()
       }
       .buttonStyle(.plain)
-      .font(Theme.Typography.caption)
-      .foregroundColor(Theme.Colors.textSecondary)
+      .font(Geist.Typography.caption)
+      .foregroundColor(Geist.Colors.textSecondary)
     }
-    .foregroundColor(Theme.Colors.statusError)
-    .padding(.horizontal, Theme.Layout.spacingMD)
-    .padding(.vertical, Theme.Layout.spacingXS)
-    .background(Theme.Colors.statusError.opacity(0.1))
+    .foregroundColor(Geist.Colors.statusError)
+    .padding(.horizontal, Geist.Layout.spacingMD)
+    .padding(.vertical, Geist.Layout.spacingXS)
+    .background(Geist.Colors.statusError.opacity(0.1))
   }
 
   private var emptyState: some View {
-    VStack(spacing: Theme.Layout.spacingSM) {
+    VStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "cloud.slash")
         .font(.system(size: 48))
-        .foregroundColor(Theme.Colors.textTertiary)
+        .foregroundColor(Geist.Colors.textTertiary)
       Text("No deployments found")
-        .font(.system(size: 13))
-        .foregroundColor(Theme.Colors.textSecondary)
+        .font(Geist.Typography.projectName)
+        .foregroundColor(Geist.Colors.textSecondary)
       Text("Deploy a project to see it here")
-        .font(.system(size: 12))
-        .foregroundColor(Theme.Colors.textTertiary)
+        .font(Geist.Typography.commitMessage)
+        .foregroundColor(Geist.Colors.textTertiary)
     }
     .frame(maxWidth: .infinity)
-    .padding(.vertical, Theme.Layout.spacingXL)
+    .padding(.vertical, Geist.Layout.spacingXL)
   }
 
   private func errorState(_ error: String) -> some View {
-    VStack(spacing: Theme.Layout.spacingSM) {
+    VStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: 32))
-        .foregroundColor(Theme.Colors.statusBuilding)
+        .foregroundColor(Geist.Colors.statusBuilding)
       Text(error)
-        .font(Theme.Typography.caption)
-        .foregroundColor(Theme.Colors.textSecondary)
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.textSecondary)
         .multilineTextAlignment(.center)
         .lineLimit(3)
       Button("Retry") {
@@ -332,8 +333,8 @@ struct StatusBarMenu: View {
       .controlSize(.small)
     }
     .frame(maxWidth: .infinity)
-    .padding(.vertical, Theme.Layout.spacingXL)
-    .padding(.horizontal, Theme.Layout.spacingMD)
+    .padding(.vertical, Geist.Layout.spacingXL)
+    .padding(.horizontal, Geist.Layout.spacingMD)
   }
 
   private var deploymentList: some View {
@@ -357,7 +358,7 @@ struct StatusBarMenu: View {
           // Row separator (inset to align with project name, past status dot)
           if index < filteredDeployments.count - 1 {
             Divider()
-              .padding(.leading, Theme.Layout.spacingMD + Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+              .padding(.leading, Geist.Layout.spacingMD + Geist.Layout.statusDotSize + Geist.Layout.spacingSM)
           }
         }
       }

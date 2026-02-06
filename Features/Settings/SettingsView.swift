@@ -39,12 +39,12 @@ struct SettingsView: View {
           VStack(alignment: .leading, spacing: 12) {
             Toggle("Notify on ready", isOn: $settings.notifyOnReady)
               .toggleStyle(VercelToggleStyle())
-              .font(Theme.Typography.Settings.fieldLabel)
-              .foregroundColor(Theme.Colors.Settings.foreground)
+              .font(Geist.Typography.Settings.fieldLabel)
+              .foregroundColor(Geist.Colors.gray1000)
             Toggle("Notify on failed", isOn: $settings.notifyOnFailed)
               .toggleStyle(VercelToggleStyle())
-              .font(Theme.Typography.Settings.fieldLabel)
-              .foregroundColor(Theme.Colors.Settings.foreground)
+              .font(Geist.Typography.Settings.fieldLabel)
+              .foregroundColor(Geist.Colors.gray1000)
           }
         }
 
@@ -53,8 +53,8 @@ struct SettingsView: View {
           VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
               Text("Polling interval")
-                .font(Theme.Typography.Settings.fieldLabel)
-                .foregroundColor(Theme.Colors.Settings.foreground)
+                .font(Geist.Typography.Settings.fieldLabel)
+                .foregroundColor(Geist.Colors.gray1000)
               VercelSegmentedControl(
                 selection: $settings.pollingInterval,
                 options: pollingOptions
@@ -69,8 +69,8 @@ struct SettingsView: View {
 
             Toggle("Launch at login", isOn: $settings.launchAtLogin)
               .toggleStyle(VercelToggleStyle())
-              .font(Theme.Typography.Settings.fieldLabel)
-              .foregroundColor(Theme.Colors.Settings.foreground)
+              .font(Geist.Typography.Settings.fieldLabel)
+              .foregroundColor(Geist.Colors.gray1000)
               .onChange(of: settings.launchAtLogin) { newValue in
                 let success = launchAtLoginManager.setEnabled(newValue)
                 if !success {
@@ -83,6 +83,11 @@ struct SettingsView: View {
         // BUILD LOGS
         buildLogsSection
 
+        // DESIGN PREVIEW
+        section("Design Preview") {
+          DesignPreviewView()
+        }
+
         // ACCOUNT
         if authSession.status == .signedIn {
           section("Account") {
@@ -93,18 +98,18 @@ struct SettingsView: View {
                 Image(systemName: "rectangle.portrait.and.arrow.right")
                 Text("Sign Out")
               }
-              .font(Theme.Typography.Settings.button)
+              .font(Geist.Typography.Settings.button)
               .foregroundColor(.red)
             }
             .buttonStyle(.plain)
           }
         }
       }
-      .padding(.horizontal, Theme.Layout.settingsHPadding)
-      .padding(.vertical, Theme.Layout.settingsVPadding)
+      .padding(.horizontal, Geist.Layout.settingsHPadding)
+      .padding(.vertical, Geist.Layout.settingsVPadding)
     }
-    .frame(width: Theme.Layout.settingsWidth)
-    .background(Theme.Colors.Settings.background100)
+    .frame(width: Geist.Layout.settingsWidth)
+    .background(Geist.Colors.backgroundPrimary)
     .preferredColorScheme(.dark)
     .alert("Sign Out", isPresented: $showSignOutConfirmation) {
       Button("Cancel", role: .cancel) { }
@@ -139,8 +144,8 @@ struct SettingsView: View {
     section("Build Logs") {
       VStack(alignment: .leading, spacing: 6) {
         Text("Default log lines")
-          .font(Theme.Typography.Settings.fieldLabel)
-          .foregroundColor(Theme.Colors.Settings.foreground)
+          .font(Geist.Typography.Settings.fieldLabel)
+          .foregroundColor(Geist.Colors.gray1000)
         VercelSegmentedControl(
           selection: $settings.defaultLogLines,
           options: logLineOptions

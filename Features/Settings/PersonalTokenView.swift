@@ -35,13 +35,13 @@ struct PersonalTokenView: View {
 
       if let statusMessage {
         Text(statusMessage)
-          .font(Theme.Typography.Settings.helperText)
-          .foregroundColor(statusMessage == "Token saved." ? Theme.Colors.Settings.success : Theme.Colors.Settings.accents5)
+          .font(Geist.Typography.Settings.helperText)
+          .foregroundColor(statusMessage == "Token saved." ? Geist.Colors.statusReady : Geist.Colors.gray800)
       }
 
       Text("Personal tokens skip OAuth and unlock deployment access immediately.")
-        .font(Theme.Typography.Settings.helperText)
-        .foregroundColor(Theme.Colors.Settings.accents4)
+        .font(Geist.Typography.Settings.helperText)
+        .foregroundColor(Geist.Colors.gray700)
     }
   }
 }

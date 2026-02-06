@@ -40,7 +40,7 @@ struct BuildLogWindow: View {
     }
     .frame(minWidth: 400, idealWidth: 600, minHeight: 300, idealHeight: 500)
     .preferredColorScheme(.dark)
-    .background(Color.black)
+    .background(Geist.Colors.backgroundPrimary)
     .task {
       await viewModel.fetchLogs()
     }
@@ -56,7 +56,7 @@ struct BuildLogWindow: View {
             .foregroundColor(.secondary)
           TextField("Search logs...", text: $searchText)
             .textFieldStyle(.plain)
-            .font(.system(size: 12, design: .monospaced))
+            .font(Geist.Typography.branchName)
           if !searchText.isEmpty {
             Button {
               searchText = ""
@@ -69,7 +69,7 @@ struct BuildLogWindow: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(Color.white.opacity(0.1))
+        .background(Geist.Colors.gray200)
         .cornerRadius(6)
       }
 
@@ -147,7 +147,7 @@ struct BuildLogWindow: View {
     }
     .padding(.horizontal, 12)
     .padding(.vertical, 8)
-    .background(Color(white: 0.1))
+    .background(Geist.Colors.backgroundSecondary)
   }
 
   // MARK: - Log Content
@@ -188,8 +188,8 @@ struct BuildLogWindow: View {
       ProgressView()
         .scaleEffect(1.5)
       Text("Loading build logs...")
-        .font(.system(size: 13))
-        .foregroundColor(.secondary)
+        .font(Geist.Typography.projectName)
+        .foregroundColor(Geist.Colors.textSecondary)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
@@ -198,10 +198,10 @@ struct BuildLogWindow: View {
     VStack(spacing: 12) {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: 32))
-        .foregroundColor(.orange)
+        .foregroundColor(Geist.Colors.statusBuilding)
       Text(error)
-        .font(.system(size: 13))
-        .foregroundColor(.secondary)
+        .font(Geist.Typography.projectName)
+        .foregroundColor(Geist.Colors.textSecondary)
         .multilineTextAlignment(.center)
       Button("Retry") {
         Task {
@@ -218,10 +218,10 @@ struct BuildLogWindow: View {
     VStack(spacing: 12) {
       Image(systemName: "doc.text")
         .font(.system(size: 32))
-        .foregroundColor(.secondary)
+        .foregroundColor(Geist.Colors.textSecondary)
       Text("No build logs available")
-        .font(.system(size: 13))
-        .foregroundColor(.secondary)
+        .font(Geist.Typography.projectName)
+        .foregroundColor(Geist.Colors.textSecondary)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
   }
@@ -253,15 +253,15 @@ struct LogLineView: View {
     HStack(alignment: .top, spacing: 0) {
       // Line number gutter
       Text("\(line.lineNumber)")
-        .font(.system(size: 11, design: .monospaced))
-        .foregroundColor(Color(white: 0.4))
+        .font(Geist.Typography.branchName)
+        .foregroundColor(Geist.Colors.gray600)
         .frame(width: 40, alignment: .trailing)
         .padding(.trailing, 8)
 
       // Log text
       Text(attributedText)
-        .font(.system(size: 11, design: .monospaced))
-        .foregroundColor(line.isError ? .red : .white)
+        .font(Geist.Typography.branchName)
+        .foregroundColor(line.isError ? Geist.Colors.statusError : Geist.Colors.textPrimary)
         .textSelection(.enabled)
     }
     .padding(.horizontal, 8)

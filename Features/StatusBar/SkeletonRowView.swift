@@ -6,10 +6,10 @@ struct SkeletonRowView: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 4) {
       // Line 1: Status dot, project name, time
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingSM) {
         Circle()
           .fill(skeletonColor)
-          .frame(width: Theme.Layout.statusDotSize, height: Theme.Layout.statusDotSize)
+          .frame(width: Geist.Layout.statusDotSize, height: Geist.Layout.statusDotSize)
 
         skeletonRect(width: 120, height: 14)
 
@@ -19,17 +19,17 @@ struct SkeletonRowView: View {
       }
 
       // Line 2: Commit message
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingSM) {
         Color.clear
-          .frame(width: Theme.Layout.statusDotSize)
+          .frame(width: Geist.Layout.statusDotSize)
 
         skeletonRect(width: 200, height: 12)
       }
 
       // Line 3: Branch, author
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingSM) {
         Color.clear
-          .frame(width: Theme.Layout.statusDotSize)
+          .frame(width: Geist.Layout.statusDotSize)
 
         skeletonRect(width: 60, height: 16)
         skeletonRect(width: 80, height: 12)
@@ -37,16 +37,16 @@ struct SkeletonRowView: View {
         Spacer()
       }
     }
-    .frame(height: Theme.Layout.rowHeight)
-    .padding(.horizontal, Theme.Layout.spacingSM)
-    .padding(.vertical, Theme.Layout.spacingXS)
+    .frame(height: Geist.Layout.rowHeight)
+    .padding(.horizontal, Geist.Layout.spacingSM)
+    .padding(.vertical, Geist.Layout.spacingXS)
     .onAppear {
       startShimmer()
     }
   }
 
   private var skeletonColor: Color {
-    Theme.Colors.backgroundSecondary
+    Geist.Colors.backgroundSecondary
   }
 
   private func skeletonRect(width: CGFloat, height: CGFloat) -> some View {
@@ -62,7 +62,7 @@ struct SkeletonRowView: View {
       LinearGradient(
         colors: [
           Color.clear,
-          Color.white.opacity(0.1),
+          Geist.Colors.gray400.opacity(0.3),
           Color.clear
         ],
         startPoint: .leading,
