@@ -41,11 +41,13 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
       }
 
       let authStatus = await center.notificationSettings().authorizationStatus
-      guard authStatus == .authorized || authStatus == .provisional else {
-        DebugLog.write("postDeploymentNotification: not authorized (status=\(authStatus.rawValue)), requesting authorization")
-        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-          DebugLog.write("postDeploymentNotification: authorization result granted=\(granted) error=\(String(describing: error))")
-        }
+      if authStatus == .notDetermined {
+        DebugLog.write("postDeploymentNotification: not determined, requesting authorization")
+        let granted = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
+        DebugLog.write("postDeploymentNotification: authorization result granted=\(String(describing: granted))")
+        guard granted == true else { return }
+      } else if authStatus != .authorized && authStatus != .provisional {
+        DebugLog.write("postDeploymentNotification: not authorized (status=\(authStatus.rawValue))")
         return
       }
 

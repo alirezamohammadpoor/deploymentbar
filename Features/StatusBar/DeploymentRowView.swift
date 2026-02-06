@@ -38,7 +38,7 @@ struct DeploymentRowView: View {
     .frame(height: isExpanded ? Theme.Layout.rowExpandedHeight : Theme.Layout.rowHeight)
     .padding(.horizontal, Theme.Layout.spacingSM)
     .padding(.vertical, Theme.Layout.spacingXS)
-    .background(isHovered || isExpanded ? Theme.Colors.backgroundSecondary : Color.clear)
+    .background(isHovered || isExpanded ? Theme.Colors.rowHoverBackground : Color.clear)
     .overlay(
       RoundedRectangle(cornerRadius: 6)
         .strokeBorder(Color.accentColor, lineWidth: 2)
@@ -183,6 +183,11 @@ struct DeploymentRowView: View {
           Text(deployment.formattedBuildDuration)
             .font(Theme.Typography.buildDuration)
             .foregroundColor(Theme.Colors.textTertiary)
+
+          Text("·")
+            .font(Theme.Typography.timestamp)
+            .foregroundColor(Theme.Colors.textTertiary)
+            .padding(.horizontal, 2)
         }
 
         Text(relativeTime)
@@ -221,7 +226,7 @@ struct DeploymentRowView: View {
           .lineLimit(1)
           .padding(.horizontal, Theme.Layout.badgePaddingH)
           .padding(.vertical, Theme.Layout.badgePaddingV)
-          .background(Theme.Colors.backgroundSecondary)
+          .background(Theme.Colors.badgeBackground)
           .cornerRadius(Theme.Layout.badgeCornerRadius)
 
         // Author
@@ -253,9 +258,10 @@ struct DeploymentRowView: View {
   // MARK: - Expanded Content
 
   private var expandedContent: some View {
-    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
+    VStack(alignment: .leading, spacing: 0) {
       Divider()
-        .padding(.vertical, 4)
+        .padding(.top, 4)
+        .padding(.bottom, 8)
 
       // For failed deployments, show prominent View Build Log button
       if deployment.state == .error {
@@ -264,6 +270,7 @@ struct DeploymentRowView: View {
         regularActions
       }
     }
+    .padding(.bottom, 8)
   }
 
   private var failedDeploymentActions: some View {
@@ -284,7 +291,7 @@ struct DeploymentRowView: View {
       .controlSize(.small)
 
       // Secondary actions
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(alignment: .center, spacing: 8) {
         Button {
           copyDeploymentURL()
         } label: {
@@ -294,7 +301,7 @@ struct DeploymentRowView: View {
             Text(copiedURL ? "Copied!" : "Copy URL")
               .font(Theme.Typography.caption)
           }
-          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.textSecondary)
+          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.buttonText)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
@@ -309,7 +316,7 @@ struct DeploymentRowView: View {
               Text("Open in Vercel")
                 .font(Theme.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.textSecondary)
+            .foregroundColor(Theme.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -322,8 +329,8 @@ struct DeploymentRowView: View {
   }
 
   private var regularActions: some View {
-    VStack(alignment: .leading, spacing: Theme.Layout.spacingSM) {
-      HStack(spacing: Theme.Layout.spacingSM) {
+    VStack(alignment: .leading, spacing: 10) {
+      HStack(alignment: .center, spacing: 8) {
         // Copy URL button
         Button {
           copyDeploymentURL()
@@ -334,10 +341,27 @@ struct DeploymentRowView: View {
             Text(copiedURL ? "Copied!" : "Copy URL")
               .font(Theme.Typography.caption)
           }
-          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.textSecondary)
+          .foregroundColor(copiedURL ? Theme.Colors.statusReady : Theme.Colors.buttonText)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
+
+        // Open in Browser button (preview/production URL)
+        if let url = previewURL {
+          Button {
+            openURL(url)
+          } label: {
+            HStack(spacing: 4) {
+              Image(systemName: "globe")
+                .font(.system(size: 11))
+              Text("Open in Browser")
+                .font(Theme.Typography.caption)
+            }
+            .foregroundColor(Theme.Colors.buttonText)
+          }
+          .buttonStyle(.bordered)
+          .controlSize(.small)
+        }
 
         // Open in Vercel button
         if let url = vercelDashboardURL {
@@ -350,24 +374,24 @@ struct DeploymentRowView: View {
               Text("Open in Vercel")
                 .font(Theme.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.textSecondary)
+            .foregroundColor(Theme.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
         }
 
-        // Open PR button
-        if let prURL = deployment.prURL {
+        // Open PR button with PR number
+        if let prURL = deployment.prURL, let prId = deployment.prId {
           Button {
             openURL(prURL)
           } label: {
             HStack(spacing: 4) {
               Image(systemName: "arrow.up.right.square")
                 .font(.system(size: 11))
-              Text("Open PR")
+              Text("#\(prId)")
                 .font(Theme.Typography.caption)
             }
-            .foregroundColor(Theme.Colors.textSecondary)
+            .foregroundColor(Theme.Colors.buttonText)
           }
           .buttonStyle(.bordered)
           .controlSize(.small)
@@ -377,7 +401,7 @@ struct DeploymentRowView: View {
       }
 
       // Action buttons row (Redeploy, Rollback)
-      HStack(spacing: Theme.Layout.spacingSM) {
+      HStack(alignment: .center, spacing: 8) {
         // Redeploy button
         Button {
           showRedeployAlert = true
@@ -394,7 +418,7 @@ struct DeploymentRowView: View {
             Text("Redeploy")
               .font(Theme.Typography.caption)
           }
-          .foregroundColor(Theme.Colors.textSecondary)
+          .foregroundColor(Theme.Colors.buttonText)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)

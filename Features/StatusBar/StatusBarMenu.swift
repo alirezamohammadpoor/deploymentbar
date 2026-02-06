@@ -1,4 +1,33 @@
 import SwiftUI
+import AppKit
+
+// MARK: - Visual Effect Background
+
+struct VisualEffectBackground: NSViewRepresentable {
+  let material: NSVisualEffectView.Material
+  let blendingMode: NSVisualEffectView.BlendingMode
+
+  init(
+    material: NSVisualEffectView.Material = .menu,
+    blendingMode: NSVisualEffectView.BlendingMode = .behindWindow
+  ) {
+    self.material = material
+    self.blendingMode = blendingMode
+  }
+
+  func makeNSView(context: Context) -> NSVisualEffectView {
+    let view = NSVisualEffectView()
+    view.material = material
+    view.blendingMode = blendingMode
+    view.state = .active
+    return view
+  }
+
+  func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+    nsView.material = material
+    nsView.blendingMode = blendingMode
+  }
+}
 
 enum EnvironmentFilter: String, CaseIterable {
   case all
@@ -23,7 +52,9 @@ struct StatusBarMenu: View {
 
   @StateObject private var authSession = AuthSession.shared
   @StateObject private var networkMonitor = NetworkMonitor.shared
+  @StateObject private var projectStore = ProjectStore.shared
   @State private var filter: EnvironmentFilter = .all
+  @State private var selectedMenuProjectIds: Set<String> = []
   @State private var refreshRotation: Double = 0
   @State private var isRefreshing: Bool = false
   @State private var isInitialLoad: Bool = true
@@ -41,6 +72,7 @@ struct StatusBarMenu: View {
     }
     .frame(width: Theme.Layout.popoverWidth)
     .frame(maxHeight: Theme.Layout.popoverMaxHeight)
+    .background(VisualEffectBackground())
     .overlay(
       RoundedRectangle(cornerRadius: Theme.Layout.popoverCornerRadius)
         .strokeBorder(Theme.Colors.border, lineWidth: Theme.Layout.popoverBorderWidth)
@@ -105,6 +137,45 @@ struct StatusBarMenu: View {
 
       Spacer()
 
+      // Project filter dropdown
+      if !projectStore.projects.isEmpty {
+        Menu {
+          Button {
+            selectedMenuProjectIds = []
+          } label: {
+            if selectedMenuProjectIds.isEmpty {
+              Label("All Projects", systemImage: "checkmark")
+            } else {
+              Text("All Projects")
+            }
+          }
+
+          Divider()
+
+          ForEach(availableProjects, id: \.id) { project in
+            Button {
+              toggleProjectFilter(project.id)
+            } label: {
+              if selectedMenuProjectIds.contains(project.id) {
+                Label(project.name, systemImage: "checkmark")
+              } else {
+                Text(project.name)
+              }
+            }
+          }
+        } label: {
+          HStack(spacing: 2) {
+            Text(projectFilterLabel)
+              .font(Theme.Typography.caption)
+            Image(systemName: "chevron.down")
+              .font(.system(size: 8, weight: .medium))
+          }
+          .foregroundColor(Theme.Colors.textSecondary)
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+      }
+
       // Refresh button
       Button {
         performRefresh()
@@ -162,14 +233,24 @@ struct StatusBarMenu: View {
   // MARK: - Deployments
 
   private var filteredDeployments: [Deployment] {
+    var deployments: [Deployment]
     switch filter {
     case .all:
-      return store.deployments
+      deployments = store.deployments
     case .production:
-      return store.deployments.filter { $0.target == "production" }
+      deployments = store.deployments.filter { $0.target == "production" }
     case .preview:
-      return store.deployments.filter { $0.target != "production" }
+      deployments = store.deployments.filter { $0.target != "production" }
     }
+
+    if !selectedMenuProjectIds.isEmpty {
+      deployments = deployments.filter { d in
+        guard let pid = d.projectId else { return true }
+        return selectedMenuProjectIds.contains(pid)
+      }
+    }
+
+    return deployments
   }
 
   private var deploymentsView: some View {
@@ -258,7 +339,7 @@ struct StatusBarMenu: View {
   private var deploymentList: some View {
     ScrollView {
       LazyVStack(spacing: 0) {
-        ForEach(filteredDeployments) { deployment in
+        ForEach(Array(filteredDeployments.enumerated()), id: \.element.id) { index, deployment in
           DeploymentRowView(
             deployment: deployment,
             relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt),
@@ -272,6 +353,12 @@ struct StatusBarMenu: View {
               performRefresh()
             }
           )
+
+          // Row separator (inset to align with project name, past status dot)
+          if index < filteredDeployments.count - 1 {
+            Divider()
+              .padding(.leading, Theme.Layout.spacingMD + Theme.Layout.statusDotSize + Theme.Layout.spacingSM)
+          }
         }
       }
     }
@@ -293,6 +380,36 @@ struct StatusBarMenu: View {
       return url
     }
     return URL(string: "https://\(value)")
+  }
+
+  // MARK: - Project Filter
+
+  private var availableProjects: [Project] {
+    let settingsIds = SettingsStore.shared.selectedProjectIds
+    if settingsIds.isEmpty {
+      return projectStore.projects
+    }
+    return projectStore.projects.filter { settingsIds.contains($0.id) }
+  }
+
+  private var projectFilterLabel: String {
+    if selectedMenuProjectIds.isEmpty {
+      return "Project"
+    }
+    if selectedMenuProjectIds.count == 1,
+       let pid = selectedMenuProjectIds.first,
+       let project = projectStore.projects.first(where: { $0.id == pid }) {
+      return project.name
+    }
+    return "\(selectedMenuProjectIds.count) Projects"
+  }
+
+  private func toggleProjectFilter(_ projectId: String) {
+    if selectedMenuProjectIds.contains(projectId) {
+      selectedMenuProjectIds.remove(projectId)
+    } else {
+      selectedMenuProjectIds.insert(projectId)
+    }
   }
 
   // MARK: - Keyboard Navigation
