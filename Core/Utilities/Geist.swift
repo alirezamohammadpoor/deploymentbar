@@ -92,24 +92,24 @@ enum Geist {
   // MARK: - Typography
 
   enum Typography {
-    static let projectName: Font = .custom("Geist-Medium", size: 13)
-    static let commitMessage: Font = .custom("Geist-Regular", size: 12)
-    static let caption: Font = .custom("Geist-Regular", size: 11)
-    static let timestamp: Font = .custom("Geist-Regular", size: 11)
-    static let author: Font = .custom("Geist-Regular", size: 11)
-    static let captionSmall: Font = .custom("Geist-Regular", size: 10)
-    static let sectionHeader: Font = .custom("Geist-SemiBold", size: 11)
-    static let branchName: Font = .custom("GeistMono-Regular", size: 11)
-    static let buildDuration: Font = .custom("GeistMono-Regular", size: 11)
+    static let projectName: Font = .custom("Geist-Medium", size: 14)
+    static let commitMessage: Font = .custom("Geist-Regular", size: 13)
+    static let caption: Font = .custom("Geist-Regular", size: 12)
+    static let timestamp: Font = .custom("Geist-Regular", size: 12)
+    static let author: Font = .custom("Geist-Regular", size: 12)
+    static let captionSmall: Font = .custom("Geist-Regular", size: 11)
+    static let sectionHeader: Font = .custom("Geist-SemiBold", size: 12)
+    static let branchName: Font = .custom("GeistMono-Regular", size: 12)
+    static let buildDuration: Font = .custom("GeistMono-Regular", size: 12)
 
     static let sectionHeaderTracking: CGFloat = 0.5
 
     enum Settings {
-      static let sectionHeader: Font = .custom("Geist-Medium", size: 11)
-      static let fieldLabel: Font = .custom("Geist-Medium", size: 13)
-      static let helperText: Font = .custom("Geist-Regular", size: 11)
-      static let inputText: Font = .custom("GeistMono-Regular", size: 13)
-      static let button: Font = .custom("Geist-Medium", size: 13)
+      static let sectionHeader: Font = .custom("Geist-Medium", size: 12)
+      static let fieldLabel: Font = .custom("Geist-Medium", size: 14)
+      static let helperText: Font = .custom("Geist-Regular", size: 12)
+      static let inputText: Font = .custom("GeistMono-Regular", size: 14)
+      static let button: Font = .custom("Geist-Medium", size: 14)
     }
   }
 

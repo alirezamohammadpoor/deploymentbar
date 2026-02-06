@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import UserNotifications
 
@@ -18,11 +19,18 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
   }
 
   func requestAuthorizationIfNeeded() {
-    center.getNotificationSettings { [weak self] settings in
+    Task { @MainActor in
+      let settings = await center.notificationSettings()
       DebugLog.write("Notification authorization status: \(settings.authorizationStatus.rawValue)")
       guard settings.authorizationStatus == .notDetermined else { return }
-      self?.center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-        DebugLog.write("Notification authorization granted=\(granted) error=\(String(describing: error))")
+      // Activate the app briefly so macOS shows the permission dialog
+      // (LSUIElement apps may not show it otherwise)
+      NSApp.activate(ignoringOtherApps: true)
+      do {
+        let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
+        DebugLog.write("Notification authorization granted=\(granted)")
+      } catch {
+        DebugLog.write("Notification authorization error=\(error)")
       }
     }
   }
