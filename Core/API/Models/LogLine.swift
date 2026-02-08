@@ -26,10 +26,6 @@ struct DeploymentEventDTO: Codable {
   }
 }
 
-struct DeploymentEventsResponse: Codable {
-  // The API returns an array of events directly
-}
-
 extension LogLine {
   static func from(dto: DeploymentEventDTO, lineNumber: Int) -> LogLine? {
     guard let payload = dto.payload, let text = payload.text else {

@@ -308,49 +308,17 @@ final class BuildLogViewModel: ObservableObject {
     isLoading = true
     error = nil
 
-    guard let config = VercelAuthConfig.load() else {
-      error = "Configuration not loaded"
-      isLoading = false
-      return
-    }
-
-    let credentialStore = CredentialStore()
-    let tokenProvider: () -> String? = {
-      credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
-    }
-
-    let client = VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
-    let teamId = credentialStore.loadTokens()?.teamId
-
     do {
+      let (client, teamId) = try APIClientFactory.create()
       let logs = try await client.fetchDeploymentEvents(deploymentId: deploymentId, teamId: teamId)
       logLines = logs
       isLoading = false
     } catch let apiError as APIError {
-      error = errorMessage(for: apiError)
+      error = apiError.userMessage
       isLoading = false
     } catch {
       self.error = "Failed to load logs"
       isLoading = false
-    }
-  }
-
-  private func errorMessage(for error: APIError) -> String {
-    switch error {
-    case .unauthorized:
-      return "Unauthorized - please sign in again"
-    case .forbidden:
-      return "You don't have permission to view these logs"
-    case .notFound:
-      return "Build logs not found"
-    case .rateLimited:
-      return "Rate limited - please try again later"
-    case .serverError:
-      return "Server error - please try again"
-    case .networkFailure:
-      return "Network error - check your connection"
-    default:
-      return "Failed to load logs"
     }
   }
 }

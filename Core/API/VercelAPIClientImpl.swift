@@ -11,8 +11,10 @@ final class VercelAPIClientImpl: VercelAPIClient {
     self.session = session
   }
 
-  func authorizationURL(state: String, codeChallenge: String?) -> URL {
-    var components = URLComponents(url: VercelEndpoints.oauthAuthorize, resolvingAgainstBaseURL: false)!
+  func authorizationURL(state: String, codeChallenge: String?) throws -> URL {
+    guard var components = URLComponents(url: VercelEndpoints.oauthAuthorize, resolvingAgainstBaseURL: false) else {
+      throw APIError.invalidResponse
+    }
     var items: [URLQueryItem] = [
       URLQueryItem(name: "client_id", value: config.clientId),
       URLQueryItem(name: "redirect_uri", value: config.redirectURI),
@@ -27,7 +29,10 @@ final class VercelAPIClientImpl: VercelAPIClient {
     }
 
     components.queryItems = items
-    return components.url!
+    guard let url = components.url else {
+      throw APIError.invalidResponse
+    }
+    return url
   }
 
   func exchangeCode(_ code: String, codeVerifier: String?, redirectURI: String) async throws -> TokenPair {
@@ -90,12 +95,6 @@ final class VercelAPIClientImpl: VercelAPIClient {
     }
     let response = try JSONDecoder.vercelDecoder.decode(DeploymentsResponse.self, from: data)
     return response.deployments
-  }
-
-  func fetchDeploymentDetail(idOrUrl: String) async throws -> DeploymentDetailDTO {
-    let encoded = idOrUrl.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? idOrUrl
-    let request = try authorizedRequest(path: "/v13/deployments/\(encoded)", queryItems: [])
-    return try await execute(request)
   }
 
   func fetchProjects(teamId: String? = nil) async throws -> [ProjectDTO] {
@@ -252,7 +251,9 @@ final class VercelAPIClientImpl: VercelAPIClient {
 
   private func authorizedRequest(path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
     guard let token = tokenProvider() else { throw APIError.unauthorized }
-    var components = URLComponents(url: VercelEndpoints.baseURL, resolvingAgainstBaseURL: false)!
+    guard var components = URLComponents(url: VercelEndpoints.baseURL, resolvingAgainstBaseURL: false) else {
+      throw APIError.invalidResponse
+    }
     components.path = path
     components.queryItems = queryItems.isEmpty ? nil : queryItems
     guard let url = components.url else { throw APIError.invalidResponse }

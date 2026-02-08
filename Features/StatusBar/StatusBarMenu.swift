@@ -60,6 +60,7 @@ struct StatusBarMenu: View {
   @State private var isInitialLoad: Bool = true
   @State private var expandedDeploymentId: String?
   @State private var focusedDeploymentId: String?
+  @State private var isHoveringProject = false
 
   var body: some View {
     VStack(spacing: 0) {
@@ -111,7 +112,7 @@ struct StatusBarMenu: View {
   private var offlineBanner: some View {
     HStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "wifi.slash")
-        .font(.system(size: 12))
+        .font(.system(size: Geist.Layout.iconSizeMD))
       Text("No internet connection")
         .font(Geist.Typography.caption)
     }
@@ -138,69 +139,78 @@ struct StatusBarMenu: View {
 
       Spacer()
 
-      // Project filter dropdown
-      if !projectStore.projects.isEmpty {
-        Menu {
-          Button {
-            selectedMenuProjectIds = []
-          } label: {
-            if selectedMenuProjectIds.isEmpty {
-              Label("All Projects", systemImage: "checkmark")
-            } else {
-              Text("All Projects")
-            }
-          }
-
-          Divider()
-
-          ForEach(availableProjects, id: \.id) { project in
+      HStack(spacing: Geist.Layout.spacingMD) {
+        // Project filter dropdown
+        if !projectStore.projects.isEmpty {
+          Menu {
             Button {
-              toggleProjectFilter(project.id)
+              selectedMenuProjectIds = []
             } label: {
-              if selectedMenuProjectIds.contains(project.id) {
-                Label(project.name, systemImage: "checkmark")
+              if selectedMenuProjectIds.isEmpty {
+                Label("All Projects", systemImage: "checkmark")
               } else {
-                Text(project.name)
+                Text("All Projects")
               }
             }
+
+            Divider()
+
+            ForEach(availableProjects, id: \.id) { project in
+              Button {
+                toggleProjectFilter(project.id)
+              } label: {
+                if selectedMenuProjectIds.contains(project.id) {
+                  Label(project.name, systemImage: "checkmark")
+                } else {
+                  Text(project.name)
+                }
+              }
+            }
+          } label: {
+            HStack(spacing: 4) {
+              Text(projectFilterLabel)
+                .font(Geist.Typography.caption)
+                .foregroundColor(Geist.Colors.textSecondary)
+              Image(systemName: "chevron.down")
+                .font(.system(size: Geist.Layout.iconSizeSM, weight: .medium))
+                .foregroundColor(Geist.Colors.textTertiary)
+            }
+            .padding(.horizontal, Geist.Layout.spacingSM)
+            .padding(.vertical, 4)
+            .background(isHoveringProject ? Geist.Colors.gray200 : Geist.Colors.gray100)
+            .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
+            .onHover { hovering in isHoveringProject = hovering }
           }
-        } label: {
-          HStack(spacing: 2) {
-            Text(projectFilterLabel)
-              .font(Geist.Typography.caption)
-            Image(systemName: "chevron.down")
-              .font(.system(size: 8, weight: .medium))
-          }
-          .foregroundColor(Geist.Colors.textSecondary)
+          .menuStyle(.borderlessButton)
+          .menuIndicator(.hidden)
+          .fixedSize()
         }
-        .menuStyle(.borderlessButton)
-        .fixedSize()
-      }
 
-      // Refresh button
-      Button {
-        performRefresh()
-      } label: {
-        Image(systemName: "arrow.clockwise")
-          .font(.system(size: 12, weight: .medium))
-          .foregroundColor(Geist.Colors.textSecondary)
-          .rotationEffect(.degrees(refreshRotation))
-      }
-      .buttonStyle(.plain)
-      .help("Refresh deployments")
+        // Refresh button
+        Button {
+          performRefresh()
+        } label: {
+          Image(systemName: "arrow.clockwise")
+            .font(.system(size: Geist.Layout.iconSizeMD, weight: .medium))
+            .foregroundColor(Geist.Colors.textSecondary)
+            .rotationEffect(.degrees(refreshRotation))
+        }
+        .buttonStyle(.plain)
+        .help("Refresh deployments")
 
-      // Settings button
-      SettingsLink {
-        Image(systemName: "gearshape")
-          .font(.system(size: 12, weight: .medium))
-          .foregroundColor(Geist.Colors.textSecondary)
+        // Settings button
+        SettingsLink {
+          Image(systemName: "gearshape")
+            .font(.system(size: Geist.Layout.iconSizeMD, weight: .medium))
+            .foregroundColor(Geist.Colors.textSecondary)
+        }
+        .buttonStyle(.plain)
+        .help("Open settings")
       }
-      .buttonStyle(.plain)
-      .help("Open settings")
     }
     .padding(.horizontal, Geist.Layout.spacingMD)
     .padding(.vertical, Geist.Layout.spacingSM)
-    .frame(height: 32)
+    .frame(height: Geist.Layout.headerHeight)
   }
 
   private func performRefresh() {

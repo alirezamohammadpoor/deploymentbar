@@ -46,8 +46,8 @@ enum Geist {
     static let border = gray500
     static let textTertiary = gray700
     static let textSecondary = gray900
-    static let textPrimary = gray1000
-    static let buttonText = gray1000
+    static let textPrimary = Color(hex: "#FFFFFF")
+    static let buttonText = Color(hex: "#FFFFFF")
     static let badgeBackground = gray100
 
     // Status colors
@@ -92,24 +92,24 @@ enum Geist {
   // MARK: - Typography
 
   enum Typography {
-    static let projectName: Font = .custom("Geist-Medium", size: 14)
-    static let commitMessage: Font = .custom("Geist-Regular", size: 13)
-    static let caption: Font = .custom("Geist-Regular", size: 12)
-    static let timestamp: Font = .custom("Geist-Regular", size: 12)
-    static let author: Font = .custom("Geist-Regular", size: 12)
-    static let captionSmall: Font = .custom("Geist-Regular", size: 11)
-    static let sectionHeader: Font = .custom("Geist-SemiBold", size: 12)
-    static let branchName: Font = .custom("GeistMono-Regular", size: 12)
-    static let buildDuration: Font = .custom("GeistMono-Regular", size: 12)
+    static let projectName: Font = .custom("Geist-Medium", size: 16)
+    static let commitMessage: Font = .custom("Geist-Regular", size: 15)
+    static let caption: Font = .custom("Geist-Regular", size: 13)
+    static let timestamp: Font = .custom("Geist-Regular", size: 13)
+    static let author: Font = .custom("Geist-Regular", size: 13)
+    static let captionSmall: Font = .custom("Geist-Regular", size: 12)
+    static let sectionHeader: Font = .custom("Geist-SemiBold", size: 13)
+    static let branchName: Font = .custom("GeistMono-Regular", size: 13)
+    static let buildDuration: Font = .custom("GeistMono-Regular", size: 13)
 
     static let sectionHeaderTracking: CGFloat = 0.5
 
     enum Settings {
-      static let sectionHeader: Font = .custom("Geist-Medium", size: 12)
-      static let fieldLabel: Font = .custom("Geist-Medium", size: 14)
-      static let helperText: Font = .custom("Geist-Regular", size: 12)
-      static let inputText: Font = .custom("GeistMono-Regular", size: 14)
-      static let button: Font = .custom("Geist-Medium", size: 14)
+      static let sectionHeader: Font = .custom("Geist-Medium", size: 13)
+      static let fieldLabel: Font = .custom("Geist-Medium", size: 16)
+      static let helperText: Font = .custom("Geist-Regular", size: 13)
+      static let inputText: Font = .custom("GeistMono-Regular", size: 15)
+      static let button: Font = .custom("Geist-Medium", size: 16)
     }
   }
 
@@ -118,7 +118,7 @@ enum Geist {
   enum Layout {
     // Popover
     static let popoverWidth: CGFloat = 380
-    static let popoverMaxHeight: CGFloat = 480
+    static let popoverMaxHeight: CGFloat = 290
     static let popoverCornerRadius: CGFloat = 10
     static let popoverBorderWidth: CGFloat = 1
 
@@ -130,12 +130,20 @@ enum Geist {
     static let spacingXL: CGFloat = 24
 
     // Row
-    static let rowHeight: CGFloat = 64
-    static let rowExpandedHeight: CGFloat = 140
-    static let statusDotSize: CGFloat = 8
+    static let rowHeight: CGFloat = 76
+    static let rowExpandedHeight: CGFloat = 160
+    static let statusDotSize: CGFloat = 10
     static let badgePaddingH: CGFloat = 6
     static let badgePaddingV: CGFloat = 2
     static let badgeCornerRadius: CGFloat = 4
+
+    // Header
+    static let headerHeight: CGFloat = 32
+    static let headerDropdownRadius: CGFloat = 6
+
+    // Icons
+    static let iconSizeSM: CGFloat = 10
+    static let iconSizeMD: CGFloat = 12
 
     // Settings
     static let settingsWidth: CGFloat = 400

@@ -1,12 +1,11 @@
 import Foundation
 
 protocol VercelAPIClient {
-  func authorizationURL(state: String, codeChallenge: String?) -> URL
+  func authorizationURL(state: String, codeChallenge: String?) throws -> URL
   func exchangeCode(_ code: String, codeVerifier: String?, redirectURI: String) async throws -> TokenPair
   func refreshToken(_ refreshToken: String) async throws -> TokenPair
   func revokeToken(_ token: String) async throws
   func fetchDeployments(limit: Int, projectIds: [String]?, teamId: String?) async throws -> [DeploymentDTO]
-  func fetchDeploymentDetail(idOrUrl: String) async throws -> DeploymentDetailDTO
   func fetchDeploymentEvents(deploymentId: String, teamId: String?) async throws -> [LogLine]
   func fetchProjects(teamId: String?) async throws -> [ProjectDTO]
   func fetchTeams() async throws -> [TeamDTO]

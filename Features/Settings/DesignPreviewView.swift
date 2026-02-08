@@ -192,7 +192,7 @@ struct DesignPreviewView: View {
             .frame(width: Geist.Layout.statusDotSize)
           Text("fix: resolve login redirect issue")
             .font(Geist.Typography.commitMessage)
-            .foregroundColor(Geist.Colors.textSecondary)
+            .foregroundColor(Geist.Colors.textPrimary)
         }
 
         // Line 3

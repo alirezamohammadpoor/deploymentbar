@@ -3,7 +3,7 @@ import XCTest
 
 final class RefreshEngineErrorTests: XCTestCase {
   func testErrorMessageForOAuthError() {
-    let message = RefreshEngine.errorMessage(for: .oauthError("invalid_client"))
+    let message = APIError.oauthError("invalid_client").userMessage
     XCTAssertEqual(message, "invalid_client")
   }
 }

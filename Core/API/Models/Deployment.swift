@@ -76,22 +76,6 @@ struct DeploymentDTO: Codable, Equatable {
   }
 }
 
-struct DeploymentDetailDTO: Codable, Equatable {
-  let uid: String
-  let name: String
-  let url: String?
-  let status: String?
-  let readyState: String?
-  let createdAt: Int64
-  let ready: Int64?
-  let projectId: String?
-  let gitSource: GitSource?
-
-  struct GitSource: Codable, Equatable {
-    let ref: String?
-  }
-}
-
 extension Deployment {
   static func from(dto: DeploymentDTO) -> Deployment {
     let createdAt = Date(timeIntervalSince1970: TimeInterval(dto.createdAt) / 1000)

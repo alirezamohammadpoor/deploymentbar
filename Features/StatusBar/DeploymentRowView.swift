@@ -203,7 +203,7 @@ struct DeploymentRowView: View {
         if let commitMessage = deployment.commitMessage {
           Text(commitMessage)
             .font(Geist.Typography.commitMessage)
-            .foregroundColor(Geist.Colors.textSecondary)
+            .foregroundColor(Geist.Colors.textPrimary)
             .lineLimit(isExpanded ? 3 : 1)
         } else {
           Text("No commit message")
@@ -292,34 +292,15 @@ struct DeploymentRowView: View {
 
       // Secondary actions
       HStack(alignment: .center, spacing: 8) {
-        Button {
-          copyDeploymentURL()
-        } label: {
-          HStack(spacing: 4) {
-            Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
-              .font(.system(size: 11))
-            Text(copiedURL ? "Copied!" : "Copy URL")
-              .font(Geist.Typography.caption)
-          }
-          .foregroundColor(copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText)
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
+        ActionButton(
+          icon: copiedURL ? "checkmark" : "doc.on.doc",
+          label: copiedURL ? "Copied!" : "Copy URL",
+          color: copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText,
+          action: copyDeploymentURL
+        )
 
         if let url = vercelDashboardURL {
-          Button {
-            openURL(url)
-          } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "safari")
-                .font(.system(size: 11))
-              Text("Open in Vercel")
-                .font(Geist.Typography.caption)
-            }
-            .foregroundColor(Geist.Colors.buttonText)
-          }
-          .buttonStyle(.bordered)
-          .controlSize(.small)
+          ActionButton(icon: "safari", label: "Open in Vercel") { openURL(url) }
         }
 
         Spacer()
@@ -331,70 +312,23 @@ struct DeploymentRowView: View {
   private var regularActions: some View {
     VStack(alignment: .leading, spacing: 10) {
       HStack(alignment: .center, spacing: 8) {
-        // Copy URL button
-        Button {
-          copyDeploymentURL()
-        } label: {
-          HStack(spacing: 4) {
-            Image(systemName: copiedURL ? "checkmark" : "doc.on.doc")
-              .font(.system(size: 11))
-            Text(copiedURL ? "Copied!" : "Copy URL")
-              .font(Geist.Typography.caption)
-          }
-          .foregroundColor(copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText)
-        }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
+        ActionButton(
+          icon: copiedURL ? "checkmark" : "doc.on.doc",
+          label: copiedURL ? "Copied!" : "Copy URL",
+          color: copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText,
+          action: copyDeploymentURL
+        )
 
-        // Open in Browser button (preview/production URL)
         if let url = previewURL {
-          Button {
-            openURL(url)
-          } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "globe")
-                .font(.system(size: 11))
-              Text("Open in Browser")
-                .font(Geist.Typography.caption)
-            }
-            .foregroundColor(Geist.Colors.buttonText)
-          }
-          .buttonStyle(.bordered)
-          .controlSize(.small)
+          ActionButton(icon: "globe", label: "Open in Browser") { openURL(url) }
         }
 
-        // Open in Vercel button
         if let url = vercelDashboardURL {
-          Button {
-            openURL(url)
-          } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "safari")
-                .font(.system(size: 11))
-              Text("Open in Vercel")
-                .font(Geist.Typography.caption)
-            }
-            .foregroundColor(Geist.Colors.buttonText)
-          }
-          .buttonStyle(.bordered)
-          .controlSize(.small)
+          ActionButton(icon: "safari", label: "Open in Vercel") { openURL(url) }
         }
 
-        // Open PR button with PR number
         if let prURL = deployment.prURL, let prId = deployment.prId {
-          Button {
-            openURL(prURL)
-          } label: {
-            HStack(spacing: 4) {
-              Image(systemName: "arrow.up.right.square")
-                .font(.system(size: 11))
-              Text("#\(prId)")
-                .font(Geist.Typography.caption)
-            }
-            .foregroundColor(Geist.Colors.buttonText)
-          }
-          .buttonStyle(.bordered)
-          .controlSize(.small)
+          ActionButton(icon: "arrow.up.right.square", label: "#\(prId)") { openURL(prURL) }
         }
 
         Spacer()
@@ -513,30 +447,16 @@ struct DeploymentRowView: View {
 
     Task {
       do {
-        guard let config = VercelAuthConfig.load() else {
-          throw APIError.invalidResponse
-        }
+        let (client, teamId) = try APIClientFactory.create()
 
-        let credentialStore = CredentialStore()
-        let tokenProvider: () -> String? = {
-          credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
-        }
-
-        let client = VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
-        let teamId = credentialStore.loadTokens()?.teamId
-
-        // We need the git source info from the original deployment
-        // For now, we'll use the branch info we have
         guard let branch = deployment.branch else {
           throw APIError.invalidResponse
         }
 
-        // Note: A real redeploy would need the git source info from the deployment metadata
-        // This is a simplified version that would need enhancement
         let gitSource = GitDeploymentSource(
           type: "github",
           ref: branch,
-          repoId: "" // Would need to be extracted from deployment meta
+          repoId: ""
         )
 
         _ = try await client.createDeployment(
@@ -553,7 +473,7 @@ struct DeploymentRowView: View {
       } catch let error as APIError {
         await MainActor.run {
           isRedeploying = false
-          actionError = errorMessage(for: error)
+          actionError = error.userMessage
         }
       } catch {
         await MainActor.run {
@@ -572,17 +492,7 @@ struct DeploymentRowView: View {
 
     Task {
       do {
-        guard let config = VercelAuthConfig.load() else {
-          throw APIError.invalidResponse
-        }
-
-        let credentialStore = CredentialStore()
-        let tokenProvider: () -> String? = {
-          credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
-        }
-
-        let client = VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
-        let teamId = credentialStore.loadTokens()?.teamId
+        let (client, teamId) = try APIClientFactory.create()
 
         try await client.rollbackProject(
           projectId: projectId,
@@ -597,7 +507,7 @@ struct DeploymentRowView: View {
       } catch let error as APIError {
         await MainActor.run {
           isRollingBack = false
-          actionError = errorMessage(for: error)
+          actionError = error.userMessage
         }
       } catch {
         await MainActor.run {
@@ -607,19 +517,27 @@ struct DeploymentRowView: View {
       }
     }
   }
+}
 
-  private func errorMessage(for error: APIError) -> String {
-    switch error {
-    case .forbidden:
-      return "You don't have permission to perform this action"
-    case .unauthorized:
-      return "Please sign in again"
-    case .rateLimited:
-      return "Rate limited - try again later"
-    case .serverError:
-      return "Server error - try again"
-    default:
-      return "Action failed"
+// MARK: - Reusable Action Button
+
+private struct ActionButton: View {
+  let icon: String
+  let label: String
+  var color: Color = Geist.Colors.buttonText
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 4) {
+        Image(systemName: icon)
+          .font(.system(size: 11))
+        Text(label)
+          .font(Geist.Typography.caption)
+      }
+      .foregroundColor(color)
     }
+    .buttonStyle(.bordered)
+    .controlSize(.small)
   }
 }

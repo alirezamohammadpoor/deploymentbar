@@ -85,11 +85,15 @@ final class AuthSession: ObservableObject {
       self?.credentialStore.loadTokens()?.accessToken
     })
 
-    let url = client?.authorizationURL(state: state, codeChallenge: challenge)
-    if let url {
-      status = .signingIn
-      NSWorkspace.shared.open(url)
-    } else {
+    do {
+      let url = try client?.authorizationURL(state: state, codeChallenge: challenge)
+      if let url {
+        status = .signingIn
+        NSWorkspace.shared.open(url)
+      } else {
+        status = .error("Failed to build authorization URL")
+      }
+    } catch {
       status = .error("Failed to build authorization URL")
     }
   }
@@ -147,7 +151,7 @@ final class AuthSession: ObservableObject {
         self.status = .signedIn
       } catch let error as APIError {
         stateStore.clear()
-        self.status = .error(errorMessage(for: error))
+        self.status = .error(error.userMessage)
       } catch {
         stateStore.clear()
         self.status = .error("Token exchange failed")
@@ -174,31 +178,6 @@ final class AuthSession: ObservableObject {
     }
   }
 
-  private func errorMessage(for error: APIError) -> String {
-    switch error {
-    case .oauthError(let message):
-      return message
-    case .unauthorized:
-      return "Unauthorized"
-    case .forbidden:
-      return "Access denied"
-    case .notFound:
-      return "Not found"
-    case .rateLimited(let resetAt):
-      if let resetAt {
-        return "Rate limited until \(DateFormatter.shortTime.string(from: resetAt))"
-      }
-      return "Rate limited"
-    case .serverError:
-      return "Server error"
-    case .decodingFailed:
-      return "Decode error"
-    case .networkFailure:
-      return "Network error"
-    case .invalidResponse:
-      return "Invalid response"
-    }
-  }
 
   static func stateMismatchMessage(expected: String?, received: String?, code: String?) -> String {
     guard let code, !code.isEmpty else {

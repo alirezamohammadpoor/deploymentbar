@@ -145,12 +145,12 @@ final class RefreshEngine {
       backoffStep = 0
       await updateStatus(isStale: false, error: nil, markRefresh: true)
     } catch let error as APIError {
-      DebugLog.write("RefreshEngine API error: \(Self.errorMessage(for: error))")
+      DebugLog.write("RefreshEngine API error: \(error.userMessage)")
       if case .unauthorized = error {
         await MainActor.run { authSession.signOut() }
       }
       backoffStep = min(backoffStep + 1, 4)
-      await updateStatus(isStale: true, error: Self.errorMessage(for: error))
+      await updateStatus(isStale: true, error: error.userMessage)
     } catch {
       DebugLog.write("RefreshEngine error: \(error)")
       backoffStep = min(backoffStep + 1, 4)
@@ -180,38 +180,4 @@ final class RefreshEngine {
     }
   }
 
-  static func errorMessage(for error: APIError) -> String {
-    switch error {
-    case .unauthorized:
-      return "Unauthorized"
-    case .forbidden:
-      return "Access denied"
-    case .notFound:
-      return "Not found"
-    case .rateLimited(let resetAt):
-      if let resetAt {
-        return "Rate limited until \(DateFormatter.shortTime.string(from: resetAt))"
-      }
-      return "Rate limited"
-    case .serverError:
-      return "Server error"
-    case .decodingFailed:
-      return "Decode error"
-    case .networkFailure:
-      return "Network error"
-    case .invalidResponse:
-      return "Invalid response"
-    case .oauthError(let message):
-      return message
-    }
-  }
-}
-
-private extension DateFormatter {
-  static var shortTime: DateFormatter {
-    let formatter = DateFormatter()
-    formatter.timeStyle = .short
-    formatter.dateStyle = .none
-    return formatter
-  }
 }
