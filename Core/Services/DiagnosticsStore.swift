@@ -8,6 +8,7 @@ final class DiagnosticsStore: ObservableObject {
   private let authSession: AuthSession
   private let refreshStatusStore: RefreshStatusStore
   private let settingsStore: SettingsStore
+  private let updaterStore: UpdaterStore
   private let bundle: Bundle
   private let fileManager: FileManager
   private let logPathProvider: () -> String
@@ -17,6 +18,7 @@ final class DiagnosticsStore: ObservableObject {
     authSession: AuthSession? = nil,
     refreshStatusStore: RefreshStatusStore? = nil,
     settingsStore: SettingsStore? = nil,
+    updaterStore: UpdaterStore? = nil,
     bundle: Bundle = .main,
     fileManager: FileManager = .default,
     logPathProvider: @escaping () -> String = { DebugLog.logPath },
@@ -25,6 +27,7 @@ final class DiagnosticsStore: ObservableObject {
     self.authSession = authSession ?? .shared
     self.refreshStatusStore = refreshStatusStore ?? .shared
     self.settingsStore = settingsStore ?? .shared
+    self.updaterStore = updaterStore ?? .shared
     self.bundle = bundle
     self.fileManager = fileManager
     self.logPathProvider = logPathProvider
@@ -79,6 +82,11 @@ final class DiagnosticsStore: ObservableObject {
     - Launch At Login: \(settingsStore.launchAtLogin)
     - Selected Projects: \(selectedProjects.isEmpty ? "all" : selectedProjects.joined(separator: ", "))
     - Default Log Lines: \(settingsStore.defaultLogLines)
+
+    Updates
+    - Sparkle Configured: \(updaterStore.isConfigured)
+    - Feed Host: \(updaterStore.feedHost ?? "none")
+    - Last Update Error: \(updaterStore.lastError ?? "none")
     """
   }
 

@@ -45,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     DebugLog.write("Primary instance starting")
     _ = URLSchemeRegistrar.registerCurrentBundle()
+    UpdaterStore.shared.startIfConfigured()
     AppInstanceMessenger.shared.startObserving { url in
       DebugLog.write("Received forwarded OAuth URL: \(url.absoluteString)")
       OAuthCallbackHandler.shared.handle(url: url)

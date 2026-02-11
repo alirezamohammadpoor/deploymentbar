@@ -48,6 +48,7 @@ struct StatusBarMenu: View {
   @ObservedObject var refreshStatusStore: RefreshStatusStore
   let openURL: (URL) -> Void
   let refreshNow: () -> Void
+  let checkForUpdates: () -> Void
   let signOut: () -> Void
 
   @StateObject private var authSession = AuthSession.shared
@@ -231,6 +232,16 @@ struct StatusBarMenu: View {
         }
         .buttonStyle(.plain)
         .help("Refresh deployments")
+
+        Button {
+          checkForUpdates()
+        } label: {
+          Image(systemName: "arrow.down.circle")
+            .font(.system(size: Geist.Layout.iconSizeMD, weight: .medium))
+            .foregroundColor(Geist.Colors.textSecondary)
+        }
+        .buttonStyle(.plain)
+        .help("Check for updates")
 
         // Settings button
         SettingsLink {

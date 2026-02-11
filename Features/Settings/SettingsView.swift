@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
   @StateObject private var settings = SettingsStore.shared
   @StateObject private var authSession = AuthSession.shared
+  @StateObject private var updaterStore = UpdaterStore.shared
   @State private var browserOptions: [BrowserOption] = BrowserOption.availableOptions()
   @State private var showSignOutConfirmation = false
   private let launchAtLoginManager = LaunchAtLoginManager()
@@ -84,6 +85,32 @@ struct SettingsView: View {
                   settings.launchAtLogin = launchAtLoginManager.isEnabled()
                 }
               }
+          }
+        }
+
+        // UPDATES
+        section("Updates", description: "Use Sparkle to check for new direct-download releases.") {
+          VStack(alignment: .leading, spacing: 8) {
+            Button("Check for Updates…") {
+              updaterStore.checkForUpdates()
+            }
+            .buttonStyle(VercelSecondaryButtonStyle())
+
+            if let feedHost = updaterStore.feedHost {
+              Text("Feed: \(feedHost)")
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(Geist.Colors.textSecondary)
+            } else {
+              Text("Sparkle feed is not configured (set SPARKLE_FEED_URL).")
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(Geist.Colors.statusWarning)
+            }
+
+            if let updateError = updaterStore.lastError {
+              Text(updateError)
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(Geist.Colors.statusError)
+            }
           }
         }
 
