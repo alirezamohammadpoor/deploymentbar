@@ -85,13 +85,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
   func application(_ application: NSApplication, open urls: [URL]) {
     guard let url = urls.first else { return }
-    DebugLog.write("application(_:open:) received URL: \(url.absoluteString)")
+    DebugLog.write("callback[source=applicationOpen] received URL: \(url.absoluteString)")
     instanceCoordinator.handleOpenURL(url, onForward: {
-      DebugLog.write("Forwarding URL to primary instance")
+      DebugLog.write("callback[source=applicationOpen] forwarding URL to primary instance")
       RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
       NSApp.terminate(nil)
     }, onHandle: {
-      DebugLog.write("Handling URL in primary instance")
+      DebugLog.write("callback[source=applicationOpen] handling URL in primary instance")
       OAuthCallbackHandler.shared.handle(url: url)
     })
   }
@@ -102,13 +102,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       return
     }
 
-    DebugLog.write("AppleEvent received URL: \(url.absoluteString)")
+    DebugLog.write("callback[source=appleEvent] received URL: \(url.absoluteString)")
     instanceCoordinator.handleOpenURL(url, onForward: {
-      DebugLog.write("AppleEvent forwarding URL to primary instance")
+      DebugLog.write("callback[source=appleEvent] forwarding URL to primary instance")
       RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
       NSApp.terminate(nil)
     }, onHandle: {
-      DebugLog.write("AppleEvent handling URL in primary instance")
+      DebugLog.write("callback[source=appleEvent] handling URL in primary instance")
       OAuthCallbackHandler.shared.handle(url: url)
     })
   }

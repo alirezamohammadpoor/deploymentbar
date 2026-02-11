@@ -14,10 +14,29 @@ struct OAuthFlowView: View {
 
       statusView
 
-      Button("Continue") {
-        authSession.startSignIn()
+      VStack(spacing: Geist.Layout.spacingSM) {
+        Button("Continue") {
+          authSession.startSignIn()
+        }
+        .disabled(authSessionIsBusy)
+
+        if case .error = authSession.status {
+          HStack(spacing: Geist.Layout.spacingMD) {
+            Button("Retry Sign-In") {
+              authSession.retryAuthorization()
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(Geist.Colors.textSecondary)
+
+            Button("Reset Auth Session") {
+              authSession.resetPendingAuthorization()
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(Geist.Colors.textSecondary)
+          }
+          .font(Geist.Typography.caption)
+        }
       }
-      .disabled(authSessionIsBusy)
     }
     .padding(Geist.Layout.spacingLG)
   }
@@ -45,10 +64,37 @@ struct OAuthFlowView: View {
         .font(Geist.Typography.caption)
         .foregroundColor(Geist.Colors.statusReady)
     case .error(let message):
-      Text(message)
-        .font(Geist.Typography.caption)
-        .foregroundColor(Geist.Colors.statusError)
-        .multilineTextAlignment(.center)
+      VStack(spacing: Geist.Layout.spacingXS) {
+        Text(message)
+          .font(Geist.Typography.caption)
+          .foregroundColor(Geist.Colors.statusError)
+          .multilineTextAlignment(.center)
+        if let hint = recoveryHint {
+          Text(hint)
+            .font(Geist.Typography.caption)
+            .foregroundColor(Geist.Colors.textSecondary)
+            .multilineTextAlignment(.center)
+        }
+      }
+    }
+  }
+
+  private var recoveryHint: String? {
+    switch authSession.lastAuthErrorCode {
+    case .missingOAuthConfig:
+      return "Add OAuth values in Info.plist / Secrets.xcconfig."
+    case .authorizationURLBuildFailed:
+      return "Could not build the authorization URL. Retry sign-in."
+    case .stateMismatchMissingCode, .stateMismatchMissingState, .stateMismatchValueMismatch:
+      return "The callback parameters were invalid. Reset the auth session and retry."
+    case .sessionNotInitialized:
+      return "Session state was lost. Reset auth and start again."
+    case .oauthTokenExchangeFailed:
+      return "Vercel token exchange failed. Retry sign-in."
+    case .networkFailure:
+      return "Check your internet connection and retry."
+    case .none:
+      return nil
     }
   }
 }
