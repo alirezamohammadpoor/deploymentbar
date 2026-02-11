@@ -15,10 +15,10 @@ struct VercelToggleStyle: ToggleStyle {
   private func toggleTrack(isOn: Bool) -> some View {
     ZStack {
       RoundedRectangle(cornerRadius: 11)
-        .fill(isOn ? Color.white : Geist.Colors.gray200)
+        .fill(isOn ? Geist.Colors.gray1000 : Geist.Colors.gray200)
         .frame(width: 40, height: 22)
       Circle()
-        .fill(Color.black)
+        .fill(Geist.Colors.backgroundPrimary)
         .frame(width: 18, height: 18)
         .offset(x: isOn ? 9 : -9)
     }
@@ -40,12 +40,12 @@ struct VercelSegmentedControl<T: Hashable>: View {
         } label: {
           Text(option.label)
             .font(Geist.Typography.Settings.button)
-            .foregroundColor(selection == option.value ? .black : Geist.Colors.gray700)
+            .foregroundColor(selection == option.value ? Geist.Colors.backgroundPrimary : Geist.Colors.gray700)
             .frame(maxWidth: .infinity)
             .frame(height: 32)
             .background(
               selection == option.value
-                ? RoundedRectangle(cornerRadius: 4).fill(Color.white)
+                ? RoundedRectangle(cornerRadius: 4).fill(Geist.Colors.gray1000)
                 : RoundedRectangle(cornerRadius: 4).fill(Color.clear)
             )
         }

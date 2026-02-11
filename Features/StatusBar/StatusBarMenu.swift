@@ -78,7 +78,6 @@ struct StatusBarMenu: View {
       RoundedRectangle(cornerRadius: Geist.Layout.popoverCornerRadius)
         .strokeBorder(Geist.Colors.border, lineWidth: Geist.Layout.popoverBorderWidth)
     )
-    .preferredColorScheme(.dark)
     .onReceive(store.$deployments) { deployments in
       if !deployments.isEmpty && isInitialLoad {
         isInitialLoad = false
@@ -116,10 +115,10 @@ struct StatusBarMenu: View {
       Text("No internet connection")
         .font(Geist.Typography.caption)
     }
-    .foregroundColor(Geist.Colors.statusBuilding)
+    .foregroundColor(Geist.Colors.statusWarning)
     .frame(maxWidth: .infinity)
     .padding(.vertical, Geist.Layout.spacingXS)
-    .background(Geist.Colors.statusBuilding.opacity(0.15))
+    .background(Geist.Colors.statusWarning.opacity(0.15))
   }
 
   // MARK: - Header
@@ -330,7 +329,7 @@ struct StatusBarMenu: View {
     VStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "exclamationmark.triangle.fill")
         .font(.system(size: 32))
-        .foregroundColor(Geist.Colors.statusBuilding)
+        .foregroundColor(Geist.Colors.statusError)
       Text(error)
         .font(Geist.Typography.caption)
         .foregroundColor(Geist.Colors.textSecondary)

@@ -1,53 +1,60 @@
 import AppKit
 import SwiftUI
 
-// MARK: - Color Hex Extension
-
 extension Color {
   init(hex: String) {
-    let hex = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-    let scanner = Scanner(string: hex)
-    var rgbValue: UInt64 = 0
-    scanner.scanHexInt64(&rgbValue)
+    self.init(nsColor: NSColor(hex: hex))
+  }
 
-    let r = Double((rgbValue & 0xFF0000) >> 16) / 255.0
-    let g = Double((rgbValue & 0x00FF00) >> 8) / 255.0
-    let b = Double(rgbValue & 0x0000FF) / 255.0
-
-    self.init(red: r, green: g, blue: b)
+  static func adaptive(light: String, dark: String) -> Color {
+    Color(nsColor: NSColor(name: nil) { appearance in
+      let best = appearance.bestMatch(from: [.darkAqua, .aqua])
+      return NSColor(hex: best == .darkAqua ? dark : light)
+    })
   }
 }
 
-// MARK: - Geist Design System
+private extension NSColor {
+  convenience init(hex: String) {
+    let normalized = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+    var rgbValue: UInt64 = 0
+    Scanner(string: normalized).scanHexInt64(&rgbValue)
+
+    let red = CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0
+    let green = CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0
+    let blue = CGFloat(rgbValue & 0x0000FF) / 255.0
+
+    self.init(srgbRed: red, green: green, blue: blue, alpha: 1.0)
+  }
+}
 
 enum Geist {
-
-  // MARK: - Colors (dark-only, no adaptive)
-
   enum Colors {
-    static let backgroundPrimary = Color(hex: "#000000")
-    static let backgroundSecondary = Color(hex: "#0A0A0A")
+    // Surfaces
+    static let backgroundPrimary = Color.adaptive(light: "#FFFFFF", dark: "#000000")
+    static let backgroundSecondary = Color.adaptive(light: "#FAFAFA", dark: "#0A0A0A")
 
-    // Gray scale
-    static let gray100 = Color(hex: "#1A1A1A")
-    static let gray200 = Color(hex: "#1F1F1F")
-    static let gray300 = Color(hex: "#292929")
-    static let gray400 = Color(hex: "#333333")
-    static let gray500 = Color(hex: "#3F3F3F")
-    static let gray600 = Color(hex: "#525252")
-    static let gray700 = Color(hex: "#666666")
-    static let gray800 = Color(hex: "#7A7A7A")
-    static let gray900 = Color(hex: "#A1A1A1")
-    static let gray1000 = Color(hex: "#EDEDED")
+    // Grays
+    static let gray100 = Color.adaptive(light: "#F5F5F5", dark: "#1A1A1A")
+    static let gray200 = Color.adaptive(light: "#F2F2F2", dark: "#1F1F1F")
+    static let gray300 = Color.adaptive(light: "#EEEEEE", dark: "#292929")
+    static let gray400 = Color.adaptive(light: "#EAEAEA", dark: "#333333")
+    static let gray500 = Color.adaptive(light: "#E5E5E5", dark: "#3F3F3F")
+    static let gray600 = Color.adaptive(light: "#D4D4D4", dark: "#525252")
+    static let gray700 = Color.adaptive(light: "#999999", dark: "#666666")
+    static let gray800 = Color.adaptive(light: "#666666", dark: "#7A7A7A")
+    static let gray900 = Color.adaptive(light: "#666666", dark: "#A1A1A1")
+    static let gray1000 = Color.adaptive(light: "#171717", dark: "#EDEDED")
 
     // Semantic aliases
     static let rowExpanded = gray100
     static let rowHover = gray200
+    static let borderSubtle = gray400
     static let border = gray500
-    static let textTertiary = gray700
+    static let textPrimary = gray1000
     static let textSecondary = gray900
-    static let textPrimary = Color(hex: "#FFFFFF")
-    static let buttonText = Color(hex: "#FFFFFF")
+    static let textTertiary = gray800
+    static let buttonText = textPrimary
     static let badgeBackground = gray100
 
     // Status colors
@@ -56,6 +63,7 @@ enum Geist {
     static let statusError = Color(hex: "#EE0000")
     static let statusQueued = Color(hex: "#666666")
     static let statusCanceled = Color(hex: "#666666")
+    static let statusWarning = Color(hex: "#F5A623")
 
     // Accent
     static let accent = Color(hex: "#0070F3")
@@ -70,7 +78,6 @@ enum Geist {
       }
     }
 
-    // NSColor versions for status bar icon tinting
     enum StatusBarIcon {
       static let ready = NSColor(srgbRed: 0, green: 0xC8/255.0, blue: 0x53/255.0, alpha: 1)
       static let building = NSColor(srgbRed: 0x00/255.0, green: 0x70/255.0, blue: 0xF3/255.0, alpha: 1)
@@ -89,63 +96,53 @@ enum Geist {
     }
   }
 
-  // MARK: - Typography
-
   enum Typography {
-    static let projectName: Font = .custom("Geist-Medium", size: 16)
-    static let commitMessage: Font = .custom("Geist-Regular", size: 15)
-    static let caption: Font = .custom("Geist-Regular", size: 13)
-    static let timestamp: Font = .custom("Geist-Regular", size: 13)
-    static let author: Font = .custom("Geist-Regular", size: 13)
-    static let captionSmall: Font = .custom("Geist-Regular", size: 12)
-    static let sectionHeader: Font = .custom("Geist-SemiBold", size: 13)
-    static let branchName: Font = .custom("GeistMono-Regular", size: 13)
-    static let buildDuration: Font = .custom("GeistMono-Regular", size: 13)
+    static let projectName: Font = .system(size: 13, weight: .semibold, design: .default)
+    static let commitMessage: Font = .system(size: 12, weight: .regular, design: .default)
+    static let caption: Font = .system(size: 11, weight: .regular, design: .default)
+    static let timestamp: Font = .system(size: 11, weight: .regular, design: .default)
+    static let author: Font = .system(size: 11, weight: .regular, design: .default)
+    static let captionSmall: Font = .system(size: 11, weight: .regular, design: .default)
+    static let sectionHeader: Font = .system(size: 11, weight: .medium, design: .default)
+    static let branchName: Font = .system(size: 11, weight: .medium, design: .monospaced)
+    static let buildDuration: Font = .system(size: 11, weight: .regular, design: .monospaced)
 
     static let sectionHeaderTracking: CGFloat = 0.5
 
     enum Settings {
-      static let sectionHeader: Font = .custom("Geist-Medium", size: 13)
-      static let fieldLabel: Font = .custom("Geist-Medium", size: 16)
-      static let helperText: Font = .custom("Geist-Regular", size: 13)
-      static let inputText: Font = .custom("GeistMono-Regular", size: 15)
-      static let button: Font = .custom("Geist-Medium", size: 16)
+      static let sectionHeader: Font = .system(size: 11, weight: .medium, design: .default)
+      static let fieldLabel: Font = .system(size: 11, weight: .regular, design: .default)
+      static let helperText: Font = .system(size: 11, weight: .regular, design: .default)
+      static let inputText: Font = .system(size: 12, weight: .regular, design: .monospaced)
+      static let button: Font = .system(size: 13, weight: .semibold, design: .default)
     }
   }
 
-  // MARK: - Layout
-
   enum Layout {
-    // Popover
-    static let popoverWidth: CGFloat = 380
-    static let popoverMaxHeight: CGFloat = 290
-    static let popoverCornerRadius: CGFloat = 10
+    static let popoverWidth: CGFloat = 420
+    static let popoverMaxHeight: CGFloat = 420
+    static let popoverCornerRadius: CGFloat = 12
     static let popoverBorderWidth: CGFloat = 1
 
-    // Spacing
     static let spacingXS: CGFloat = 4
     static let spacingSM: CGFloat = 8
     static let spacingMD: CGFloat = 12
     static let spacingLG: CGFloat = 16
     static let spacingXL: CGFloat = 24
 
-    // Row
-    static let rowHeight: CGFloat = 76
-    static let rowExpandedHeight: CGFloat = 160
-    static let statusDotSize: CGFloat = 10
-    static let badgePaddingH: CGFloat = 6
+    static let rowHeight: CGFloat = 84
+    static let rowExpandedHeight: CGFloat = 168
+    static let statusDotSize: CGFloat = 8
+    static let badgePaddingH: CGFloat = 4
     static let badgePaddingV: CGFloat = 2
-    static let badgeCornerRadius: CGFloat = 4
+    static let badgeCornerRadius: CGFloat = 9999
 
-    // Header
-    static let headerHeight: CGFloat = 32
+    static let headerHeight: CGFloat = 34
     static let headerDropdownRadius: CGFloat = 6
 
-    // Icons
     static let iconSizeSM: CGFloat = 10
-    static let iconSizeMD: CGFloat = 12
+    static let iconSizeMD: CGFloat = 14
 
-    // Settings
     static let settingsWidth: CGFloat = 400
     static let settingsHPadding: CGFloat = 24
     static let settingsVPadding: CGFloat = 20

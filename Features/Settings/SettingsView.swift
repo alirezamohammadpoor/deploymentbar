@@ -71,7 +71,7 @@ struct SettingsView: View {
               .toggleStyle(VercelToggleStyle())
               .font(Geist.Typography.Settings.fieldLabel)
               .foregroundColor(Geist.Colors.gray1000)
-              .onChange(of: settings.launchAtLogin) { newValue in
+              .onChange(of: settings.launchAtLogin) { _, newValue in
                 let success = launchAtLoginManager.setEnabled(newValue)
                 if !success {
                   settings.launchAtLogin = launchAtLoginManager.isEnabled()
@@ -110,7 +110,6 @@ struct SettingsView: View {
     }
     .frame(width: Geist.Layout.settingsWidth)
     .background(Geist.Colors.backgroundPrimary)
-    .preferredColorScheme(.dark)
     .alert("Sign Out", isPresented: $showSignOutConfirmation) {
       Button("Cancel", role: .cancel) { }
       Button("Sign Out", role: .destructive) {
@@ -126,14 +125,6 @@ struct SettingsView: View {
       let validIntervals: Set<TimeInterval> = [10, 15, 30, 60, 300]
       if !validIntervals.contains(settings.pollingInterval) {
         settings.pollingInterval = 30
-      }
-
-      // Make window background black with transparent titlebar
-      DispatchQueue.main.async {
-        if let window = NSApp.windows.first(where: { $0.title == "Settings" || $0.identifier?.rawValue == "settings" }) {
-          window.backgroundColor = .black
-          window.titlebarAppearsTransparent = true
-        }
       }
     }
   }

@@ -22,50 +22,48 @@ final class ProjectStore: ObservableObject {
       return
     }
 
+    let existingTokens = credentialStore.loadTokens()
+    let personalToken = credentialStore.loadPersonalToken()
+
+    guard existingTokens != nil || personalToken != nil else {
+      projects = []
+      isLoading = false
+      error = nil
+      return
+    }
+
     isLoading = true
     error = nil
 
-    Task.detached { [weak self] in
+    Task { [weak self] in
       guard let self else { return }
-      let tokens = self.credentialStore.loadTokens()
-      let personalToken = self.credentialStore.loadPersonalToken()
-
-      guard tokens != nil || personalToken != nil else {
-        await MainActor.run {
-          self.isLoading = false
-        }
-        return
-      }
-
+      var tokens = existingTokens
       do {
-        if let tokens, tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
+        if let currentTokens = tokens,
+           currentTokens.shouldRefreshSoon,
+           let refreshToken = currentTokens.refreshToken,
+           !refreshToken.isEmpty {
           let refreshed = try await apiClient.refreshToken(refreshToken)
-          self.credentialStore.saveTokens(refreshed)
+          credentialStore.saveTokens(refreshed)
+          tokens = refreshed
         }
 
         let teamId = tokens?.teamId
         let dtos = try await apiClient.fetchProjects(teamId: teamId)
         let projects = dtos.map(Project.from(dto:)).sorted { $0.name.lowercased() < $1.name.lowercased() }
 
-        await MainActor.run {
-          self.projects = projects
-          self.isLoading = false
-        }
+        self.projects = projects
+        self.isLoading = false
       } catch let error as APIError {
         if case .unauthorized = error {
-          await MainActor.run {
-            self.authSession.signOut()
-          }
+          authSession.signOut()
         }
-        await MainActor.run {
-          self.error = error.userMessage
-          self.isLoading = false
-        }
+
+        self.error = error.userMessage
+        self.isLoading = false
       } catch {
-        await MainActor.run {
-          self.error = "Network error"
-          self.isLoading = false
-        }
+        self.error = "Network error"
+        self.isLoading = false
       }
     }
   }

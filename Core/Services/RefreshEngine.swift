@@ -103,7 +103,6 @@ final class RefreshEngine {
     }
 
     let selectedIds = await MainActor.run { settingsStore.selectedProjectIds }
-    let projectIds = selectedIds.isEmpty ? nil : Array(selectedIds)
 
     do {
       if let tokens, tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {

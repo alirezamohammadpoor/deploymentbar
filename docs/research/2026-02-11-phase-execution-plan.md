@@ -25,12 +25,20 @@
   - eliminate non-sendable captures in detached/background closures
 
 ## Phase B — Design System Alignment
-- Status: pending
+- Status: in progress
 - Scope:
   - align token palette and semantics to DeployBar brand guide
   - update typography scale (11/12/13 baseline)
   - standardize spacing/radius/status-dot specs
   - verify reduced-motion behavior
+
+### Phase B progress
+- Status: in progress
+- Implemented:
+  - moved building state token to Vercel blue (`#0070F3`) for both row dots and status bar icon tint
+  - migrated core typography tokens to native SF Pro/SF Mono sizing
+  - aligned status-dot and badge metrics to spec (`8px` dot, capsule badge with `4x2` padding)
+  - removed forced dark-mode overrides so views follow system appearance
 
 ## Phase C — Auth + Release Hardening
 - Status: pending

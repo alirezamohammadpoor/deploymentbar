@@ -80,13 +80,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         trigger: nil
       )
 
-      center.add(request) { [weak self] error in
-        if let error {
-          DebugLog.write("postDeploymentNotification: center.add failed: \(error)")
-          return
-        }
+      do {
+        try await center.add(request)
         DebugLog.write("postDeploymentNotification: notification posted for \(deployment.projectName)")
-        self?.historyStore.markNotified(id: deployment.id, state: deployment.state)
+        historyStore.markNotified(id: deployment.id, state: deployment.state)
+      } catch {
+        DebugLog.write("postDeploymentNotification: center.add failed: \(error)")
       }
     }
   }

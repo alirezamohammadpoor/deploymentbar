@@ -40,6 +40,7 @@
 		5286ECF071471E1ACA5C89E1 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22092C7C9441DE4FCCCAEDCF /* DebugLog.swift */; };
 		52B2572C4D67CDD9A19AAE95 /* URLSchemeRegistrarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0963716F8B805CCD9D6829D6 /* URLSchemeRegistrarTests.swift */; };
 		547AA3E69B941C24A87B3AFE /* LaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A2468F9E31C2C6BE877D53 /* LaunchAtLoginManager.swift */; };
+		60DA88A378D9D90256DBB53D /* GeistLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EBA24A38D2857A665795554 /* GeistLayoutTests.swift */; };
 		68C7031842A9AACAC3D6093B /* SkeletonRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5608BA4BDFD4AA2B264617AA /* SkeletonRowView.swift */; };
 		6B94C76691E0D5CB7FD32A27 /* URLSchemeRegistrar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A120356EC239762F5C3874EB /* URLSchemeRegistrar.swift */; };
 		6CA714FFF4B889E6E964B50C /* TokenResponseParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB4FD2D12DB5A088B1C1B16 /* TokenResponseParser.swift */; };
@@ -136,6 +137,7 @@
 		7609E89BDA38B6AD650669F5 /* OAuthCallbackHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthCallbackHandler.swift; sourceTree = "<group>"; };
 		76D624C1F2F5097A4423F903 /* GeistMono-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GeistMono-Bold.otf"; sourceTree = "<group>"; };
 		7D23F0D2F6ED1E675C469327 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
+		7EBA24A38D2857A665795554 /* GeistLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeistLayoutTests.swift; sourceTree = "<group>"; };
 		80353831B8A468FF5BDB798B /* AppInstanceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceCoordinator.swift; sourceTree = "<group>"; };
 		827DAA3659BC9B3DB7EEFC89 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		858A57344C72FDF789217A19 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 				B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */,
 				4A96C28651EA3A1D0B9FDF73 /* CredentialStoreTests.swift */,
 				C7CD1905069B21140FFAE590 /* GeistColorTests.swift */,
+				7EBA24A38D2857A665795554 /* GeistLayoutTests.swift */,
 				1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */,
 				1AC3442B3EC967E019B078AE /* ProjectStoreTests.swift */,
 				B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */,
@@ -573,6 +576,7 @@
 				E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */,
 				BB5E06E80FC82F779D95B294 /* CredentialStoreTests.swift in Sources */,
 				A8231932A59DE6F683B675ED /* GeistColorTests.swift in Sources */,
+				60DA88A378D9D90256DBB53D /* GeistLayoutTests.swift in Sources */,
 				79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */,
 				8E7DA912210E03148E1DDA3F /* ProjectStoreTests.swift in Sources */,
 				E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */,

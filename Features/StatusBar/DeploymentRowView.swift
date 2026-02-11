@@ -434,7 +434,7 @@ struct DeploymentRowView: View {
 
   private func startPulseAnimation() {
     withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-      pulseOpacity = 0.3
+      pulseOpacity = 0.4
     }
   }
 

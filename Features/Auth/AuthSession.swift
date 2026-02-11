@@ -45,22 +45,16 @@ final class AuthSession: ObservableObject {
   func loadInitialStatusIfNeeded() {
     guard !didLoadInitialStatus else { return }
     didLoadInitialStatus = true
-    let store = credentialStore
-    DebugLog.write("loadInitialStatus: dispatching keychain check")
-    DispatchQueue.global(qos: .userInitiated).async {
-      let hasOAuth = store.loadTokens() != nil
-      let hasPAT = store.loadPersonalToken() != nil
-      DebugLog.write("loadInitialStatus: hasOAuth=\(hasOAuth), hasPAT=\(hasPAT)")
-      DispatchQueue.main.async { [weak self] in
-        guard let self else { return }
-        if hasOAuth || hasPAT {
-          self.status = .signedIn
-        } else {
-          self.status = .signedOut
-        }
-        DebugLog.write("loadInitialStatus: status set to \(self.status)")
-      }
+
+    let hasOAuth = credentialStore.loadTokens() != nil
+    let hasPAT = credentialStore.loadPersonalToken() != nil
+    DebugLog.write("loadInitialStatus: hasOAuth=\(hasOAuth), hasPAT=\(hasPAT)")
+    if hasOAuth || hasPAT {
+      status = .signedIn
+    } else {
+      status = .signedOut
     }
+    DebugLog.write("loadInitialStatus: status set to \(status)")
   }
 
   func startSignIn() {

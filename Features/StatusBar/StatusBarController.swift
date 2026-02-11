@@ -302,7 +302,7 @@ final class StatusBarController: NSObject {
     guard let button = statusItem.button else { return }
     NSAnimationContext.runAnimationGroup { context in
       context.duration = 0.3
-      button.animator().alphaValue = isPulseHigh ? 1.0 : 0.3
+      button.animator().alphaValue = isPulseHigh ? 1.0 : 0.4
     }
   }
 }

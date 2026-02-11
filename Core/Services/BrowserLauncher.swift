@@ -6,7 +6,11 @@ final class BrowserLauncher {
   private let settings: SettingsStore
   private let workspace: NSWorkspace
 
-  init(settings: SettingsStore = .shared, workspace: NSWorkspace = .shared) {
+  convenience init() {
+    self.init(settings: .shared, workspace: .shared)
+  }
+
+  init(settings: SettingsStore, workspace: NSWorkspace) {
     self.settings = settings
     self.workspace = workspace
   }

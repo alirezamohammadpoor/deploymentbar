@@ -70,10 +70,10 @@ struct DesignPreviewView: View {
             .stroke(Geist.Colors.gray500, lineWidth: 0.5)
         )
       Text(label)
-        .font(.custom("Geist-Regular", size: 9))
+        .font(.system(size: 9, weight: .regular, design: .default))
         .foregroundColor(Geist.Colors.textTertiary)
       Text(hex)
-        .font(.custom("GeistMono-Regular", size: 8))
+        .font(.system(size: 8, weight: .regular, design: .monospaced))
         .foregroundColor(Geist.Colors.textTertiary)
     }
   }
@@ -89,22 +89,22 @@ struct DesignPreviewView: View {
         .tracking(0.5)
 
       Group {
-        Text("Geist Medium 13 — Project Name")
+        Text("SF Pro Semibold 13 — Project Name")
           .font(Geist.Typography.projectName)
-        Text("Geist Regular 12 — Commit message")
+        Text("SF Pro Regular 12 — Commit message")
           .font(Geist.Typography.commitMessage)
-        Text("Geist Regular 11 — Caption / Timestamp")
+        Text("SF Pro Regular 11 — Caption / Timestamp")
           .font(Geist.Typography.caption)
-        Text("Geist Regular 10 — Caption Small")
+        Text("SF Pro Regular 11 — Caption Small")
           .font(Geist.Typography.captionSmall)
-        Text("GEIST SEMIBOLD 11 — SECTION HEADER")
+        Text("SF Pro Medium 11 — SECTION HEADER")
           .font(Geist.Typography.sectionHeader)
           .tracking(Geist.Typography.sectionHeaderTracking)
-        Text("GeistMono Regular 11 — feature/branch-name")
+        Text("SF Mono Medium 11 — feature/branch-name")
           .font(Geist.Typography.branchName)
-        Text("GeistMono Regular 11 — 42s build duration")
+        Text("SF Mono Regular 11 — 42s build duration")
           .font(Geist.Typography.buildDuration)
-        Text("GeistMono Regular 13 — Input text")
+        Text("SF Mono Regular 12 — Input text")
           .font(Geist.Typography.Settings.inputText)
       }
       .foregroundColor(Geist.Colors.textPrimary)
@@ -132,7 +132,7 @@ struct DesignPreviewView: View {
     .onAppear {
       if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
         withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
-          buildPulse = 0.3
+          buildPulse = 0.4
         }
       }
     }
