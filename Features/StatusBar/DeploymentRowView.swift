@@ -36,11 +36,11 @@ struct DeploymentRowView: View {
       }
     }
     .frame(height: isExpanded ? Geist.Layout.rowExpandedHeight : Geist.Layout.rowHeight)
-    .padding(.horizontal, Geist.Layout.spacingSM)
-    .padding(.vertical, Geist.Layout.spacingXS)
+    .padding(.horizontal, Geist.Layout.rowPaddingH)
+    .padding(.vertical, Geist.Layout.rowPaddingV)
     .background(isExpanded ? Geist.Colors.rowExpanded : isHovered ? Geist.Colors.rowHover : Color.clear)
     .overlay(
-      RoundedRectangle(cornerRadius: 6)
+      RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
         .strokeBorder(Color.accentColor, lineWidth: 2)
         .opacity(isFocused ? 1 : 0)
         .padding(2)

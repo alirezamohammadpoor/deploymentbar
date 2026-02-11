@@ -39,6 +39,7 @@
   - migrated core typography tokens to native SF Pro/SF Mono sizing
   - aligned status-dot and badge metrics to spec (`8px` dot, capsule badge with `4x2` padding)
   - removed forced dark-mode overrides so views follow system appearance
+  - replaced top filter picker with custom Geist-style segmented control and tuned row separators/padding to the 12px inset + 4px grid
 
 ## Phase C — Auth + Release Hardening
 - Status: pending

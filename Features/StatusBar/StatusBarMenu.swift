@@ -125,16 +125,8 @@ struct StatusBarMenu: View {
 
   private var header: some View {
     HStack(spacing: Geist.Layout.spacingSM) {
-      // Segmented filter picker
-      Picker("", selection: $filter) {
-        ForEach(EnvironmentFilter.allCases, id: \.self) { tab in
-          Text(tab.title).tag(tab)
-        }
-      }
-      .pickerStyle(.segmented)
-      .controlSize(.small)
-      .labelsHidden()
-      .frame(maxWidth: 200)
+      environmentFilterControl
+        .frame(maxWidth: 200)
 
       Spacer()
 
@@ -210,6 +202,43 @@ struct StatusBarMenu: View {
     .padding(.horizontal, Geist.Layout.spacingMD)
     .padding(.vertical, Geist.Layout.spacingSM)
     .frame(height: Geist.Layout.headerHeight)
+  }
+
+  private var environmentFilterControl: some View {
+    HStack(spacing: 0) {
+      ForEach(Array(EnvironmentFilter.allCases.enumerated()), id: \.element) { index, tab in
+        Button {
+          withAnimation(.easeInOut(duration: 0.15)) {
+            filter = tab
+          }
+        } label: {
+          Text(tab.title)
+            .font(Geist.Typography.caption)
+            .foregroundColor(filter == tab ? Geist.Colors.textPrimary : Geist.Colors.textSecondary)
+            .frame(maxWidth: .infinity)
+            .frame(height: 22)
+            .background(
+              filter == tab
+                ? RoundedRectangle(cornerRadius: 4).fill(Geist.Colors.gray300)
+                : RoundedRectangle(cornerRadius: 4).fill(Color.clear)
+            )
+        }
+        .buttonStyle(.plain)
+
+        if index < EnvironmentFilter.allCases.count - 1 {
+          Rectangle()
+            .fill(Geist.Colors.borderSubtle)
+            .frame(width: 1, height: 12)
+        }
+      }
+    }
+    .padding(2)
+    .background(Geist.Colors.gray100)
+    .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
+    .overlay(
+      RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius)
+        .stroke(Geist.Colors.borderSubtle, lineWidth: 1)
+    )
   }
 
   private func performRefresh() {
@@ -367,7 +396,7 @@ struct StatusBarMenu: View {
           // Row separator (inset to align with project name, past status dot)
           if index < filteredDeployments.count - 1 {
             Divider()
-              .padding(.leading, Geist.Layout.spacingMD + Geist.Layout.statusDotSize + Geist.Layout.spacingSM)
+              .padding(.leading, Geist.Layout.rowSeparatorInset)
           }
         }
       }

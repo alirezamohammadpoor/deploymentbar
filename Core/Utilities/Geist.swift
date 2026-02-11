@@ -133,6 +133,9 @@ enum Geist {
     static let rowHeight: CGFloat = 84
     static let rowExpandedHeight: CGFloat = 168
     static let statusDotSize: CGFloat = 8
+    static let rowPaddingH: CGFloat = 12
+    static let rowPaddingV: CGFloat = 8
+    static let rowSeparatorInset: CGFloat = 12
     static let badgePaddingH: CGFloat = 4
     static let badgePaddingV: CGFloat = 2
     static let badgeCornerRadius: CGFloat = 9999
