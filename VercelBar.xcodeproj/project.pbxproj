@@ -48,6 +48,7 @@
 		6D3867F2C3839A54E8811329 /* RefreshStatusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA38A045D7A14692EB0E4B4 /* RefreshStatusStore.swift */; };
 		6F0C058B18430A68669D3FBA /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D44649339F8B2D758C69 /* NotificationManager.swift */; };
 		763CF1A318C93534FE50B30C /* StatusBarControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06CECD6CA0683A7F18BD08D /* StatusBarControllerTests.swift */; };
+		772DD0D1F2E21D402CA3F1CE /* AuthSessionRecoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7071DCD9643BE901AC39 /* AuthSessionRecoveryTests.swift */; };
 		79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */; };
 		7F75D647E4B4500FE9FD764A /* Geist-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0B8B4A447FCA15B1C5D1F6AC /* Geist-Medium.otf */; };
 		7F95418D6985ADB0D7C51DB3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D8686A3E00B125D8A82D2 /* AppDelegate.swift */; };
@@ -83,6 +84,7 @@
 		E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */; };
 		E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */; };
 		E49E77E259C7D7596C651F5E /* Geist.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD53DDD6F408880191F32065 /* Geist.swift */; };
+		EBC65C8EB06C6348D00FE3D7 /* AuthSessionPersonalScopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80DADF18E4E59A5FD5A0C127 /* AuthSessionPersonalScopeTests.swift */; };
 		F055321721D66116AA629334 /* VercelAuthConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5EC52EE24AF127D16FFBB44 /* VercelAuthConfig.swift */; };
 		F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98C31D628F9124DE94E6764 /* DeploymentStore.swift */; };
 		F6B3A867F27162E4A5FBE7D8 /* AppInstanceMessenger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3268ABB41413559BB04B3AF4 /* AppInstanceMessenger.swift */; };
@@ -139,6 +141,7 @@
 		7D23F0D2F6ED1E675C469327 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		7EBA24A38D2857A665795554 /* GeistLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeistLayoutTests.swift; sourceTree = "<group>"; };
 		80353831B8A468FF5BDB798B /* AppInstanceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceCoordinator.swift; sourceTree = "<group>"; };
+		80DADF18E4E59A5FD5A0C127 /* AuthSessionPersonalScopeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionPersonalScopeTests.swift; sourceTree = "<group>"; };
 		827DAA3659BC9B3DB7EEFC89 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		858A57344C72FDF789217A19 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		8691E7898183191AC14EA0F4 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
@@ -178,6 +181,7 @@
 		D5B1455D4232CA5446EFC966 /* Geist-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Geist-SemiBold.otf"; sourceTree = "<group>"; };
 		D5C9F521E1E3EFE9DE6A210A /* APIClientFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClientFactory.swift; sourceTree = "<group>"; };
 		D5D811C25E71FE8B0AA37B64 /* VercelEndpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelEndpoints.swift; sourceTree = "<group>"; };
+		DC8F7071DCD9643BE901AC39 /* AuthSessionRecoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionRecoveryTests.swift; sourceTree = "<group>"; };
 		DCE0A8CF4A8E3CC3B24E4BC3 /* AppInstanceLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceLock.swift; sourceTree = "<group>"; };
 		DD7032C6DD72D44D324226A2 /* TokenResponseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenResponseParserTests.swift; sourceTree = "<group>"; };
 		DD8D8B5BC384A6AFE64E3BC4 /* AuthSessionInitialStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionInitialStatusTests.swift; sourceTree = "<group>"; };
@@ -280,6 +284,8 @@
 				9665DD5EF7FBA996E8AA0C5B /* AppInstanceCoordinatorTests.swift */,
 				8FA1EF317C800D73883DFC2C /* AppInstanceLockTests.swift */,
 				DD8D8B5BC384A6AFE64E3BC4 /* AuthSessionInitialStatusTests.swift */,
+				80DADF18E4E59A5FD5A0C127 /* AuthSessionPersonalScopeTests.swift */,
+				DC8F7071DCD9643BE901AC39 /* AuthSessionRecoveryTests.swift */,
 				8FCBD7D4E6DC72573158C14D /* AuthSessionStateMismatchTests.swift */,
 				B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */,
 				4A96C28651EA3A1D0B9FDF73 /* CredentialStoreTests.swift */,
@@ -572,6 +578,8 @@
 				9C390D1109BA034C847A4C89 /* AppInstanceCoordinatorTests.swift in Sources */,
 				02EE945F8AD3C54D38AF3AD3 /* AppInstanceLockTests.swift in Sources */,
 				ACE2C5D9EFD457621152A21F /* AuthSessionInitialStatusTests.swift in Sources */,
+				EBC65C8EB06C6348D00FE3D7 /* AuthSessionPersonalScopeTests.swift in Sources */,
+				772DD0D1F2E21D402CA3F1CE /* AuthSessionRecoveryTests.swift in Sources */,
 				363FD8E7CF9185723137CD23 /* AuthSessionStateMismatchTests.swift in Sources */,
 				E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */,
 				BB5E06E80FC82F779D95B294 /* CredentialStoreTests.swift in Sources */,

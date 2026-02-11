@@ -3,10 +3,7 @@ import Foundation
 
 @MainActor
 final class AuthSession: ObservableObject {
-  static let shared = AuthSession(
-    credentialStore: CredentialStore(),
-    stateStore: AuthSessionStateStore()
-  )
+  typealias ClientFactory = (_ config: VercelAuthConfig, _ tokenProvider: @escaping () -> String?) -> VercelAPIClient
 
   enum Status: Equatable {
     case signedOut
@@ -15,19 +12,54 @@ final class AuthSession: ObservableObject {
     case error(String)
   }
 
+  enum AuthErrorCode: Equatable {
+    case missingOAuthConfig
+    case authorizationURLBuildFailed
+    case stateMismatchMissingCode
+    case stateMismatchMissingState
+    case stateMismatchValueMismatch
+    case sessionNotInitialized
+    case oauthTokenExchangeFailed
+    case networkFailure
+  }
+
+  static let shared = AuthSession(
+    credentialStore: CredentialStore(),
+    stateStore: AuthSessionStateStore()
+  )
+
   @Published private(set) var status: Status = .signedOut
+  @Published private(set) var pendingAuthStartedAt: Date?
+  @Published private(set) var lastAuthErrorCode: AuthErrorCode?
 
   private let credentialStore: CredentialStoring
   private let stateStore: AuthSessionStateStore
-  private var client: VercelAPIClientImpl?
+  private let configLoader: () -> VercelAuthConfig?
+  private let urlOpener: (URL) -> Void
+  private let clientFactory: ClientFactory
+  private let nowProvider: () -> Date
+  private var client: VercelAPIClient?
   private var pendingState: String?
   private var codeVerifier: String?
   private var redirectURI: String?
   private var didLoadInitialStatus = false
 
-  private init(credentialStore: CredentialStoring, stateStore: AuthSessionStateStore) {
+  private init(
+    credentialStore: CredentialStoring,
+    stateStore: AuthSessionStateStore,
+    configLoader: @escaping () -> VercelAuthConfig? = { VercelAuthConfig.load() },
+    urlOpener: @escaping (URL) -> Void = { NSWorkspace.shared.open($0) },
+    clientFactory: @escaping ClientFactory = { config, tokenProvider in
+      VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
+    },
+    nowProvider: @escaping () -> Date = Date.init
+  ) {
     self.credentialStore = credentialStore
     self.stateStore = stateStore
+    self.configLoader = configLoader
+    self.urlOpener = urlOpener
+    self.clientFactory = clientFactory
+    self.nowProvider = nowProvider
     if let pending = stateStore.load() {
       pendingState = pending.state
       codeVerifier = pending.verifier
@@ -37,9 +69,22 @@ final class AuthSession: ObservableObject {
 
   static func makeForTesting(
     credentialStore: CredentialStoring,
-    stateStore: AuthSessionStateStore
+    stateStore: AuthSessionStateStore,
+    configLoader: @escaping () -> VercelAuthConfig? = { nil },
+    urlOpener: @escaping (URL) -> Void = { _ in },
+    clientFactory: @escaping ClientFactory = { config, tokenProvider in
+      VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
+    },
+    nowProvider: @escaping () -> Date = Date.init
   ) -> AuthSession {
-    AuthSession(credentialStore: credentialStore, stateStore: stateStore)
+    AuthSession(
+      credentialStore: credentialStore,
+      stateStore: stateStore,
+      configLoader: configLoader,
+      urlOpener: urlOpener,
+      clientFactory: clientFactory,
+      nowProvider: nowProvider
+    )
   }
 
   func loadInitialStatusIfNeeded() {
@@ -62,8 +107,8 @@ final class AuthSession: ObservableObject {
       return
     }
 
-    guard let config = VercelAuthConfig.load() else {
-      status = .error("Missing Vercel OAuth config in Info.plist")
+    guard let config = configLoader() else {
+      setAuthError("Missing Vercel OAuth config in Info.plist", code: .missingOAuthConfig)
       return
     }
 
@@ -74,8 +119,10 @@ final class AuthSession: ObservableObject {
     pendingState = state
     codeVerifier = verifier
     redirectURI = config.redirectURI
+    pendingAuthStartedAt = nowProvider()
+    lastAuthErrorCode = nil
     stateStore.save(.init(state: state, verifier: verifier, redirectURI: config.redirectURI))
-    client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
+    client = clientFactory(config, { [weak self] in
       self?.credentialStore.loadTokens()?.accessToken
     })
 
@@ -83,12 +130,14 @@ final class AuthSession: ObservableObject {
       let url = try client?.authorizationURL(state: state, codeChallenge: challenge)
       if let url {
         status = .signingIn
-        NSWorkspace.shared.open(url)
+        urlOpener(url)
       } else {
-        status = .error("Failed to build authorization URL")
+        clearPendingAuthorizationState()
+        setAuthError("Failed to build authorization URL", code: .authorizationURLBuildFailed)
       }
     } catch {
-      status = .error("Failed to build authorization URL")
+      clearPendingAuthorizationState()
+      setAuthError("Failed to build authorization URL", code: .authorizationURLBuildFailed)
     }
   }
 
@@ -103,66 +152,87 @@ final class AuthSession: ObservableObject {
       redirectURI = pending.redirectURI
     }
 
-    if client == nil, let config = VercelAuthConfig.load() {
-      client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
+    if client == nil, let config = configLoader() {
+      client = clientFactory(config, { [weak self] in
         self?.credentialStore.loadTokens()?.accessToken
       })
     }
 
-    guard let code, let state, state == pendingState else {
-      stateStore.clear()
-      status = .error(Self.stateMismatchMessage(expected: pendingState, received: state, code: code))
+    guard let code, !code.isEmpty else {
+      clearPendingAuthorizationState()
+      setAuthError(Self.stateMismatchMessage(expected: pendingState, received: state, code: code), code: .stateMismatchMissingCode)
+      return
+    }
+
+    guard let state, !state.isEmpty else {
+      clearPendingAuthorizationState()
+      setAuthError(Self.stateMismatchMessage(expected: pendingState, received: state, code: code), code: .stateMismatchMissingState)
+      return
+    }
+
+    guard state == pendingState else {
+      clearPendingAuthorizationState()
+      setAuthError(Self.stateMismatchMessage(expected: pendingState, received: state, code: code), code: .stateMismatchValueMismatch)
       return
     }
 
     guard let client, let redirectURI else {
-      stateStore.clear()
-      status = .error("OAuth session not initialized")
+      clearPendingAuthorizationState()
+      setAuthError("OAuth session not initialized", code: .sessionNotInitialized)
       return
     }
 
     status = .signingIn
+    lastAuthErrorCode = nil
     Task {
       do {
-        var tokens = try await client.exchangeCode(code, codeVerifier: codeVerifier, redirectURI: redirectURI)
-
-        // Discover team if token response didn't include team_id
-        if tokens.teamId == nil {
-          credentialStore.saveTokens(tokens)
-          do {
-            let teams = try await client.fetchTeams()
-            if let team = teams.first {
-              DebugLog.write("OAuth: using team '\(team.name)' (id=\(team.id))")
-              tokens = tokens.withTeamId(team.id)
-            }
-          } catch {
-            DebugLog.write("OAuth: team discovery failed (non-fatal): \(error)")
-          }
-        }
-
+        let tokens = try await client.exchangeCode(code, codeVerifier: codeVerifier, redirectURI: redirectURI)
         credentialStore.saveTokens(tokens)
-        stateStore.clear()
+        clearPendingAuthorizationState()
+        lastAuthErrorCode = nil
         self.status = .signedIn
       } catch let error as APIError {
-        stateStore.clear()
-        self.status = .error(error.userMessage)
+        clearPendingAuthorizationState()
+        if case .networkFailure = error {
+          setAuthError(error.userMessage, code: .networkFailure)
+        } else {
+          setAuthError(error.userMessage, code: .oauthTokenExchangeFailed)
+        }
       } catch {
-        stateStore.clear()
-        self.status = .error("Token exchange failed")
+        clearPendingAuthorizationState()
+        setAuthError("Token exchange failed", code: .oauthTokenExchangeFailed)
       }
     }
   }
 
+  func resetPendingAuthorization(manual: Bool = true) {
+    clearPendingAuthorizationState()
+    client = nil
+    lastAuthErrorCode = nil
+    status = .signedOut
+    if manual {
+      DebugLog.write("AuthSession reset pending authorization")
+    }
+  }
+
+  func retryAuthorization() {
+    resetPendingAuthorization(manual: false)
+    startSignIn()
+  }
+
   func signOut(revokeToken: Bool = false) {
     let tokens = credentialStore.loadTokens()
+    let revokeConfig = configLoader()
     credentialStore.clearTokens()
     credentialStore.clearPersonalToken()
-    stateStore.clear()
+    clearPendingAuthorizationState()
+    client = nil
+    lastAuthErrorCode = nil
     status = .signedOut
 
     guard revokeToken, let tokens, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty else { return }
     Task.detached {
-      guard let config = VercelAuthConfig.load() else { return }
+      guard let config = revokeConfig else { return }
       let client = VercelAPIClientImpl(config: config, tokenProvider: { tokens.accessToken })
       do {
         try await client.revokeToken(refreshToken)
@@ -188,7 +258,22 @@ final class AuthSession: ObservableObject {
     let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !trimmed.isEmpty else { return }
     credentialStore.savePersonalToken(trimmed)
+    clearPendingAuthorizationState()
+    lastAuthErrorCode = nil
     status = .signedIn
+  }
+
+  private func clearPendingAuthorizationState() {
+    pendingState = nil
+    codeVerifier = nil
+    redirectURI = nil
+    pendingAuthStartedAt = nil
+    stateStore.clear()
+  }
+
+  private func setAuthError(_ message: String, code: AuthErrorCode) {
+    lastAuthErrorCode = code
+    status = .error(message)
   }
 }
 

@@ -26,3 +26,5 @@
 - 2026-02-03: Missing vercelDecoder (`docs/bugs/20260203-verceldecoder-missing.md`)
 - 2026-02-11: Test suite model/actor drift (`docs/bugs/20260211-test-suite-model-drift.md`)
 - 2026-02-11: Runtime icon mutation breaks CodeSign (`docs/bugs/20260211-runtime-icon-codesign-detritus.md`)
+- 2026-02-11: OAuth reset/retry recovery path (`docs/bugs/20260211-oauth-recovery-reset-retry.md`)
+- 2026-02-11: OAuth personal scope team auto-bind (`docs/bugs/20260211-oauth-personal-scope-team-autobind.md`)
