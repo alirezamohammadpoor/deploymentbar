@@ -9,7 +9,7 @@ final class TokenResponseParserTests: XCTestCase {
 
     let parsed = TokenResponseParser.parse(data: json)
 
-    XCTAssertEqual(parsed, .init(accessToken: "token", refreshToken: "refresh", expiresIn: 3600))
+    XCTAssertEqual(parsed, .init(accessToken: "token", refreshToken: "refresh", expiresIn: 3600, teamId: nil))
   }
 
   func testParsesFormResponse() {
@@ -17,6 +17,6 @@ final class TokenResponseParserTests: XCTestCase {
 
     let parsed = TokenResponseParser.parse(data: body)
 
-    XCTAssertEqual(parsed, .init(accessToken: "token", refreshToken: "refresh", expiresIn: 3600))
+    XCTAssertEqual(parsed, .init(accessToken: "token", refreshToken: "refresh", expiresIn: 3600, teamId: nil))
   }
 }

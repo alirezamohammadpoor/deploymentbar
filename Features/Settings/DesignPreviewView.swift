@@ -53,7 +53,7 @@ struct DesignPreviewView: View {
         colorSwatch("g900", Geist.Colors.gray900, "#A1A1A1")
         colorSwatch("g1000", Geist.Colors.gray1000, "#EDEDED")
         colorSwatch("ready", Geist.Colors.statusReady, "#00C853")
-        colorSwatch("build", Geist.Colors.statusBuilding, "#F5A623")
+        colorSwatch("build", Geist.Colors.statusBuilding, "#0070F3")
         colorSwatch("error", Geist.Colors.statusError, "#EE0000")
         colorSwatch("accent", Geist.Colors.accent, "#0070F3")
       }

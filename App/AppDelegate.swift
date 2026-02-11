@@ -1,6 +1,21 @@
 import AppKit
 import Carbon
 
+@MainActor
+protocol ApplicationIconTarget: AnyObject {
+  var applicationIconImage: NSImage! { get set }
+}
+
+extension NSApplication: ApplicationIconTarget {}
+
+@MainActor
+protocol WorkspaceIconSetting: AnyObject {
+  @discardableResult
+  func setIcon(_ image: NSImage?, forFile fullPath: String, options: NSWorkspace.IconCreationOptions) -> Bool
+}
+
+extension NSWorkspace: WorkspaceIconSetting {}
+
 final class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusBarController: StatusBarController?
   private var minimalStatusItem: NSStatusItem?
@@ -10,11 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   )
 
   func applicationDidFinishLaunching(_ notification: Notification) {
-    if let icnsPath = Bundle.main.path(forResource: "AppIcon", ofType: "icns"),
-       let icon = NSImage(contentsOfFile: icnsPath) {
-      NSApplication.shared.applicationIconImage = icon
-      NSWorkspace.shared.setIcon(icon, forFile: Bundle.main.bundlePath)
-    }
+    applyApplicationIconIfAvailable()
     DebugLog.write("AppDelegate did finish launching")
     NSAppleEventManager.shared().setEventHandler(
       self,
@@ -100,5 +111,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       DebugLog.write("AppleEvent handling URL in primary instance")
       OAuthCallbackHandler.shared.handle(url: url)
     })
+  }
+
+  @MainActor
+  func applyApplicationIconIfAvailable(
+    bundle: Bundle = .main,
+    application: ApplicationIconTarget? = nil,
+    workspace: WorkspaceIconSetting? = nil
+  ) {
+    guard let icnsPath = bundle.path(forResource: "AppIcon", ofType: "icns"),
+          let icon = NSImage(contentsOfFile: icnsPath) else {
+      return
+    }
+
+    applyApplicationIcon(
+      icon,
+      bundlePath: bundle.bundlePath,
+      application: application ?? NSApplication.shared,
+      workspace: workspace ?? NSWorkspace.shared
+    )
+  }
+
+  @MainActor
+  func applyApplicationIcon(
+    _ icon: NSImage,
+    bundlePath: String,
+    application: ApplicationIconTarget? = nil,
+    workspace: WorkspaceIconSetting? = nil
+  ) {
+    let application = application ?? NSApplication.shared
+    let workspace = workspace ?? NSWorkspace.shared
+
+    application.applicationIconImage = icon
+    // Do not call NSWorkspace.setIcon(_:forFile:): it mutates bundle metadata
+    // (Icon\r / FinderInfo), which breaks subsequent CodeSign in local builds.
+    _ = bundlePath
+    _ = workspace
   }
 }

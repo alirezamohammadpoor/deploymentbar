@@ -24,3 +24,5 @@
 - 2026-02-03: StatusBar main actor deadlock (`docs/bugs/20260203-statusbar-mainactor-deadlock.md`)
 - 2026-02-03: AuthSession init keychain (`docs/bugs/20260203-authsession-init-keychain.md`)
 - 2026-02-03: Missing vercelDecoder (`docs/bugs/20260203-verceldecoder-missing.md`)
+- 2026-02-11: Test suite model/actor drift (`docs/bugs/20260211-test-suite-model-drift.md`)
+- 2026-02-11: Runtime icon mutation breaks CodeSign (`docs/bugs/20260211-runtime-icon-codesign-detritus.md`)

@@ -6,7 +6,8 @@ final class TokenPairTests: XCTestCase {
     let tokens = TokenPair(
       accessToken: "access",
       refreshToken: nil,
-      expiresAt: Date().addingTimeInterval(30)
+      expiresAt: Date().addingTimeInterval(30),
+      teamId: nil
     )
 
     XCTAssertFalse(tokens.canRefresh)
@@ -17,7 +18,8 @@ final class TokenPairTests: XCTestCase {
     let tokens = TokenPair(
       accessToken: "access",
       refreshToken: "refresh",
-      expiresAt: Date().addingTimeInterval(30)
+      expiresAt: Date().addingTimeInterval(30),
+      teamId: nil
     )
 
     XCTAssertTrue(tokens.canRefresh)

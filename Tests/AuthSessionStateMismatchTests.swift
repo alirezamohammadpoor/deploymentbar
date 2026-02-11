@@ -1,6 +1,7 @@
 import XCTest
 @testable import VercelBar
 
+@MainActor
 final class AuthSessionStateMismatchTests: XCTestCase {
   func testMissingCode() {
     let message = AuthSession.stateMismatchMessage(expected: "expected", received: "received", code: nil)

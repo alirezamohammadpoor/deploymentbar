@@ -35,6 +35,7 @@
 		4589E8CE1061806D05D7AD0D /* Geist-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = DEA0DBA60EAB828D882EFBB1 /* Geist-Regular.otf */; };
 		4A28E95EF9E04798570463FE /* StatusBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8733EA8F63C7DF65A4F74C2 /* StatusBarController.swift */; };
 		4D094DAA237C835AF5D6C35E /* PersonalTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB3938D74ABD8BE1F727CF33 /* PersonalTokenView.swift */; };
+		4D0CB70D8AA3AED59CB6779C /* AppDelegateIconTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0756C146201ACD213BB2EA6 /* AppDelegateIconTests.swift */; };
 		52288D7857E8769DCFDA837B /* AppInstanceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7EFCE5A4BC80199BB0B660 /* AppInstanceChecker.swift */; };
 		5286ECF071471E1ACA5C89E1 /* DebugLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22092C7C9441DE4FCCCAEDCF /* DebugLog.swift */; };
 		52B2572C4D67CDD9A19AAE95 /* URLSchemeRegistrarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0963716F8B805CCD9D6829D6 /* URLSchemeRegistrarTests.swift */; };
@@ -58,6 +59,7 @@
 		9C390D1109BA034C847A4C89 /* AppInstanceCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9665DD5EF7FBA996E8AA0C5B /* AppInstanceCoordinatorTests.swift */; };
 		9DCB3ED52E3A5B2B8EB73EA7 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 8E4CDB29C228D982FA6A5B8F /* AppIcon.icns */; };
 		A37D16D7A2D672FD8CEE88D0 /* Geist-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 25DA6EDA62F478CC5A2883A3 /* Geist-Bold.otf */; };
+		A8231932A59DE6F683B675ED /* GeistColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7CD1905069B21140FFAE590 /* GeistColorTests.swift */; };
 		ACE2C5D9EFD457621152A21F /* AuthSessionInitialStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD8D8B5BC384A6AFE64E3BC4 /* AuthSessionInitialStatusTests.swift */; };
 		AF0BD596F35E0BAE420B67C3 /* LogLine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5229DC62ADDAB8F632AD0FC4 /* LogLine.swift */; };
 		B174933ED6DF56DE957CF540 /* AuthSessionStateStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0141273F800345B6BF035DF3 /* AuthSessionStateStore.swift */; };
@@ -66,6 +68,7 @@
 		B39F23240A39CC07280734AD /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95F632837A9BCF20DE9ABD35 /* Theme.swift */; };
 		B7CA2E8942FAD429F9C07D7D /* BuildLogWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDBB4FD3633F11756405EA82 /* BuildLogWindow.swift */; };
 		B9D3514B953546AE4D70E2DB /* AuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877E9B1658821600DD874233 /* AuthSession.swift */; };
+		BB5E06E80FC82F779D95B294 /* CredentialStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C28651EA3A1D0B9FDF73 /* CredentialStoreTests.swift */; };
 		BB63CD15167417B307D423EC /* OAuthFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A76D5B160947CF068AEB9199 /* OAuthFlowView.swift */; };
 		BD26F1CF7E035C0DCAEA5DE9 /* ProjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B34ECDB04E3B547BF14DB81 /* ProjectStore.swift */; };
 		C05CF730B864CD89A9A5CFD4 /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D23F0D2F6ED1E675C469327 /* Project.swift */; };
@@ -74,6 +77,7 @@
 		CF7DEE83E2DE4606E324D57F /* StatusBarMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 284B022542CC1D3EC5F3327D /* StatusBarMenu.swift */; };
 		D153EA9866E052C3EE0EAA72 /* Deployment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C6C72472FF271E4BED36E9 /* Deployment.swift */; };
 		DB7222F279BAE14F6C57BE77 /* VercelBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D9DF0A5BA572AA0D3AB120 /* VercelBarApp.swift */; };
+		DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20CF436D58E6113D6762394 /* KeychainWrapper.swift */; };
 		DD16BA4E94069B29D9219449 /* AppInstanceCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */; };
 		E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */; };
 		E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */; };
@@ -115,6 +119,7 @@
 		3293FE31218E3DC2CDC117F6 /* TokenPairTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenPairTests.swift; sourceTree = "<group>"; };
 		42C6C72472FF271E4BED36E9 /* Deployment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Deployment.swift; sourceTree = "<group>"; };
 		4358CC9248F52D2385D12C85 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
+		4A96C28651EA3A1D0B9FDF73 /* CredentialStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialStoreTests.swift; sourceTree = "<group>"; };
 		4B34ECDB04E3B547BF14DB81 /* ProjectStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectStore.swift; sourceTree = "<group>"; };
 		4B8AEC6768A1FF3F68979F94 /* PKCE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PKCE.swift; sourceTree = "<group>"; };
 		4C74D44649339F8B2D758C69 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
@@ -153,6 +158,7 @@
 		A5EC52EE24AF127D16FFBB44 /* VercelAuthConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAuthConfig.swift; sourceTree = "<group>"; };
 		A76D5B160947CF068AEB9199 /* OAuthFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthFlowView.swift; sourceTree = "<group>"; };
 		A93E2D724C28ED3C651252C0 /* GeistMono-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GeistMono-Medium.otf"; sourceTree = "<group>"; };
+		B0756C146201ACD213BB2EA6 /* AppDelegateIconTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegateIconTests.swift; sourceTree = "<group>"; };
 		B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshEngineErrorTests.swift; sourceTree = "<group>"; };
 		B4094CDDBC2EA3628B60665B /* RefreshStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshStatus.swift; sourceTree = "<group>"; };
 		B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionStateStoreTests.swift; sourceTree = "<group>"; };
@@ -160,6 +166,8 @@
 		BB3938D74ABD8BE1F727CF33 /* PersonalTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalTokenView.swift; sourceTree = "<group>"; };
 		BDBB4FD3633F11756405EA82 /* BuildLogWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildLogWindow.swift; sourceTree = "<group>"; };
 		BEA38A045D7A14692EB0E4B4 /* RefreshStatusStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshStatusStore.swift; sourceTree = "<group>"; };
+		C20CF436D58E6113D6762394 /* KeychainWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
+		C7CD1905069B21140FFAE590 /* GeistColorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeistColorTests.swift; sourceTree = "<group>"; };
 		C8107F52C1BFD541EBE01BDF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C98C31D628F9124DE94E6764 /* DeploymentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeploymentStore.swift; sourceTree = "<group>"; };
 		CB93D721C2845DECD4F56363 /* CredentialStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialStore.swift; sourceTree = "<group>"; };
@@ -265,12 +273,15 @@
 		7272A1A72C0391A8D5C64D63 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				B0756C146201ACD213BB2EA6 /* AppDelegateIconTests.swift */,
 				8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */,
 				9665DD5EF7FBA996E8AA0C5B /* AppInstanceCoordinatorTests.swift */,
 				8FA1EF317C800D73883DFC2C /* AppInstanceLockTests.swift */,
 				DD8D8B5BC384A6AFE64E3BC4 /* AuthSessionInitialStatusTests.swift */,
 				8FCBD7D4E6DC72573158C14D /* AuthSessionStateMismatchTests.swift */,
 				B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */,
+				4A96C28651EA3A1D0B9FDF73 /* CredentialStoreTests.swift */,
+				C7CD1905069B21140FFAE590 /* GeistColorTests.swift */,
 				1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */,
 				1AC3442B3EC967E019B078AE /* ProjectStoreTests.swift */,
 				B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */,
@@ -387,6 +398,7 @@
 			children = (
 				22092C7C9441DE4FCCCAEDCF /* DebugLog.swift */,
 				FD53DDD6F408880191F32065 /* Geist.swift */,
+				C20CF436D58E6113D6762394 /* KeychainWrapper.swift */,
 				2E7E6D377E1EEA08D1D6076F /* RelativeTimeFormatter.swift */,
 				95F632837A9BCF20DE9ABD35 /* Theme.swift */,
 			);
@@ -513,6 +525,7 @@
 				0AC1DAEDF66366644F0A4E87 /* DesignPreviewView.swift in Sources */,
 				E49E77E259C7D7596C651F5E /* Geist.swift in Sources */,
 				FD0F0AD11E15169BC9BC6908 /* JSONDecoder+Vercel.swift in Sources */,
+				DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */,
 				547AA3E69B941C24A87B3AFE /* LaunchAtLoginManager.swift in Sources */,
 				AF0BD596F35E0BAE420B67C3 /* LogLine.swift in Sources */,
 				449BD17FEAECAA1BC4C144C0 /* NetworkMonitor.swift in Sources */,
@@ -551,12 +564,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D0CB70D8AA3AED59CB6779C /* AppDelegateIconTests.swift in Sources */,
 				DD16BA4E94069B29D9219449 /* AppInstanceCheckerTests.swift in Sources */,
 				9C390D1109BA034C847A4C89 /* AppInstanceCoordinatorTests.swift in Sources */,
 				02EE945F8AD3C54D38AF3AD3 /* AppInstanceLockTests.swift in Sources */,
 				ACE2C5D9EFD457621152A21F /* AuthSessionInitialStatusTests.swift in Sources */,
 				363FD8E7CF9185723137CD23 /* AuthSessionStateMismatchTests.swift in Sources */,
 				E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */,
+				BB5E06E80FC82F779D95B294 /* CredentialStoreTests.swift in Sources */,
+				A8231932A59DE6F683B675ED /* GeistColorTests.swift in Sources */,
 				79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */,
 				8E7DA912210E03148E1DDA3F /* ProjectStoreTests.swift in Sources */,
 				E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */,

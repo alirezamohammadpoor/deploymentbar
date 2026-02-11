@@ -1,0 +1,48 @@
+# DeployBar Phase Execution Plan (2026-02-11)
+
+## Phase A — Stabilize Core (in progress)
+
+### A1. Build/test baseline + startup reliability
+- Status: done
+- Implemented:
+  - fixed test drift for actor isolation and `teamId` model changes
+  - added regression coverage for runtime icon mutation
+  - removed runtime `NSWorkspace.setIcon` mutation path
+
+### A2. Keychain migration + compatibility
+- Status: done
+- Implemented:
+  - Keychain-backed credential persistence via `KeychainWrapper`
+  - migration from legacy file storage on read
+  - cleanup of legacy files after successful migration/save
+  - fallback path for corrupted keychain payloads
+  - unit tests in `Tests/CredentialStoreTests.swift`
+
+### A3. Concurrency-warning cleanup (Swift 6 readiness)
+- Status: next
+- Scope:
+  - remove remaining main-actor warning sites
+  - eliminate non-sendable captures in detached/background closures
+
+## Phase B — Design System Alignment
+- Status: pending
+- Scope:
+  - align token palette and semantics to DeployBar brand guide
+  - update typography scale (11/12/13 baseline)
+  - standardize spacing/radius/status-dot specs
+  - verify reduced-motion behavior
+
+## Phase C — Auth + Release Hardening
+- Status: pending
+- Scope:
+  - callback diagnostics and recovery UX
+  - auth metrics hooks
+  - regression suite for callback/refresh edge cases
+  - release checklist and manual QA pass
+
+## Verification Baseline
+- Command:
+```bash
+xcodebuild test -project VercelBar.xcodeproj -scheme VercelBar -destination 'platform=macOS'
+```
+- Current result: passing
