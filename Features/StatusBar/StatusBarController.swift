@@ -66,7 +66,7 @@ final class StatusBarController: NSObject {
     DebugLog.write("Configured BrowserLauncher")
     let deploymentStore = DeploymentStore()
     DebugLog.write("Configured DeploymentStore")
-    let refreshStatusStore = RefreshStatusStore()
+    let refreshStatusStore = RefreshStatusStore.shared
     DebugLog.write("Configured RefreshStatusStore")
 
     self.browserLauncher = browserLauncher

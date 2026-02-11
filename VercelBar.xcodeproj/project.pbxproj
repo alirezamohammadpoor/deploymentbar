@@ -47,13 +47,16 @@
 		6D136125C55E4D6A94638486 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 827DAA3659BC9B3DB7EEFC89 /* Localizable.strings */; };
 		6D3867F2C3839A54E8811329 /* RefreshStatusStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA38A045D7A14692EB0E4B4 /* RefreshStatusStore.swift */; };
 		6F0C058B18430A68669D3FBA /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C74D44649339F8B2D758C69 /* NotificationManager.swift */; };
+		712D425D87298BA4436D56DB /* DebugLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86955F9C3547E86AEBDC716D /* DebugLogTests.swift */; };
 		763CF1A318C93534FE50B30C /* StatusBarControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A06CECD6CA0683A7F18BD08D /* StatusBarControllerTests.swift */; };
 		772DD0D1F2E21D402CA3F1CE /* AuthSessionRecoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F7071DCD9643BE901AC39 /* AuthSessionRecoveryTests.swift */; };
+		78534F9A2622094C2ECA72A5 /* DiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 897F5F163569ED0011975C0F /* DiagnosticsView.swift */; };
 		79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */; };
 		7F75D647E4B4500FE9FD764A /* Geist-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0B8B4A447FCA15B1C5D1F6AC /* Geist-Medium.otf */; };
 		7F95418D6985ADB0D7C51DB3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D06D8686A3E00B125D8A82D2 /* AppDelegate.swift */; };
 		8DA1AF88BF7F33A83422F8EE /* OAuthCallbackHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7609E89BDA38B6AD650669F5 /* OAuthCallbackHandler.swift */; };
 		8E7DA912210E03148E1DDA3F /* ProjectStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC3442B3EC967E019B078AE /* ProjectStoreTests.swift */; };
+		9156BA75893D4F22312FAE17 /* DiagnosticsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0340F37229B5761DECF92CEF /* DiagnosticsStore.swift */; };
 		9257299009A49D4C3F5B3AA5 /* NotificationHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF0ADD84E0FF0D08B9AB51EC /* NotificationHistoryStore.swift */; };
 		9416FF69C87E9D8F69FA3E78 /* VercelEndpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D811C25E71FE8B0AA37B64 /* VercelEndpoints.swift */; };
 		9429A40854B407A39ABA1202 /* GeistMono-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 9B2AC2C236EB048BBA5DB704 /* GeistMono-Regular.otf */; };
@@ -81,6 +84,7 @@
 		DB7222F279BAE14F6C57BE77 /* VercelBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D9DF0A5BA572AA0D3AB120 /* VercelBarApp.swift */; };
 		DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20CF436D58E6113D6762394 /* KeychainWrapper.swift */; };
 		DD16BA4E94069B29D9219449 /* AppInstanceCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */; };
+		DD3B85363F8ABD6943E9ECDC /* DiagnosticsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA08D0F7AC14196D5339213 /* DiagnosticsStoreTests.swift */; };
 		E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */; };
 		E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */; };
 		E49E77E259C7D7596C651F5E /* Geist.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD53DDD6F408880191F32065 /* Geist.swift */; };
@@ -104,6 +108,7 @@
 
 /* Begin PBXFileReference section */
 		0141273F800345B6BF035DF3 /* AuthSessionStateStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionStateStore.swift; sourceTree = "<group>"; };
+		0340F37229B5761DECF92CEF /* DiagnosticsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsStore.swift; sourceTree = "<group>"; };
 		03EA8E9080DCE69ACCDF43C0 /* GeistMono-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "GeistMono-SemiBold.otf"; sourceTree = "<group>"; };
 		05357E1631366B7C8718B8F6 /* DesignPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignPreviewView.swift; sourceTree = "<group>"; };
 		0963716F8B805CCD9D6829D6 /* URLSchemeRegistrarTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSchemeRegistrarTests.swift; sourceTree = "<group>"; };
@@ -134,6 +139,7 @@
 		5D0498B38099C57B81B87234 /* RefreshEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshEngine.swift; sourceTree = "<group>"; };
 		6B87ABDB628BB31016796190 /* VercelBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VercelBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D62BBC1D044771B370566A9 /* VercelAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VercelAPIClient.swift; sourceTree = "<group>"; };
+		6DA08D0F7AC14196D5339213 /* DiagnosticsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsStoreTests.swift; sourceTree = "<group>"; };
 		6EB217019D4BCB181B46B7CC /* OAuthErrorParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthErrorParser.swift; sourceTree = "<group>"; };
 		725EBFC38DB145A0952DF2BA /* NetworkMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkMonitor.swift; sourceTree = "<group>"; };
 		7609E89BDA38B6AD650669F5 /* OAuthCallbackHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthCallbackHandler.swift; sourceTree = "<group>"; };
@@ -145,7 +151,9 @@
 		827DAA3659BC9B3DB7EEFC89 /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
 		858A57344C72FDF789217A19 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		8691E7898183191AC14EA0F4 /* BrowserLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserLauncher.swift; sourceTree = "<group>"; };
+		86955F9C3547E86AEBDC716D /* DebugLogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogTests.swift; sourceTree = "<group>"; };
 		877E9B1658821600DD874233 /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
+		897F5F163569ED0011975C0F /* DiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsView.swift; sourceTree = "<group>"; };
 		8E4CDB29C228D982FA6A5B8F /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceCheckerTests.swift; sourceTree = "<group>"; };
 		8FA1EF317C800D73883DFC2C /* AppInstanceLockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceLockTests.swift; sourceTree = "<group>"; };
@@ -197,6 +205,7 @@
 			isa = PBXGroup;
 			children = (
 				05357E1631366B7C8718B8F6 /* DesignPreviewView.swift */,
+				897F5F163569ED0011975C0F /* DiagnosticsView.swift */,
 				BB3938D74ABD8BE1F727CF33 /* PersonalTokenView.swift */,
 				0A111B06747AA9A2D8177780 /* ProjectFilterView.swift */,
 				2059CB0908FBF2598B74EDB6 /* SettingsView.swift */,
@@ -289,6 +298,8 @@
 				8FCBD7D4E6DC72573158C14D /* AuthSessionStateMismatchTests.swift */,
 				B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */,
 				4A96C28651EA3A1D0B9FDF73 /* CredentialStoreTests.swift */,
+				86955F9C3547E86AEBDC716D /* DebugLogTests.swift */,
+				6DA08D0F7AC14196D5339213 /* DiagnosticsStoreTests.swift */,
 				C7CD1905069B21140FFAE590 /* GeistColorTests.swift */,
 				7EBA24A38D2857A665795554 /* GeistLayoutTests.swift */,
 				1AF12A33A0B5A9C517DEF67F /* OAuthErrorParserTests.swift */,
@@ -360,6 +371,7 @@
 				E21E89679C5915C2E0733CDB /* BrowserOption.swift */,
 				CB93D721C2845DECD4F56363 /* CredentialStore.swift */,
 				C98C31D628F9124DE94E6764 /* DeploymentStore.swift */,
+				0340F37229B5761DECF92CEF /* DiagnosticsStore.swift */,
 				53A2468F9E31C2C6BE877D53 /* LaunchAtLoginManager.swift */,
 				725EBFC38DB145A0952DF2BA /* NetworkMonitor.swift */,
 				CF0ADD84E0FF0D08B9AB51EC /* NotificationHistoryStore.swift */,
@@ -532,6 +544,8 @@
 				1C98A3873E036909D59D1C05 /* DeploymentRowView.swift in Sources */,
 				F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */,
 				0AC1DAEDF66366644F0A4E87 /* DesignPreviewView.swift in Sources */,
+				9156BA75893D4F22312FAE17 /* DiagnosticsStore.swift in Sources */,
+				78534F9A2622094C2ECA72A5 /* DiagnosticsView.swift in Sources */,
 				E49E77E259C7D7596C651F5E /* Geist.swift in Sources */,
 				FD0F0AD11E15169BC9BC6908 /* JSONDecoder+Vercel.swift in Sources */,
 				DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */,
@@ -583,6 +597,8 @@
 				363FD8E7CF9185723137CD23 /* AuthSessionStateMismatchTests.swift in Sources */,
 				E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */,
 				BB5E06E80FC82F779D95B294 /* CredentialStoreTests.swift in Sources */,
+				712D425D87298BA4436D56DB /* DebugLogTests.swift in Sources */,
+				DD3B85363F8ABD6943E9ECDC /* DiagnosticsStoreTests.swift in Sources */,
 				A8231932A59DE6F683B675ED /* GeistColorTests.swift in Sources */,
 				60DA88A378D9D90256DBB53D /* GeistLayoutTests.swift in Sources */,
 				79BDF30C435D55C184B8986C /* OAuthErrorParserTests.swift in Sources */,

@@ -100,6 +100,11 @@ struct SettingsView: View {
           }
         }
 
+        // DIAGNOSTICS
+        section("Diagnostics", description: "Export runtime state and logs for troubleshooting.") {
+          DiagnosticsView()
+        }
+
         // DESIGN PREVIEW
         section("Design Preview", description: "Visual token preview for current theme and components.") {
           DesignPreviewView()

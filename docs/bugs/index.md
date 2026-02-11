@@ -28,3 +28,4 @@
 - 2026-02-11: Runtime icon mutation breaks CodeSign (`docs/bugs/20260211-runtime-icon-codesign-detritus.md`)
 - 2026-02-11: OAuth reset/retry recovery path (`docs/bugs/20260211-oauth-recovery-reset-retry.md`)
 - 2026-02-11: OAuth personal scope team auto-bind (`docs/bugs/20260211-oauth-personal-scope-team-autobind.md`)
+- 2026-02-11: Diagnostics snapshot/export path missing (`docs/bugs/20260211-diagnostics-snapshot-export.md`)
