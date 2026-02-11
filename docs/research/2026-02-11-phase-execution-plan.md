@@ -40,6 +40,8 @@
   - aligned status-dot and badge metrics to spec (`8px` dot, capsule badge with `4x2` padding)
   - removed forced dark-mode overrides so views follow system appearance
   - replaced top filter picker with custom Geist-style segmented control and tuned row separators/padding to the 12px inset + 4px grid
+  - introduced settings cards + section descriptions and added a persistent footer status row in the menu popover (`Updated`, `Refresh`, `Sign Out`)
+  - refined footer visuals into semantic status chip + action buttons, added deployment target badges, and aligned skeleton spacing/expand animation with accessibility preferences
 
 ## Phase C — Auth + Release Hardening
 - Status: pending

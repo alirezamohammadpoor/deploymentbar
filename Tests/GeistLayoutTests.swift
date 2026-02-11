@@ -10,5 +10,7 @@ final class GeistLayoutTests: XCTestCase {
     XCTAssertEqual(Geist.Layout.badgePaddingH, 4)
     XCTAssertEqual(Geist.Layout.badgePaddingV, 2)
     XCTAssertEqual(Geist.Layout.badgeCornerRadius, 9999)
+    XCTAssertEqual(Geist.Layout.settingsCardRadius, 8)
+    XCTAssertEqual(Geist.Layout.settingsCardPadding, 12)
   }
 }

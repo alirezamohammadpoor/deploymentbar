@@ -151,6 +151,8 @@ enum Geist {
     static let settingsVPadding: CGFloat = 20
     static let settingsInputHeight: CGFloat = 36
     static let settingsInputRadius: CGFloat = 6
+    static let settingsCardRadius: CGFloat = 8
+    static let settingsCardPadding: CGFloat = 12
     static let settingsIconButtonSize: CGFloat = 28
   }
 

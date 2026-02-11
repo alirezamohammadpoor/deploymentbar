@@ -38,8 +38,8 @@ struct SkeletonRowView: View {
       }
     }
     .frame(height: Geist.Layout.rowHeight)
-    .padding(.horizontal, Geist.Layout.spacingSM)
-    .padding(.vertical, Geist.Layout.spacingXS)
+    .padding(.horizontal, Geist.Layout.rowPaddingH)
+    .padding(.vertical, Geist.Layout.rowPaddingV)
     .onAppear {
       startShimmer()
     }

@@ -28,16 +28,15 @@ struct ProjectFilterView: View {
           .font(Geist.Typography.Settings.helperText)
           .foregroundColor(Geist.Colors.gray800)
       } else {
-        VStack(alignment: .leading, spacing: 0) {
-          ForEach(projectStore.projects) { project in
-            VercelCheckmarkRow(name: project.name, isSelected: binding(for: project.id))
+        ScrollView {
+          VStack(alignment: .leading, spacing: 0) {
+            ForEach(projectStore.projects) { project in
+              VercelCheckmarkRow(name: project.name, isSelected: binding(for: project.id))
+            }
           }
         }
+        .frame(maxHeight: 220)
       }
-
-      Text("Leave all unchecked to monitor every project.")
-        .font(Geist.Typography.Settings.helperText)
-        .foregroundColor(Geist.Colors.gray700)
     }
     .onAppear {
       if projectStore.projects.isEmpty {

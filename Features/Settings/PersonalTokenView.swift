@@ -38,10 +38,6 @@ struct PersonalTokenView: View {
           .font(Geist.Typography.Settings.helperText)
           .foregroundColor(statusMessage == "Token saved." ? Geist.Colors.statusReady : Geist.Colors.gray800)
       }
-
-      Text("Personal tokens skip OAuth and unlock deployment access immediately.")
-        .font(Geist.Typography.Settings.helperText)
-        .foregroundColor(Geist.Colors.gray700)
     }
   }
 }

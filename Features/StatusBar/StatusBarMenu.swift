@@ -61,6 +61,44 @@ struct StatusBarMenu: View {
   @State private var expandedDeploymentId: String?
   @State private var focusedDeploymentId: String?
   @State private var isHoveringProject = false
+  @State private var now = Date()
+  private let clock = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+
+  private enum FooterRefreshTone {
+    case fresh
+    case stale
+    case waiting
+
+    var dotColor: Color {
+      switch self {
+      case .fresh: return Geist.Colors.statusReady
+      case .stale: return Geist.Colors.statusError
+      case .waiting: return Geist.Colors.statusQueued
+      }
+    }
+
+    var textColor: Color {
+      switch self {
+      case .stale: return Geist.Colors.statusError
+      case .fresh, .waiting: return Geist.Colors.textSecondary
+      }
+    }
+
+    var backgroundColor: Color {
+      switch self {
+      case .fresh: return Geist.Colors.gray100
+      case .stale: return Geist.Colors.statusError.opacity(0.1)
+      case .waiting: return Geist.Colors.gray100
+      }
+    }
+
+    var borderColor: Color {
+      switch self {
+      case .stale: return Geist.Colors.statusError.opacity(0.4)
+      case .fresh, .waiting: return Geist.Colors.borderSubtle
+      }
+    }
+  }
 
   var body: some View {
     VStack(spacing: 0) {
@@ -70,6 +108,8 @@ struct StatusBarMenu: View {
       header
       Divider()
       content
+      Divider()
+      footer
     }
     .frame(width: Geist.Layout.popoverWidth)
     .frame(maxHeight: Geist.Layout.popoverMaxHeight)
@@ -82,6 +122,9 @@ struct StatusBarMenu: View {
       if !deployments.isEmpty && isInitialLoad {
         isInitialLoad = false
       }
+    }
+    .onReceive(clock) { tick in
+      now = tick
     }
     .onKeyPress(keys: [.upArrow]) { _ in
       navigateUp()
@@ -271,6 +314,76 @@ struct StatusBarMenu: View {
 
   // MARK: - Deployments
 
+  private var footer: some View {
+    HStack(spacing: Geist.Layout.spacingSM) {
+      HStack(spacing: Geist.Layout.spacingXS) {
+        Circle()
+          .fill(footerTone.dotColor)
+          .frame(width: 6, height: 6)
+
+        Text(refreshSummaryText)
+          .font(Geist.Typography.caption)
+          .foregroundColor(footerTone.textColor)
+          .lineLimit(1)
+      }
+      .padding(.horizontal, Geist.Layout.spacingSM)
+      .padding(.vertical, Geist.Layout.spacingXS)
+      .background(footerTone.backgroundColor)
+      .clipShape(Capsule())
+      .overlay(
+        Capsule()
+          .stroke(footerTone.borderColor, lineWidth: 1)
+      )
+
+      Spacer()
+
+      Button {
+        performRefresh()
+      } label: {
+        Label("Refresh", systemImage: "arrow.clockwise")
+      }
+      .buttonStyle(FooterActionButtonStyle(tone: .primary))
+
+      if case .signedIn = authSession.status {
+        Button {
+          signOut()
+        } label: {
+          Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+        }
+        .buttonStyle(FooterActionButtonStyle(tone: .secondary))
+      }
+    }
+    .padding(.horizontal, Geist.Layout.spacingMD)
+    .padding(.vertical, Geist.Layout.spacingSM)
+  }
+
+  private var footerTone: FooterRefreshTone {
+    let status = refreshStatusStore.status
+    if status.isStale {
+      return .stale
+    }
+    if status.lastRefresh == nil {
+      return .waiting
+    }
+    return .fresh
+  }
+
+  private var refreshSummaryText: String {
+    let status = refreshStatusStore.status
+    if status.isStale {
+      if let lastRefresh = status.lastRefresh {
+        return "Update failed (\(RelativeTimeFormatter.string(from: lastRefresh, now: now)))"
+      }
+      return "Update failed"
+    }
+
+    if let lastRefresh = status.lastRefresh {
+      return "Updated \(RelativeTimeFormatter.string(from: lastRefresh, now: now))"
+    }
+
+    return "Waiting for first refresh"
+  }
+
   private var filteredDeployments: [Deployment] {
     var deployments: [Deployment]
     switch filter {
@@ -381,7 +494,7 @@ struct StatusBarMenu: View {
         ForEach(Array(filteredDeployments.enumerated()), id: \.element.id) { index, deployment in
           DeploymentRowView(
             deployment: deployment,
-            relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt),
+            relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt, now: now),
             isExpanded: expandedDeploymentId == deployment.id,
             isFocused: focusedDeploymentId == deployment.id,
             onToggleExpand: {
@@ -404,7 +517,11 @@ struct StatusBarMenu: View {
   }
 
   private func toggleExpand(for deploymentId: String) {
-    withAnimation(.spring(dampingFraction: 0.85)) {
+    let animation = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+      ? Animation?.none
+      : .spring(dampingFraction: 0.85)
+
+    withAnimation(animation) {
       if expandedDeploymentId == deploymentId {
         expandedDeploymentId = nil
       } else {
@@ -492,7 +609,11 @@ struct StatusBarMenu: View {
   private func handleEscape() {
     if expandedDeploymentId != nil {
       // First escape: collapse expanded row
-      withAnimation(.spring(dampingFraction: 0.85)) {
+      let animation = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        ? Animation?.none
+        : .spring(dampingFraction: 0.85)
+
+      withAnimation(animation) {
         expandedDeploymentId = nil
       }
     } else if focusedDeploymentId != nil {
@@ -502,4 +623,47 @@ struct StatusBarMenu: View {
     // Note: Third escape would close the popover, but that's handled by the popover behavior
   }
 
+}
+
+private struct FooterActionButtonStyle: ButtonStyle {
+  enum Tone {
+    case primary
+    case secondary
+  }
+
+  let tone: Tone
+  @State private var isHovered = false
+
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .font(Geist.Typography.caption)
+      .foregroundColor(tone == .primary ? Geist.Colors.textPrimary : Geist.Colors.textSecondary)
+      .padding(.horizontal, Geist.Layout.spacingSM)
+      .padding(.vertical, Geist.Layout.spacingXS)
+      .background(
+        RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
+          .fill(backgroundColor(configuration: configuration))
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
+          .stroke(borderColor, lineWidth: 1)
+      )
+      .onHover { hovering in
+        isHovered = hovering
+      }
+  }
+
+  private var borderColor: Color {
+    tone == .primary ? Geist.Colors.border : Geist.Colors.borderSubtle
+  }
+
+  private func backgroundColor(configuration: Configuration) -> Color {
+    if configuration.isPressed {
+      return Geist.Colors.gray300
+    }
+    if isHovered {
+      return Geist.Colors.gray200
+    }
+    return Geist.Colors.gray100
+  }
 }

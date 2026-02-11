@@ -47,9 +47,7 @@ struct DeploymentRowView: View {
     )
     .contentShape(Rectangle())
     .onTapGesture {
-      withAnimation(.spring(dampingFraction: 0.85)) {
-        onToggleExpand()
-      }
+      onToggleExpand()
     }
     .onHover { hovering in
       isHovered = hovering
@@ -218,6 +216,21 @@ struct DeploymentRowView: View {
       HStack(spacing: Geist.Layout.spacingSM) {
         Color.clear
           .frame(width: Geist.Layout.statusDotSize)
+
+        if let targetLabel {
+          Text(targetLabel)
+            .font(.system(size: 10, weight: .medium, design: .monospaced))
+            .foregroundColor(targetTextColor)
+            .lineLimit(1)
+            .padding(.horizontal, Geist.Layout.badgePaddingH)
+            .padding(.vertical, Geist.Layout.badgePaddingV)
+            .background(targetBackgroundColor)
+            .clipShape(Capsule())
+            .overlay(
+              Capsule()
+                .stroke(targetBorderColor, lineWidth: 1)
+            )
+        }
 
         // Branch badge
         Text(deployment.branch ?? "—")
@@ -395,6 +408,36 @@ struct DeploymentRowView: View {
   }
 
   // MARK: - Helpers
+
+  private var targetLabel: String? {
+    guard let target = deployment.target?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased(),
+      !target.isEmpty else {
+      return nil
+    }
+
+    if target == "production" {
+      return "production"
+    }
+    return target
+  }
+
+  private var isProductionTarget: Bool {
+    targetLabel == "production"
+  }
+
+  private var targetTextColor: Color {
+    isProductionTarget ? Geist.Colors.accent : Geist.Colors.textSecondary
+  }
+
+  private var targetBackgroundColor: Color {
+    isProductionTarget ? Geist.Colors.accent.opacity(0.14) : Geist.Colors.gray100
+  }
+
+  private var targetBorderColor: Color {
+    isProductionTarget ? Geist.Colors.accent.opacity(0.45) : Geist.Colors.borderSubtle
+  }
 
   private var vercelDashboardURL: URL? {
     guard let projectId = deployment.projectId else { return nil }

@@ -199,6 +199,19 @@ struct DesignPreviewView: View {
         HStack(spacing: Geist.Layout.spacingSM) {
           Color.clear
             .frame(width: Geist.Layout.statusDotSize)
+
+          Text("production")
+            .font(.system(size: 10, weight: .medium, design: .monospaced))
+            .foregroundColor(Geist.Colors.accent)
+            .padding(.horizontal, Geist.Layout.badgePaddingH)
+            .padding(.vertical, Geist.Layout.badgePaddingV)
+            .background(Geist.Colors.accent.opacity(0.14))
+            .clipShape(Capsule())
+            .overlay(
+              Capsule()
+                .stroke(Geist.Colors.accent.opacity(0.45), lineWidth: 1)
+            )
+
           Text("main")
             .font(Geist.Typography.branchName)
             .foregroundColor(Geist.Colors.textSecondary)

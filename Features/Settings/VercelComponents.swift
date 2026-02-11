@@ -147,6 +147,29 @@ struct VercelSectionHeader: View {
   }
 }
 
+// MARK: - VercelSectionCard
+
+struct VercelSectionCard<Content: View>: View {
+  @ViewBuilder let content: Content
+
+  init(@ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: Geist.Layout.spacingMD) {
+      content
+    }
+    .padding(Geist.Layout.settingsCardPadding)
+    .background(Geist.Colors.gray100)
+    .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.settingsCardRadius))
+    .overlay(
+      RoundedRectangle(cornerRadius: Geist.Layout.settingsCardRadius)
+        .stroke(Geist.Colors.borderSubtle, lineWidth: 1)
+    )
+  }
+}
+
 // MARK: - VercelDropdown
 
 struct VercelDropdown<T: Hashable>: View {

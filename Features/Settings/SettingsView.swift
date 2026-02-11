@@ -25,17 +25,24 @@ struct SettingsView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
         // AUTHENTICATION
-        section("Authentication", isFirst: true) {
+        section(
+          "Authentication",
+          description: "Use a personal token for direct access without OAuth.",
+          isFirst: true
+        ) {
           PersonalTokenView()
         }
 
         // PROJECTS
-        section("Projects") {
+        section(
+          "Projects",
+          description: "Leave everything unchecked to monitor every project."
+        ) {
           ProjectFilterView()
         }
 
         // NOTIFICATIONS
-        section("Notifications") {
+        section("Notifications", description: "Choose which deployment states trigger alerts.") {
           VStack(alignment: .leading, spacing: 12) {
             Toggle("Notify on ready", isOn: $settings.notifyOnReady)
               .toggleStyle(VercelToggleStyle())
@@ -49,7 +56,7 @@ struct SettingsView: View {
         }
 
         // GENERAL
-        section("General") {
+        section("General", description: "Configure polling cadence, browser behavior, and startup.") {
           VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 6) {
               Text("Polling interval")
@@ -81,16 +88,26 @@ struct SettingsView: View {
         }
 
         // BUILD LOGS
-        buildLogsSection
+        section("Build Logs", description: "Default number of lines loaded when opening a build log.") {
+          VStack(alignment: .leading, spacing: 6) {
+            Text("Default log lines")
+              .font(Geist.Typography.Settings.fieldLabel)
+              .foregroundColor(Geist.Colors.gray1000)
+            VercelSegmentedControl(
+              selection: $settings.defaultLogLines,
+              options: logLineOptions
+            )
+          }
+        }
 
         // DESIGN PREVIEW
-        section("Design Preview") {
+        section("Design Preview", description: "Visual token preview for current theme and components.") {
           DesignPreviewView()
         }
 
         // ACCOUNT
         if authSession.status == .signedIn {
-          section("Account") {
+          section("Account", description: "Sign out from your current session.") {
             Button {
               showSignOutConfirmation = true
             } label: {
@@ -129,30 +146,25 @@ struct SettingsView: View {
     }
   }
 
-  // MARK: - Build Logs Section
-
-  private var buildLogsSection: some View {
-    section("Build Logs") {
-      VStack(alignment: .leading, spacing: 6) {
-        Text("Default log lines")
-          .font(Geist.Typography.Settings.fieldLabel)
-          .foregroundColor(Geist.Colors.gray1000)
-        VercelSegmentedControl(
-          selection: $settings.defaultLogLines,
-          options: logLineOptions
-        )
-      }
-    }
-  }
-
   // MARK: - Helpers
 
-  @ViewBuilder
-  private func section<Content: View>(_ title: String, isFirst: Bool = false, @ViewBuilder content: () -> Content) -> some View {
-    VStack(alignment: .leading, spacing: 16) {
+  private func section<Content: View>(
+    _ title: String,
+    description: String,
+    isFirst: Bool = false,
+    @ViewBuilder content: () -> Content
+  ) -> some View {
+    VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
       VercelSectionHeader(title: title)
-        .padding(.top, isFirst ? 0 : 32)
-      content()
+        .padding(.top, isFirst ? 0 : Geist.Layout.spacingXL)
+
+      Text(description)
+        .font(Geist.Typography.Settings.helperText)
+        .foregroundColor(Geist.Colors.textSecondary)
+
+      VercelSectionCard {
+        content()
+      }
     }
   }
 }
