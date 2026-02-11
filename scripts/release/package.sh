@@ -6,11 +6,7 @@ BUILD_DIR="$ROOT_DIR/build/release"
 APP_PATH="$BUILD_DIR/VercelBar.app"
 ARTIFACTS_DIR="$BUILD_DIR/artifacts"
 PLIST_PATH="$APP_PATH/Contents/Info.plist"
-
-if [[ "${CREATE_DMG:-0}" == "1" ]]; then
-  echo "ERROR: DMG packaging is intentionally disabled in this cycle. Use ZIP artifacts." >&2
-  exit 1
-fi
+DMG_ROOT="$BUILD_DIR/dmg-root"
 
 if [[ ! -d "$APP_PATH" ]]; then
   "$ROOT_DIR/scripts/release/archive.sh"
@@ -27,9 +23,25 @@ mkdir -p "$ARTIFACTS_DIR"
 
 ZIP_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}.zip"
 NOTARIZED_ZIP_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}-notarized.zip"
+DMG_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}.dmg"
+NOTARIZED_DMG_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}-notarized.dmg"
 
-rm -f "$ZIP_PATH" "$NOTARIZED_ZIP_PATH"
+rm -f "$ZIP_PATH" "$NOTARIZED_ZIP_PATH" "$NOTARIZED_DMG_PATH"
 ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
 
 echo "Package complete"
 echo "ZIP_PATH=$ZIP_PATH"
+
+if [[ "${CREATE_DMG:-0}" == "1" ]]; then
+  mkdir -p "$DMG_ROOT"
+  rm -rf "$DMG_ROOT"/*
+  cp -R "$APP_PATH" "$DMG_ROOT/"
+  rm -f "$DMG_PATH"
+  hdiutil create \
+    -volname "VercelBar" \
+    -srcfolder "$DMG_ROOT" \
+    -ov \
+    -format UDZO \
+    "$DMG_PATH"
+  echo "DMG_PATH=$DMG_PATH"
+fi

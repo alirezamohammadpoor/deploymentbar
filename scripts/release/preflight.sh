@@ -32,6 +32,7 @@ require_cmd xcodebuild
 require_cmd xcrun
 require_cmd security
 require_cmd ditto
+require_cmd hdiutil
 require_cmd /usr/libexec/PlistBuddy
 
 require_env VERCEL_CLIENT_ID

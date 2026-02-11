@@ -5,6 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BUILD_DIR="$ROOT_DIR/build/release"
 APP_PATH="$BUILD_DIR/VercelBar.app"
 ARTIFACTS_DIR="$BUILD_DIR/artifacts"
+NOTARIZE_DMG="${NOTARIZE_DMG:-0}"
 
 if [[ -z "${APPLE_NOTARY_PROFILE:-}" ]]; then
   echo "ERROR: Missing APPLE_NOTARY_PROFILE" >&2
@@ -42,7 +43,29 @@ NOTARIZED_ZIP_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}-notarized.zip"
 rm -f "$NOTARIZED_ZIP_PATH"
 ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$NOTARIZED_ZIP_PATH"
 
+if [[ "$NOTARIZE_DMG" == "1" ]]; then
+  CREATE_DMG=1 "$ROOT_DIR/scripts/release/package.sh" >/dev/null
+  DMG_PATH="${DMG_PATH:-$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}.dmg}"
+  if [[ ! -f "$DMG_PATH" ]]; then
+    echo "ERROR: Source dmg not found for notarization at $DMG_PATH" >&2
+    exit 1
+  fi
+
+  echo "== Notarizing DMG =="
+  xcrun notarytool submit "$DMG_PATH" --keychain-profile "$APPLE_NOTARY_PROFILE" --wait
+
+  echo "== Stapling DMG =="
+  xcrun stapler staple "$DMG_PATH"
+
+  NOTARIZED_DMG_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}-notarized.dmg"
+  rm -f "$NOTARIZED_DMG_PATH"
+  cp "$DMG_PATH" "$NOTARIZED_DMG_PATH"
+fi
+
 spctl --assess --type execute --verbose "$APP_PATH"
 
 echo "Notarization complete"
 echo "NOTARIZED_ZIP_PATH=$NOTARIZED_ZIP_PATH"
+if [[ "$NOTARIZE_DMG" == "1" ]]; then
+  echo "NOTARIZED_DMG_PATH=$NOTARIZED_DMG_PATH"
+fi

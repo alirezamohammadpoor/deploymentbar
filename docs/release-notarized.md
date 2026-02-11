@@ -1,7 +1,7 @@
 # VercelBar Notarized Release (Direct Download)
 
 ## Scope
-This release path builds a signed macOS `.app`, notarizes it with Apple, staples notarization, and emits deterministic ZIP artifacts for direct download.
+This release path builds a signed macOS `.app`, notarizes it with Apple, staples notarization, and emits deterministic ZIP artifacts for direct download. Optional DMG packaging/notarization is supported.
 
 Bundle ID remains `com.example.VercelBar` in this cycle.
 
@@ -25,11 +25,19 @@ Run from repo root:
 ./scripts/release/notarize.sh
 ```
 
+Optional DMG artifact:
+```bash
+CREATE_DMG=1 ./scripts/release/package.sh
+NOTARIZE_DMG=1 ./scripts/release/notarize.sh
+```
+
 ## Artifact Paths
 - Archive: `build/release/VercelBar.xcarchive`
 - App bundle copy: `build/release/VercelBar.app`
 - Pre-notary ZIP: `build/release/artifacts/VercelBar-<version>-<build>.zip`
 - Notarized ZIP: `build/release/artifacts/VercelBar-<version>-<build>-notarized.zip`
+- Optional pre-notary DMG: `build/release/artifacts/VercelBar-<version>-<build>.dmg`
+- Optional notarized DMG: `build/release/artifacts/VercelBar-<version>-<build>-notarized.dmg`
 
 ## Troubleshooting
 1. `Missing APPLE_NOTARY_PROFILE`
