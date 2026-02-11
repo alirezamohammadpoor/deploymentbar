@@ -14,6 +14,8 @@ Bundle ID remains `com.example.VercelBar` in this cycle.
   - `VERCEL_REDIRECT_URI`
   - `VERCEL_SCOPES`
   - `APPLE_NOTARY_PROFILE`
+  - `SPARKLE_FEED_URL` (recommended for in-app updates)
+  - `SPARKLE_PUBLIC_ED_KEY` (recommended)
 
 ## Commands
 Run from repo root:
@@ -59,3 +61,7 @@ Before public release:
 2. Regenerate project with `xcodegen`.
 3. Recreate signing profiles/certs for the new identifier.
 4. Re-run full notarized pipeline.
+
+## Sparkle follow-up
+For ongoing in-app updates you also need a hosted appcast and signing metadata.
+See `docs/sparkle-updates.md`.

@@ -40,6 +40,14 @@ require_env VERCEL_REDIRECT_URI
 require_env VERCEL_SCOPES
 require_env APPLE_NOTARY_PROFILE
 
+if [[ -z "${SPARKLE_FEED_URL:-}" ]]; then
+  warn "SPARKLE_FEED_URL is not set. In-app update checks will be disabled."
+fi
+
+if [[ -z "${SPARKLE_PUBLIC_ED_KEY:-}" ]]; then
+  warn "SPARKLE_PUBLIC_ED_KEY is not set. Sparkle signature verification may be incomplete."
+fi
+
 if ! security find-identity -v -p codesigning | grep -q "Developer ID Application"; then
   fail "No Developer ID Application signing identity found in keychain"
 fi
