@@ -82,10 +82,18 @@ final class UpdateManager: ObservableObject {
       statusLevel = .success
       isChecking = false
     case .failed(let message):
-      status = .failed
-      statusText = "Update check failed: \(message)"
-      statusLevel = .error
-      isChecking = false
+      let normalizedMessage = message.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+      if normalizedMessage.contains("up to date") || normalizedMessage.contains("latest version") {
+        status = .upToDate
+        statusText = "You are up to date."
+        statusLevel = .info
+        isChecking = false
+      } else {
+        status = .failed
+        statusText = "Update check failed: \(message)"
+        statusLevel = .error
+        isChecking = false
+      }
     }
   }
 }

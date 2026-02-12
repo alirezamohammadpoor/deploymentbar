@@ -25,11 +25,43 @@ struct SettingsView: View {
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 0) {
+        // ADVANCED
+        section("Advanced", description: "Manual maintenance and update tasks.", isFirst: true) {
+          VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: Geist.Layout.spacingSM) {
+              Button {
+                Task { await updateManager.checkForUpdates() }
+              } label: {
+                if updateManager.isChecking {
+                  HStack(spacing: Geist.Layout.spacingXS) {
+                    ProgressView()
+                      .controlSize(.small)
+                    Text("Checking for Updates…")
+                  }
+                } else {
+                  Text("Check for Updates")
+                }
+              }
+              .buttonStyle(VercelSecondaryButtonStyle())
+              .disabled(updateManager.isChecking)
+
+              Text("v\(appVersion)")
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(Geist.Colors.textSecondary)
+            }
+
+            if let statusText = updateManager.statusText {
+              Text(statusText)
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(updateStatusColor)
+            }
+          }
+        }
+
         // AUTHENTICATION
         section(
           "Authentication",
-          description: "Use a personal token for direct access without OAuth.",
-          isFirst: true
+          description: "Use a personal token for direct access without OAuth."
         ) {
           PersonalTokenView()
         }
@@ -98,39 +130,6 @@ struct SettingsView: View {
               selection: $settings.defaultLogLines,
               options: logLineOptions
             )
-          }
-        }
-
-        // ADVANCED
-        section("Advanced", description: "Manual maintenance and update tasks.") {
-          VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .center, spacing: Geist.Layout.spacingSM) {
-              Button {
-                Task { await updateManager.checkForUpdates() }
-              } label: {
-                if updateManager.isChecking {
-                  HStack(spacing: Geist.Layout.spacingXS) {
-                    ProgressView()
-                      .controlSize(.small)
-                    Text("Checking for Updates…")
-                  }
-                } else {
-                  Text("Check for Updates")
-                }
-              }
-              .buttonStyle(VercelSecondaryButtonStyle())
-              .disabled(updateManager.isChecking)
-
-              Text("v\(appVersion)")
-                .font(Geist.Typography.Settings.helperText)
-                .foregroundColor(Geist.Colors.textSecondary)
-            }
-
-            if let statusText = updateManager.statusText {
-              Text(statusText)
-                .font(Geist.Typography.Settings.helperText)
-                .foregroundColor(updateStatusColor)
-            }
           }
         }
 
