@@ -147,6 +147,7 @@ enum Geist {
     static let iconSizeMD: CGFloat = 14
 
     static let settingsWidth: CGFloat = 400
+    static let settingsHeight: CGFloat = 760
     static let settingsHPadding: CGFloat = 24
     static let settingsVPadding: CGFloat = 20
     static let settingsInputHeight: CGFloat = 36

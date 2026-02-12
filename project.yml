@@ -41,8 +41,8 @@ targets:
       path: App/Info.plist
       properties:
         ATSApplicationFontsPath: Fonts
-        CFBundleShortVersionString: "1.0.2"
-        CFBundleVersion: "3"
+        CFBundleShortVersionString: "1.0.3"
+        CFBundleVersion: "4"
         LSUIElement: true
         SUFeedURL: https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml
         SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
@@ -66,6 +66,7 @@ targets:
         CODE_SIGN_STYLE: Automatic
     postCompileScripts:
       - name: Strip Extended Attributes
+        basedOnDependencyAnalysis: false
         script: |
           APP_BUNDLE_PATH="${TARGET_BUILD_DIR}/${WRAPPER_NAME}"
           if [ -d "${APP_BUNDLE_PATH}" ]; then

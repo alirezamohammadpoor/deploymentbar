@@ -44,8 +44,8 @@ final class BuildLogWindowController {
       forName: NSWindow.willCloseNotification,
       object: window,
       queue: .main
-    ) { [weak self] notification in
-      if let closingWindow = notification.object as? NSWindow {
+    ) { [weak self] _ in
+      Task { @MainActor in
         self?.windows.removeValue(forKey: deployment.id)
       }
     }
