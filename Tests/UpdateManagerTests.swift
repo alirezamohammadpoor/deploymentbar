@@ -26,7 +26,7 @@ final class UpdateManagerTests: XCTestCase {
   }
 
   func testCheckForUpdatesOpensReleasePageWhenNewerReleaseExists() async {
-    let expectedURL = URL(string: "https://github.com/alirezamohammadpoor/ModelMeter/releases/tag/v1.2.0")!
+    let expectedURL = URL(string: "https://github.com/alirezamohammadpoor/deploymentbar/releases/tag/v1.2.0")!
     let payload = """
     {
       "tag_name": "v1.2.0",
@@ -63,7 +63,7 @@ final class UpdateManagerTests: XCTestCase {
     let payload = """
     {
       "tag_name": "v1.0.0",
-      "html_url": "https://github.com/alirezamohammadpoor/ModelMeter/releases/tag/v1.0.0"
+      "html_url": "https://github.com/alirezamohammadpoor/deploymentbar/releases/tag/v1.0.0"
     }
     """
 

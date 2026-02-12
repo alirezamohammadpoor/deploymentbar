@@ -36,4 +36,4 @@ The app uses the `vercelbar://oauth/callback` custom URL scheme to complete OAut
 - Current scope is personal account only (no team scopes).
 - Targets/branches: all.
 - Manual update check uses GitHub Releases API:
-  - `https://api.github.com/repos/alirezamohammadpoor/ModelMeter/releases/latest`
+  - `https://api.github.com/repos/alirezamohammadpoor/deploymentbar/releases/latest`

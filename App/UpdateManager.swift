@@ -32,7 +32,7 @@ final class UpdateManager: ObservableObject {
   private let decoder: JSONDecoder
 
   init(
-    endpoint: URL = URL(string: "https://api.github.com/repos/alirezamohammadpoor/ModelMeter/releases/latest")!,
+    endpoint: URL = URL(string: "https://api.github.com/repos/alirezamohammadpoor/deploymentbar/releases/latest")!,
     bundleInfoProvider: @escaping () -> [String: Any] = { Bundle.main.infoDictionary ?? [:] },
     fetcher: @escaping (URLRequest) async throws -> (Data, URLResponse) = { request in
       try await URLSession.shared.data(for: request)
