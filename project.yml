@@ -41,8 +41,8 @@ targets:
       path: App/Info.plist
       properties:
         ATSApplicationFontsPath: Fonts
-        CFBundleShortVersionString: "1.0.3"
-        CFBundleVersion: "4"
+        CFBundleShortVersionString: "1.0.4"
+        CFBundleVersion: "5"
         LSUIElement: true
         SUFeedURL: https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml
         SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
