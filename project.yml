@@ -41,7 +41,13 @@ targets:
       path: App/Info.plist
       properties:
         ATSApplicationFontsPath: Fonts
+        CFBundleShortVersionString: "1.0.2"
+        CFBundleVersion: "3"
         LSUIElement: true
+        SUFeedURL: https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml
+        SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
+        SUEnableAutomaticChecks: true
+        SUAllowsAutomaticUpdates: true
         CFBundleURLTypes:
           - CFBundleURLName: com.example.VercelBar
             CFBundleURLSchemes:
@@ -58,6 +64,13 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_STYLE: Automatic
+    postCompileScripts:
+      - name: Strip Extended Attributes
+        script: |
+          APP_BUNDLE_PATH="${TARGET_BUILD_DIR}/${WRAPPER_NAME}"
+          if [ -d "${APP_BUNDLE_PATH}" ]; then
+            xattr -cr "${APP_BUNDLE_PATH}" || true
+          fi
     dependencies:
       - package: Sparkle
         product: Sparkle

@@ -104,21 +104,27 @@ struct SettingsView: View {
         // ADVANCED
         section("Advanced", description: "Manual maintenance and update tasks.") {
           VStack(alignment: .leading, spacing: 8) {
-            Button {
-              Task { await updateManager.checkForUpdates() }
-            } label: {
-              if updateManager.isChecking {
-                HStack(spacing: Geist.Layout.spacingXS) {
-                  ProgressView()
-                    .controlSize(.small)
-                  Text("Checking for Updates…")
+            HStack(alignment: .center, spacing: Geist.Layout.spacingSM) {
+              Button {
+                Task { await updateManager.checkForUpdates() }
+              } label: {
+                if updateManager.isChecking {
+                  HStack(spacing: Geist.Layout.spacingXS) {
+                    ProgressView()
+                      .controlSize(.small)
+                    Text("Checking for Updates…")
+                  }
+                } else {
+                  Text("Check for Updates")
                 }
-              } else {
-                Text("Check for Updates")
               }
+              .buttonStyle(VercelSecondaryButtonStyle())
+              .disabled(updateManager.isChecking)
+
+              Text("v\(appVersion)")
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(Geist.Colors.textSecondary)
             }
-            .buttonStyle(VercelSecondaryButtonStyle())
-            .disabled(updateManager.isChecking)
 
             if let statusText = updateManager.statusText {
               Text(statusText)
@@ -188,6 +194,16 @@ struct SettingsView: View {
     case .error:
       return Geist.Colors.statusError
     }
+  }
+
+  private var appVersion: String {
+    let info = Bundle.main.infoDictionary ?? [:]
+    let short = (info["CFBundleShortVersionString"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    if let short, !short.isEmpty {
+      return short
+    }
+    let build = (info["CFBundleVersion"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+    return (build?.isEmpty == false) ? build! : "unknown"
   }
 
   // MARK: - Helpers

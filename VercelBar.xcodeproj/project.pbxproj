@@ -476,6 +476,7 @@
 			buildConfigurationList = 0C14AE027459AB594C884136 /* Build configuration list for PBXNativeTarget "VercelBar" */;
 			buildPhases = (
 				588F5D5EA5D058D26986B62E /* Sources */,
+				37BEE6E9C2461D49E52B4D3D /* Strip Extended Attributes */,
 				89F00680440DF9A104C8D51E /* Resources */,
 				D49D4104CB4AB7B72BE9C877 /* Frameworks */,
 			);
@@ -548,6 +549,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		37BEE6E9C2461D49E52B4D3D /* Strip Extended Attributes */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Strip Extended Attributes";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "APP_BUNDLE_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\nif [ -d \"${APP_BUNDLE_PATH}\" ]; then\n  xattr -cr \"${APP_BUNDLE_PATH}\" || true\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		588F5D5EA5D058D26986B62E /* Sources */ = {
