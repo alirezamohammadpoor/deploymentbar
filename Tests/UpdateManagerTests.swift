@@ -91,4 +91,24 @@ final class UpdateManagerTests: XCTestCase {
     XCTAssertEqual(manager.statusLevel, .info)
     XCTAssertEqual(manager.statusText, "You are up to date (1.0.0).")
   }
+
+  func testCheckForUpdatesShowsNoReleasesMessageFor404() async {
+    let manager = UpdateManager(
+      bundleInfoProvider: { ["CFBundleShortVersionString": "1.0.0"] },
+      fetcher: { _ in
+        (Data("{}".utf8), HTTPURLResponse(
+          url: URL(string: "https://api.github.com")!,
+          statusCode: 404,
+          httpVersion: nil,
+          headerFields: nil
+        )!)
+      },
+      urlOpener: { _ in XCTFail("Should not open URL when no release exists") }
+    )
+
+    await manager.checkForUpdates()
+
+    XCTAssertEqual(manager.statusLevel, .error)
+    XCTAssertEqual(manager.statusText, "No GitHub release found yet. Publish your first release, then try again.")
+  }
 }

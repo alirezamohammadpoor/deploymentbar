@@ -80,7 +80,7 @@ final class UpdateManager: ObservableObject {
       }
     } catch {
       statusLevel = .error
-      statusText = "Update check failed. Please try again."
+      statusText = statusMessage(for: error)
       DebugLog.write(
         "Update check failed: \(error.localizedDescription)",
         level: .warn,
@@ -172,6 +172,21 @@ final class UpdateManager: ObservableObject {
     } catch {
       throw UpdateError.decodingFailed
     }
+  }
+
+  private func statusMessage(for error: Error) -> String {
+    if let updateError = error as? UpdateError {
+      switch updateError {
+      case .httpStatus(404):
+        return "No GitHub release found yet. Publish your first release, then try again."
+      case .httpStatus:
+        return "Update check failed. Please try again."
+      case .invalidResponse, .decodingFailed:
+        return "Update service returned an unexpected response."
+      }
+    }
+
+    return "Update check failed. Please try again."
   }
 }
 
