@@ -55,7 +55,6 @@ struct StatusBarMenu: View {
   @StateObject private var projectStore = ProjectStore.shared
   @State private var filter: EnvironmentFilter = .all
   @State private var selectedMenuProjectIds: Set<String> = []
-  @State private var refreshRotation: Double = 0
   @State private var isRefreshing: Bool = false
   @State private var isInitialLoad: Bool = true
   @State private var expandedDeploymentId: String?
@@ -220,18 +219,6 @@ struct StatusBarMenu: View {
           .fixedSize()
         }
 
-        // Refresh button
-        Button {
-          performRefresh()
-        } label: {
-          Image(systemName: "arrow.clockwise")
-            .font(.system(size: Geist.Layout.iconSizeMD, weight: .medium))
-            .foregroundColor(Geist.Colors.textSecondary)
-            .rotationEffect(.degrees(refreshRotation))
-        }
-        .buttonStyle(.plain)
-        .help("Refresh deployments")
-
         // Settings button
         SettingsLink {
           Image(systemName: "gearshape")
@@ -287,10 +274,6 @@ struct StatusBarMenu: View {
   private func performRefresh() {
     guard !isRefreshing else { return }
     isRefreshing = true
-
-    withAnimation(.easeInOut(duration: 0.5)) {
-      refreshRotation += 360
-    }
 
     refreshNow()
 
