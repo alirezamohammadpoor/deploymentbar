@@ -7,10 +7,16 @@ options:
 settings:
   base:
     SWIFT_VERSION: 5.9
+    SPARKLE_PUBLIC_ED_KEY: $(SPARKLE_PUBLIC_ED_KEY)
     VERCEL_CLIENT_ID: $(VERCEL_CLIENT_ID)
     VERCEL_CLIENT_SECRET: $(VERCEL_CLIENT_SECRET)
     VERCEL_REDIRECT_URI: $(VERCEL_REDIRECT_URI)
     VERCEL_SCOPES: $(VERCEL_SCOPES)
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle.git
+    from: 2.6.4
 
 schemes:
   VercelBar:
@@ -52,6 +58,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - package: Sparkle
+        product: Sparkle
   VercelBarTests:
     type: bundle.unit-test
     platform: macOS

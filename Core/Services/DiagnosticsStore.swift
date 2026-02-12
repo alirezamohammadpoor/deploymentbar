@@ -85,6 +85,7 @@ final class DiagnosticsStore: ObservableObject {
 
     Updates
     - Is Checking: \(updateManager.isChecking)
+    - Update State: \(String(describing: updateManager.status))
     - Last Status: \(updateManager.statusText ?? "none")
     """
   }

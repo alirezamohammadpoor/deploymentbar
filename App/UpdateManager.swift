@@ -1,9 +1,17 @@
-import AppKit
+import Combine
 import Foundation
 
 @MainActor
 final class UpdateManager: ObservableObject {
   static let shared = UpdateManager()
+
+  enum Status: Equatable {
+    case idle
+    case checking
+    case upToDate
+    case updateInitiated
+    case failed
+  }
 
   enum StatusLevel: Equatable {
     case info
@@ -11,187 +19,73 @@ final class UpdateManager: ObservableObject {
     case error
   }
 
-  struct LatestRelease: Decodable, Equatable {
-    let tagName: String
-    let htmlURL: URL
-
-    enum CodingKeys: String, CodingKey {
-      case tagName = "tag_name"
-      case htmlURL = "html_url"
-    }
-  }
-
+  @Published private(set) var status: Status = .idle
   @Published private(set) var statusText: String?
   @Published private(set) var statusLevel: StatusLevel = .info
   @Published private(set) var isChecking = false
 
-  private let endpoint: URL
-  private let bundleInfoProvider: () -> [String: Any]
-  private let fetcher: (URLRequest) async throws -> (Data, URLResponse)
-  private let urlOpener: (URL) -> Void
-  private let decoder: JSONDecoder
+  private let service: SparkleUpdateServicing
+  private var cancellables: Set<AnyCancellable> = []
 
-  init(
-    endpoint: URL = URL(string: "https://api.github.com/repos/alirezamohammadpoor/deploymentbar/releases/latest")!,
-    bundleInfoProvider: @escaping () -> [String: Any] = { Bundle.main.infoDictionary ?? [:] },
-    fetcher: @escaping (URLRequest) async throws -> (Data, URLResponse) = { request in
-      try await URLSession.shared.data(for: request)
-    },
-    urlOpener: @escaping (URL) -> Void = { url in
-      NSWorkspace.shared.open(url)
-    },
-    decoder: JSONDecoder = JSONDecoder()
-  ) {
-    self.endpoint = endpoint
-    self.bundleInfoProvider = bundleInfoProvider
-    self.fetcher = fetcher
-    self.urlOpener = urlOpener
-    self.decoder = decoder
+  init() {
+    self.service = SparkleUpdateService.shared
+    bindService()
+  }
+
+  init(service: SparkleUpdateServicing) {
+    self.service = service
+    bindService()
+  }
+
+  private func bindService() {
+    service.statusPublisher
+      .sink { [weak self] state in
+        self?.apply(state: state)
+      }
+      .store(in: &cancellables)
+
+    apply(state: service.status)
+  }
+
+  func start() {
+    service.start()
   }
 
   func checkForUpdates() async {
-    guard !isChecking else { return }
-    isChecking = true
-    statusLevel = .info
-    statusText = "Checking for updates…"
+    service.checkForUpdates()
+  }
 
-    defer { isChecking = false }
-
-    do {
-      let release = try await fetchLatestRelease()
-      let localVersion = Self.currentAppVersion(infoDictionary: bundleInfoProvider())
-      if Self.isRemoteTagNewer(release.tagName, than: localVersion) {
-        statusLevel = .success
-        statusText = "New version \(Self.normalizedVersionString(release.tagName)) available. Opening release page…"
-        DebugLog.write(
-          "Update available: local=\(localVersion), remote=\(release.tagName)",
-          level: .info,
-          component: "updates"
-        )
-        urlOpener(release.htmlURL)
+  private func apply(state: SparkleUpdateState) {
+    switch state {
+    case .idle:
+      status = .idle
+      statusText = nil
+      statusLevel = .info
+      isChecking = false
+    case .checking:
+      status = .checking
+      statusText = "Checking for updates..."
+      statusLevel = .info
+      isChecking = true
+    case .upToDate:
+      status = .upToDate
+      statusText = "You are up to date."
+      statusLevel = .info
+      isChecking = false
+    case .updateInitiated(let version):
+      status = .updateInitiated
+      if let version, !version.isEmpty {
+        statusText = "Update found (\(version)). Follow Sparkle prompts to install."
       } else {
-        statusLevel = .info
-        statusText = "You are up to date (\(localVersion))."
-        DebugLog.write(
-          "Already up to date: local=\(localVersion), remote=\(release.tagName)",
-          level: .info,
-          component: "updates"
-        )
+        statusText = "Update found. Follow Sparkle prompts to install."
       }
-    } catch {
+      statusLevel = .success
+      isChecking = false
+    case .failed(let message):
+      status = .failed
+      statusText = "Update check failed: \(message)"
       statusLevel = .error
-      statusText = statusMessage(for: error)
-      DebugLog.write(
-        "Update check failed: \(error.localizedDescription)",
-        level: .warn,
-        component: "updates"
-      )
+      isChecking = false
     }
   }
-
-  static func currentAppVersion(infoDictionary: [String: Any]) -> String {
-    if let shortVersion = infoDictionary["CFBundleShortVersionString"] as? String {
-      let trimmed = shortVersion.trimmingCharacters(in: .whitespacesAndNewlines)
-      if !trimmed.isEmpty {
-        return trimmed
-      }
-    }
-
-    if let buildVersion = infoDictionary["CFBundleVersion"] as? String {
-      let trimmed = buildVersion.trimmingCharacters(in: .whitespacesAndNewlines)
-      if !trimmed.isEmpty {
-        return trimmed
-      }
-    }
-
-    return "0"
-  }
-
-  static func isRemoteTagNewer(_ remoteTag: String, than localVersion: String) -> Bool {
-    let normalizedRemote = normalizedVersionString(remoteTag)
-    let normalizedLocal = normalizedVersionString(localVersion)
-
-    if let remoteComponents = numericComponents(for: normalizedRemote),
-       let localComponents = numericComponents(for: normalizedLocal) {
-      let count = max(remoteComponents.count, localComponents.count)
-      for index in 0..<count {
-        let remote = index < remoteComponents.count ? remoteComponents[index] : 0
-        let local = index < localComponents.count ? localComponents[index] : 0
-        if remote > local { return true }
-        if remote < local { return false }
-      }
-      return false
-    }
-
-    return normalizedRemote.compare(
-      normalizedLocal,
-      options: [.numeric, .caseInsensitive]
-    ) == .orderedDescending
-  }
-
-  static func normalizedVersionString(_ value: String) -> String {
-    var output = value.trimmingCharacters(in: .whitespacesAndNewlines)
-    if output.lowercased().hasPrefix("v") {
-      output.removeFirst()
-    }
-    return output
-  }
-
-  private static func numericComponents(for value: String) -> [Int]? {
-    let coreValue = value.split(separator: "-", maxSplits: 1, omittingEmptySubsequences: true).first ?? ""
-    let parts = coreValue.split(separator: ".", omittingEmptySubsequences: false)
-    guard !parts.isEmpty else { return nil }
-
-    var result: [Int] = []
-    result.reserveCapacity(parts.count)
-    for part in parts {
-      guard part.allSatisfy(\.isNumber), let number = Int(part) else {
-        return nil
-      }
-      result.append(number)
-    }
-    return result
-  }
-
-  private func fetchLatestRelease() async throws -> LatestRelease {
-    var request = URLRequest(url: endpoint)
-    request.timeoutInterval = 15
-    request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-    request.setValue("VercelBar", forHTTPHeaderField: "User-Agent")
-
-    let (data, response) = try await fetcher(request)
-    guard let http = response as? HTTPURLResponse else {
-      throw UpdateError.invalidResponse
-    }
-    guard (200...299).contains(http.statusCode) else {
-      throw UpdateError.httpStatus(http.statusCode)
-    }
-
-    do {
-      return try decoder.decode(LatestRelease.self, from: data)
-    } catch {
-      throw UpdateError.decodingFailed
-    }
-  }
-
-  private func statusMessage(for error: Error) -> String {
-    if let updateError = error as? UpdateError {
-      switch updateError {
-      case .httpStatus(404):
-        return "No GitHub release found yet. Publish your first release, then try again."
-      case .httpStatus:
-        return "Update check failed. Please try again."
-      case .invalidResponse, .decodingFailed:
-        return "Update service returned an unexpected response."
-      }
-    }
-
-    return "Update check failed. Please try again."
-  }
-}
-
-enum UpdateError: Error {
-  case invalidResponse
-  case httpStatus(Int)
-  case decodingFailed
 }

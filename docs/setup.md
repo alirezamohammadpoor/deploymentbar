@@ -1,6 +1,6 @@
 # VercelBar Setup
 
-Last updated: 2026-02-02
+Last updated: 2026-02-12
 
 ## OAuth configuration (environment-based)
 Set these environment variables before running `xcodegen` or building:
@@ -35,5 +35,5 @@ The app uses the `vercelbar://oauth/callback` custom URL scheme to complete OAut
 ## Notes
 - Current scope is personal account only (no team scopes).
 - Targets/branches: all.
-- Manual update check uses GitHub Releases API:
-  - `https://api.github.com/repos/alirezamohammadpoor/deploymentbar/releases/latest`
+- In-app update checks use Sparkle appcast:
+  - `https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml`
