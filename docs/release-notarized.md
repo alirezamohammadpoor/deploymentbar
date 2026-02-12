@@ -14,6 +14,8 @@ Bundle ID remains `com.example.VercelBar` in this cycle.
   - `VERCEL_REDIRECT_URI`
   - `VERCEL_SCOPES`
   - `APPLE_NOTARY_PROFILE`
+  - `SPARKLE_PUBLIC_ED_KEY`
+  - `SPARKLE_PRIVATE_KEY_FILE`
 
 ## Commands
 Run from repo root:
@@ -23,6 +25,19 @@ Run from repo root:
 ./scripts/release/archive.sh
 ./scripts/release/package.sh
 ./scripts/release/notarize.sh
+```
+
+Generate Sparkle keys once:
+```bash
+./scripts/release/sparkle-keys.sh
+```
+
+Generate/update appcast from a notarized ZIP (manual):
+```bash
+ZIP_PATH=build/release/artifacts/VercelBar-<version>-<build>-notarized.zip \
+DOWNLOAD_URL=https://github.com/alirezamohammadpoor/deploymentbar/releases/download/v<version>/VercelBar-<version>-<build>-notarized.zip \
+RELEASE_NOTES_URL=https://github.com/alirezamohammadpoor/deploymentbar/releases/tag/v<version> \
+./scripts/release/generate-appcast.sh
 ```
 
 Optional DMG artifact:
@@ -61,4 +76,7 @@ Before public release:
 4. Re-run full notarized pipeline.
 
 ## In-app update checks
-The app performs manual update checks via GitHub Releases API.
+The app now uses Sparkle with:
+- Feed URL: `https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml`
+- Signed update metadata from `appcast.xml`
+- ZIP assets hosted in GitHub Releases

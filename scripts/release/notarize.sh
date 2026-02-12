@@ -43,6 +43,16 @@ NOTARIZED_ZIP_PATH="$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}-notarized.zip"
 rm -f "$NOTARIZED_ZIP_PATH"
 ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$NOTARIZED_ZIP_PATH"
 
+if [[ "${GENERATE_APPCAST:-1}" == "1" ]]; then
+  RELEASE_TAG="${RELEASE_TAG:-v${VERSION}}"
+  DOWNLOAD_URL="${DOWNLOAD_URL:-https://github.com/alirezamohammadpoor/deploymentbar/releases/download/${RELEASE_TAG}/$(basename "$NOTARIZED_ZIP_PATH")}"
+  RELEASE_NOTES_URL="${RELEASE_NOTES_URL:-https://github.com/alirezamohammadpoor/deploymentbar/releases/tag/${RELEASE_TAG}}"
+  ZIP_PATH="$NOTARIZED_ZIP_PATH" \
+    DOWNLOAD_URL="$DOWNLOAD_URL" \
+    RELEASE_NOTES_URL="$RELEASE_NOTES_URL" \
+    "$ROOT_DIR/scripts/release/generate-appcast.sh"
+fi
+
 if [[ "$NOTARIZE_DMG" == "1" ]]; then
   CREATE_DMG=1 "$ROOT_DIR/scripts/release/package.sh" >/dev/null
   DMG_PATH="${DMG_PATH:-$ARTIFACTS_DIR/VercelBar-${VERSION}-${BUILD}.dmg}"

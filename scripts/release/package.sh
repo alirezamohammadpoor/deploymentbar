@@ -31,6 +31,7 @@ ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" "$ZIP_PATH"
 
 echo "Package complete"
 echo "ZIP_PATH=$ZIP_PATH"
+echo "Use this ZIP for Sparkle updates after notarization."
 
 if [[ "${CREATE_DMG:-0}" == "1" ]]; then
   mkdir -p "$DMG_ROOT"

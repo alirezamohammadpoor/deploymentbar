@@ -39,6 +39,15 @@ require_env VERCEL_CLIENT_ID
 require_env VERCEL_REDIRECT_URI
 require_env VERCEL_SCOPES
 require_env APPLE_NOTARY_PROFILE
+require_env SPARKLE_PUBLIC_ED_KEY
+
+SPARKLE_GENERATE_APPCAST_BIN="${SPARKLE_GENERATE_APPCAST_BIN:-}"
+if [[ -z "$SPARKLE_GENERATE_APPCAST_BIN" ]]; then
+  SPARKLE_GENERATE_APPCAST_BIN="$(command -v generate_appcast || true)"
+fi
+if [[ -z "$SPARKLE_GENERATE_APPCAST_BIN" ]]; then
+  fail "Sparkle generate_appcast binary not found (set SPARKLE_GENERATE_APPCAST_BIN)"
+fi
 
 if ! security find-identity -v -p codesigning | grep -q "Developer ID Application"; then
   fail "No Developer ID Application signing identity found in keychain"
@@ -51,5 +60,12 @@ fi
 if [[ ! -f "$ROOT_DIR/Config/Secrets.xcconfig" ]]; then
   warn "Config/Secrets.xcconfig is missing. Build may fail if Xcode settings depend on it."
 fi
+
+INFO_PLIST="$ROOT_DIR/App/Info.plist"
+[[ -f "$INFO_PLIST" ]] || fail "Info.plist not found at $INFO_PLIST"
+/usr/libexec/PlistBuddy -c "Print :SUFeedURL" "$INFO_PLIST" >/dev/null 2>&1 \
+  || fail "SUFeedURL is missing from App/Info.plist"
+/usr/libexec/PlistBuddy -c "Print :SUPublicEDKey" "$INFO_PLIST" >/dev/null 2>&1 \
+  || fail "SUPublicEDKey is missing from App/Info.plist"
 
 echo "Preflight OK"
