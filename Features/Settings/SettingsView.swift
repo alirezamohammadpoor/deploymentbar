@@ -3,7 +3,7 @@ import SwiftUI
 struct SettingsView: View {
   @StateObject private var settings = SettingsStore.shared
   @StateObject private var authSession = AuthSession.shared
-  @StateObject private var updaterStore = UpdaterStore.shared
+  @StateObject private var updateManager = UpdateManager.shared
   @State private var browserOptions: [BrowserOption] = BrowserOption.availableOptions()
   @State private var showSignOutConfirmation = false
   private let launchAtLoginManager = LaunchAtLoginManager()
@@ -88,42 +88,43 @@ struct SettingsView: View {
           }
         }
 
-        // UPDATES
-        section("Updates", description: "Use Sparkle to check for new direct-download releases.") {
-          VStack(alignment: .leading, spacing: 8) {
-            Button("Check for Updates…") {
-              updaterStore.checkForUpdates()
-            }
-            .buttonStyle(VercelSecondaryButtonStyle())
-
-            if let feedHost = updaterStore.feedHost {
-              Text("Feed: \(feedHost)")
-                .font(Geist.Typography.Settings.helperText)
-                .foregroundColor(Geist.Colors.textSecondary)
-            } else {
-              Text("Sparkle feed is not configured (set SPARKLE_FEED_URL).")
-                .font(Geist.Typography.Settings.helperText)
-                .foregroundColor(Geist.Colors.statusWarning)
-            }
-
-            if let updateError = updaterStore.lastError {
-              Text(updateError)
-                .font(Geist.Typography.Settings.helperText)
-                .foregroundColor(Geist.Colors.statusError)
-            }
-          }
-        }
-
         // BUILD LOGS
         section("Build Logs", description: "Default number of lines loaded when opening a build log.") {
           VStack(alignment: .leading, spacing: 6) {
             Text("Default log lines")
-              .font(Geist.Typography.Settings.fieldLabel)
-              .foregroundColor(Geist.Colors.gray1000)
+            .font(Geist.Typography.Settings.fieldLabel)
+            .foregroundColor(Geist.Colors.gray1000)
             VercelSegmentedControl(
               selection: $settings.defaultLogLines,
               options: logLineOptions
             )
+          }
+        }
+
+        // ADVANCED
+        section("Advanced", description: "Manual maintenance and update tasks.") {
+          VStack(alignment: .leading, spacing: 8) {
+            Button {
+              Task { await updateManager.checkForUpdates() }
+            } label: {
+              if updateManager.isChecking {
+                HStack(spacing: Geist.Layout.spacingXS) {
+                  ProgressView()
+                    .controlSize(.small)
+                  Text("Checking for Updates…")
+                }
+              } else {
+                Text("Check for Updates")
+              }
+            }
+            .buttonStyle(VercelSecondaryButtonStyle())
+            .disabled(updateManager.isChecking)
+
+            if let statusText = updateManager.statusText {
+              Text(statusText)
+                .font(Geist.Typography.Settings.helperText)
+                .foregroundColor(updateStatusColor)
+            }
           }
         }
 
@@ -175,6 +176,17 @@ struct SettingsView: View {
       if !validIntervals.contains(settings.pollingInterval) {
         settings.pollingInterval = 30
       }
+    }
+  }
+
+  private var updateStatusColor: Color {
+    switch updateManager.statusLevel {
+    case .info:
+      return Geist.Colors.textSecondary
+    case .success:
+      return Geist.Colors.statusReady
+    case .error:
+      return Geist.Colors.statusError
     }
   }
 

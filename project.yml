@@ -11,13 +11,6 @@ settings:
     VERCEL_CLIENT_SECRET: $(VERCEL_CLIENT_SECRET)
     VERCEL_REDIRECT_URI: $(VERCEL_REDIRECT_URI)
     VERCEL_SCOPES: $(VERCEL_SCOPES)
-    SPARKLE_FEED_URL: $(SPARKLE_FEED_URL)
-    SPARKLE_PUBLIC_ED_KEY: $(SPARKLE_PUBLIC_ED_KEY)
-
-packages:
-  Sparkle:
-    url: https://github.com/sparkle-project/Sparkle.git
-    from: 2.7.0
 
 schemes:
   VercelBar:
@@ -43,9 +36,6 @@ targets:
       properties:
         ATSApplicationFontsPath: Fonts
         LSUIElement: true
-        SUEnableAutomaticChecks: true
-        SUFeedURL: $(SPARKLE_FEED_URL)
-        SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
         CFBundleURLTypes:
           - CFBundleURLName: com.example.VercelBar
             CFBundleURLSchemes:
@@ -62,9 +52,6 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.example.VercelBar
         INFOPLIST_FILE: App/Info.plist
         CODE_SIGN_STYLE: Automatic
-    dependencies:
-      - package: Sparkle
-        product: Sparkle
   VercelBarTests:
     type: bundle.unit-test
     platform: macOS

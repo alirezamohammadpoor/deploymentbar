@@ -146,9 +146,6 @@ final class StatusBarController: NSObject {
       refreshNow: { [weak self] in
         self?.refreshEngine?.triggerImmediateRefresh()
       },
-      checkForUpdates: {
-        UpdaterStore.shared.checkForUpdates()
-      },
       signOut: { [weak self] in
         self?.authSession?.signOut(revokeToken: true)
       }
