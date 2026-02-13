@@ -24,10 +24,9 @@ struct SettingsView: View {
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 0) {
-        // ADVANCED
+      VStack(alignment: .leading, spacing: Geist.Layout.spacingXL) {
         section("Advanced", description: "Manual maintenance and update tasks.", isFirst: true) {
-          VStack(alignment: .leading, spacing: 8) {
+          VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
             HStack(alignment: .center, spacing: Geist.Layout.spacingSM) {
               Button {
                 Task { await updateManager.checkForUpdates() }
@@ -48,6 +47,10 @@ struct SettingsView: View {
               Text("v\(appVersion)")
                 .font(Geist.Typography.Settings.helperText)
                 .foregroundColor(Geist.Colors.textSecondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Geist.Colors.gray100)
+                .clipShape(Capsule())
             }
 
             if let statusText = updateManager.statusText {
@@ -58,29 +61,23 @@ struct SettingsView: View {
           }
         }
 
-        // AUTHENTICATION
-        section(
-          "Authentication",
-          description: "Use a personal token for direct access without OAuth."
-        ) {
+        section("Authentication", description: "Use a personal token for direct access without OAuth.") {
           PersonalTokenView()
         }
 
-        // PROJECTS
-        section(
-          "Projects",
-          description: "Leave everything unchecked to monitor every project."
-        ) {
+        section("Projects", description: "Leave everything unchecked to monitor every project.") {
           ProjectFilterView()
         }
 
-        // NOTIFICATIONS
         section("Notifications", description: "Choose which deployment states trigger alerts.") {
-          VStack(alignment: .leading, spacing: 12) {
+          VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
             Toggle("Notify on ready", isOn: $settings.notifyOnReady)
               .toggleStyle(VercelToggleStyle())
               .font(Geist.Typography.Settings.fieldLabel)
               .foregroundColor(Geist.Colors.gray1000)
+
+            VercelCardDivider()
+
             Toggle("Notify on failed", isOn: $settings.notifyOnFailed)
               .toggleStyle(VercelToggleStyle())
               .font(Geist.Typography.Settings.fieldLabel)
@@ -88,24 +85,31 @@ struct SettingsView: View {
           }
         }
 
-        // GENERAL
         section("General", description: "Configure polling cadence, browser behavior, and startup.") {
-          VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 12) {
+          VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
+            HStack {
               Text("Polling interval")
                 .font(Geist.Typography.Settings.fieldLabel)
                 .foregroundColor(Geist.Colors.gray1000)
+
+              Spacer()
+
               VercelSegmentedControl(
                 selection: $settings.pollingInterval,
                 options: pollingOptions
               )
+              .fixedSize()
             }
+
+            VercelCardDivider()
 
             VercelDropdown(
               label: "Open links in",
               selection: $settings.browserBundleId,
               options: browserOptions.map { ($0.id, $0.displayName) }
             )
+
+            VercelCardDivider()
 
             Toggle("Launch at login", isOn: $settings.launchAtLogin)
               .toggleStyle(VercelToggleStyle())
@@ -120,39 +124,41 @@ struct SettingsView: View {
           }
         }
 
-        // BUILD LOGS
         section("Build Logs", description: "Default number of lines loaded when opening a build log.") {
-          VStack(alignment: .leading, spacing: 6) {
+          HStack {
             Text("Default log lines")
-              .font(Geist.Typography.Settings.helperText)
+              .font(Geist.Typography.Settings.fieldLabel)
               .foregroundColor(Geist.Colors.gray1000)
+
+            Spacer()
+
             VercelSegmentedControl(
               selection: $settings.defaultLogLines,
               options: logLineOptions
             )
+            .fixedSize()
           }
         }
 
-        // ACCOUNT
         if authSession.status == .signedIn {
           section("Account", description: "Sign out from your current session.") {
             Button {
               showSignOutConfirmation = true
             } label: {
-              HStack {
+              HStack(spacing: Geist.Layout.spacingXS) {
                 Image(systemName: "rectangle.portrait.and.arrow.right")
                 Text("Sign Out")
               }
               .font(Geist.Typography.Settings.button)
-              .foregroundColor(.red)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(VercelDestructiveButtonStyle())
           }
         }
       }
       .padding(.horizontal, Geist.Layout.settingsHPadding)
       .padding(.vertical, Geist.Layout.settingsVPadding)
     }
+    .scrollIndicators(.visible)
     .frame(width: Geist.Layout.settingsWidth, height: Geist.Layout.settingsHeight)
     .background(Geist.Colors.backgroundPrimary)
     .alert("Sign Out", isPresented: $showSignOutConfirmation) {
@@ -205,7 +211,7 @@ struct SettingsView: View {
   ) -> some View {
     VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
       VercelSectionHeader(title: title)
-        .padding(.top, isFirst ? 0 : Geist.Layout.spacingXL)
+        .padding(.top, isFirst ? 0 : 0)
 
       Text(description)
         .font(Geist.Typography.Settings.helperText)

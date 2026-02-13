@@ -46,6 +46,9 @@ enum Geist {
     static let gray900 = Color.adaptive(light: "#666666", dark: "#A1A1A1")
     static let gray1000 = Color.adaptive(light: "#171717", dark: "#EDEDED")
 
+    // Expanded row container
+    static let expandedContainerBg = Color.adaptive(light: "#F5F5F5", dark: "#050505")
+
     // Semantic aliases
     static let rowExpanded = gray100
     static let rowHover = gray200
@@ -119,8 +122,8 @@ enum Geist {
   }
 
   enum Layout {
-    static let popoverWidth: CGFloat = 420
-    static let popoverMaxHeight: CGFloat = 420
+    static let popoverWidth: CGFloat = 375
+    static let popoverMaxHeight: CGFloat = 667
     static let popoverCornerRadius: CGFloat = 12
     static let popoverBorderWidth: CGFloat = 1
 
@@ -130,8 +133,8 @@ enum Geist {
     static let spacingLG: CGFloat = 16
     static let spacingXL: CGFloat = 24
 
-    static let rowHeight: CGFloat = 84
-    static let rowExpandedHeight: CGFloat = 168
+    static let rowHeight: CGFloat = 82
+    static let rowExpandedHeight: CGFloat = 166
     static let statusDotSize: CGFloat = 8
     static let rowPaddingH: CGFloat = 12
     static let rowPaddingV: CGFloat = 8
@@ -140,20 +143,20 @@ enum Geist {
     static let badgePaddingV: CGFloat = 2
     static let badgeCornerRadius: CGFloat = 9999
 
-    static let headerHeight: CGFloat = 34
+    static let headerHeight: CGFloat = 52
     static let headerDropdownRadius: CGFloat = 6
 
     static let iconSizeSM: CGFloat = 10
     static let iconSizeMD: CGFloat = 14
 
     static let settingsWidth: CGFloat = 400
-    static let settingsHeight: CGFloat = 760
+    static let settingsHeight: CGFloat = 820
     static let settingsHPadding: CGFloat = 24
     static let settingsVPadding: CGFloat = 20
-    static let settingsInputHeight: CGFloat = 36
+    static let settingsInputHeight: CGFloat = 40
     static let settingsInputRadius: CGFloat = 6
     static let settingsCardRadius: CGFloat = 8
-    static let settingsCardPadding: CGFloat = 12
+    static let settingsCardPadding: CGFloat = 16
     static let settingsIconButtonSize: CGFloat = 28
   }
 
@@ -163,7 +166,7 @@ enum Geist {
     func body(content: Content) -> some View {
       content
         .font(Typography.sectionHeader)
-        .foregroundColor(Colors.textSecondary)
+        .foregroundColor(Colors.gray700)
         .textCase(.uppercase)
         .tracking(Typography.sectionHeaderTracking)
     }

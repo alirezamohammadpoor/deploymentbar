@@ -10,7 +10,12 @@ final class GeistLayoutTests: XCTestCase {
     XCTAssertEqual(Geist.Layout.badgePaddingH, 4)
     XCTAssertEqual(Geist.Layout.badgePaddingV, 2)
     XCTAssertEqual(Geist.Layout.badgeCornerRadius, 9999)
-    XCTAssertEqual(Geist.Layout.settingsCardRadius, 8)
-    XCTAssertEqual(Geist.Layout.settingsCardPadding, 12)
+  }
+
+  func testPopoverLayoutMatchesRefreshSpec() {
+    XCTAssertEqual(Geist.Layout.popoverWidth, 392)
+    XCTAssertEqual(Geist.Layout.rowHeight, 82)
+    XCTAssertEqual(Geist.Layout.rowExpandedHeight, 166)
+    XCTAssertEqual(Geist.Layout.headerHeight, 52)
   }
 }

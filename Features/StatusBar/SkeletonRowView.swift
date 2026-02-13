@@ -11,7 +11,7 @@ struct SkeletonRowView: View {
           .fill(skeletonColor)
           .frame(width: Geist.Layout.statusDotSize, height: Geist.Layout.statusDotSize)
 
-        skeletonRect(width: 120, height: 14)
+        skeletonRect(width: 120, height: 13)
 
         Spacer()
 
@@ -23,7 +23,7 @@ struct SkeletonRowView: View {
         Color.clear
           .frame(width: Geist.Layout.statusDotSize)
 
-        skeletonRect(width: 200, height: 12)
+        skeletonRect(width: 196, height: 12)
       }
 
       // Line 3: Branch, author

@@ -5,7 +5,7 @@ struct ProjectFilterView: View {
   @StateObject private var settingsStore = SettingsStore.shared
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 12) {
+    VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
       HStack {
         Text("Monitor projects")
           .font(Geist.Typography.Settings.fieldLabel)
@@ -29,13 +29,17 @@ struct ProjectFilterView: View {
           .foregroundColor(Geist.Colors.gray800)
       } else {
         ScrollView {
-          VStack(alignment: .leading, spacing: 0) {
-            ForEach(projectStore.projects) { project in
+          LazyVStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(projectStore.projects.enumerated()), id: \.element.id) { index, project in
               VercelCheckmarkRow(name: project.name, isSelected: binding(for: project.id))
+
+              if index < projectStore.projects.count - 1 {
+                VercelCardDivider()
+              }
             }
           }
         }
-        .frame(maxHeight: 220)
+        .frame(maxHeight: 200)
       }
     }
     .onAppear {

@@ -14,12 +14,12 @@ struct VercelToggleStyle: ToggleStyle {
 
   private func toggleTrack(isOn: Bool) -> some View {
     ZStack {
-      RoundedRectangle(cornerRadius: 11)
-        .fill(isOn ? Geist.Colors.gray1000 : Geist.Colors.gray200)
-        .frame(width: 40, height: 22)
+      RoundedRectangle(cornerRadius: 13)
+        .fill(isOn ? Geist.Colors.accent : Geist.Colors.gray400)
+        .frame(width: 44, height: 26)
       Circle()
-        .fill(Geist.Colors.backgroundPrimary)
-        .frame(width: 18, height: 18)
+        .fill(Color.white)
+        .frame(width: 22, height: 22)
         .offset(x: isOn ? 9 : -9)
     }
     .animation(.easeInOut(duration: 0.15), value: isOn)
@@ -39,13 +39,13 @@ struct VercelSegmentedControl<T: Hashable>: View {
           selection = option.value
         } label: {
           Text(option.label)
-            .font(Geist.Typography.Settings.button)
-            .foregroundColor(selection == option.value ? Geist.Colors.backgroundPrimary : Geist.Colors.gray700)
+            .font(.system(size: 13, weight: selection == option.value ? .medium : .regular))
+            .foregroundColor(selection == option.value ? Geist.Colors.gray1000 : Geist.Colors.gray900)
             .frame(maxWidth: .infinity)
-            .frame(height: 32)
+            .frame(height: 28)
             .background(
               selection == option.value
-                ? RoundedRectangle(cornerRadius: 4).fill(Geist.Colors.gray1000)
+                ? RoundedRectangle(cornerRadius: 4).fill(Geist.Colors.gray300)
                 : RoundedRectangle(cornerRadius: 4).fill(Color.clear)
             )
         }
@@ -55,10 +55,6 @@ struct VercelSegmentedControl<T: Hashable>: View {
     .padding(2)
     .background(Geist.Colors.gray100)
     .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius))
-    .overlay(
-      RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
-        .stroke(Geist.Colors.border, lineWidth: 1)
-    )
   }
 }
 
@@ -71,7 +67,7 @@ struct VercelSecondaryButtonStyle: ButtonStyle {
     configuration.label
       .font(Geist.Typography.Settings.button)
       .foregroundColor(Geist.Colors.gray1000)
-      .frame(height: 32)
+      .frame(height: 36)
       .padding(.horizontal, 16)
       .background(
         RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
@@ -85,6 +81,49 @@ struct VercelSecondaryButtonStyle: ButtonStyle {
   }
 }
 
+struct VercelPrimaryButtonStyle: ButtonStyle {
+  @State private var isHovered = false
+
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .font(Geist.Typography.Settings.button)
+      .foregroundColor(Geist.Colors.backgroundPrimary)
+      .frame(height: 36)
+      .padding(.horizontal, 16)
+      .background(
+        RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
+          .fill(isHovered ? Geist.Colors.gray900 : Geist.Colors.gray1000)
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
+          .stroke(Geist.Colors.border, lineWidth: 1)
+      )
+      .opacity(configuration.isPressed ? 0.9 : 1)
+      .onHover { isHovered = $0 }
+  }
+}
+
+struct VercelDestructiveButtonStyle: ButtonStyle {
+  @State private var isHovered = false
+
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .foregroundColor(Geist.Colors.statusError)
+      .frame(height: 36)
+      .padding(.horizontal, 16)
+      .background(
+        RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
+          .fill(Geist.Colors.statusError.opacity(0.15))
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
+          .stroke(Geist.Colors.statusError.opacity(0.3), lineWidth: 1)
+      )
+      .opacity(configuration.isPressed ? 0.9 : 1)
+      .onHover { isHovered = $0 }
+  }
+}
+
 // MARK: - VercelTextFieldModifier
 
 struct VercelTextFieldModifier: ViewModifier {
@@ -94,11 +133,11 @@ struct VercelTextFieldModifier: ViewModifier {
       .foregroundColor(Geist.Colors.gray1000)
       .padding(.horizontal, 10)
       .frame(height: Geist.Layout.settingsInputHeight)
-      .background(Geist.Colors.gray100)
+      .background(Geist.Colors.backgroundSecondary)
       .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius))
       .overlay(
         RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
-          .stroke(Geist.Colors.border, lineWidth: 1)
+          .stroke(Geist.Colors.borderSubtle, lineWidth: 1)
       )
   }
 }
@@ -141,7 +180,7 @@ struct VercelSectionHeader: View {
   var body: some View {
     Text(title)
       .font(Geist.Typography.Settings.sectionHeader)
-      .foregroundColor(Geist.Colors.gray800)
+      .foregroundColor(Geist.Colors.gray700)
       .textCase(.uppercase)
       .tracking(0.5)
   }
@@ -161,12 +200,20 @@ struct VercelSectionCard<Content: View>: View {
       content
     }
     .padding(Geist.Layout.settingsCardPadding)
-    .background(Geist.Colors.gray100)
+    .background(Geist.Colors.backgroundSecondary)
     .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.settingsCardRadius))
     .overlay(
       RoundedRectangle(cornerRadius: Geist.Layout.settingsCardRadius)
         .stroke(Geist.Colors.borderSubtle, lineWidth: 1)
     )
+  }
+}
+
+struct VercelCardDivider: View {
+  var body: some View {
+    Divider()
+      .overlay(Geist.Colors.borderSubtle)
+      .padding(.horizontal, -Geist.Layout.settingsCardPadding)
   }
 }
 
@@ -239,6 +286,7 @@ struct VercelCheckmarkRow: View {
             .foregroundColor(Geist.Colors.gray1000)
         }
       }
+      .padding(.horizontal, 2)
       .padding(.vertical, 8)
       .contentShape(Rectangle())
     }

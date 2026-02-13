@@ -107,8 +107,6 @@ struct StatusBarMenu: View {
       header
       Divider()
       content
-      Divider()
-      footer
     }
     .frame(width: Geist.Layout.popoverWidth)
     .frame(maxHeight: Geist.Layout.popoverMaxHeight)
@@ -166,109 +164,116 @@ struct StatusBarMenu: View {
   // MARK: - Header
 
   private var header: some View {
-    HStack(spacing: Geist.Layout.spacingSM) {
-      environmentFilterControl
-        .frame(maxWidth: 200)
-
-      Spacer()
-
+    VStack(spacing: 0) {
+      // Title bar
       HStack(spacing: Geist.Layout.spacingMD) {
-        // Project filter dropdown
-        if !projectStore.projects.isEmpty {
-          Menu {
-            Button {
-              selectedMenuProjectIds = []
-            } label: {
-              if selectedMenuProjectIds.isEmpty {
-                Label("All Projects", systemImage: "checkmark")
-              } else {
-                Text("All Projects")
-              }
-            }
+        HStack(spacing: Geist.Layout.spacingSM) {
+          Image(nsImage: NSApp.applicationIconImage)
+            .resizable()
+            .frame(width: 18, height: 18)
+            .cornerRadius(4)
+          Text("DeployBar")
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(Geist.Colors.textPrimary)
+        }
 
-            Divider()
+        Spacer()
 
-            ForEach(availableProjects, id: \.id) { project in
+        HStack(spacing: Geist.Layout.spacingMD) {
+          // Project filter dropdown
+          if !projectStore.projects.isEmpty {
+            Menu {
               Button {
-                toggleProjectFilter(project.id)
+                selectedMenuProjectIds = []
               } label: {
-                if selectedMenuProjectIds.contains(project.id) {
-                  Label(project.name, systemImage: "checkmark")
+                if selectedMenuProjectIds.isEmpty {
+                  Label("All Projects", systemImage: "checkmark")
                 } else {
-                  Text(project.name)
+                  Text("All Projects")
                 }
               }
-            }
-          } label: {
-            HStack(spacing: 4) {
-              Text(projectFilterLabel)
-                .font(Geist.Typography.caption)
-                .foregroundColor(Geist.Colors.textSecondary)
-              Image(systemName: "chevron.down")
-                .font(.system(size: Geist.Layout.iconSizeSM, weight: .medium))
-                .foregroundColor(Geist.Colors.textTertiary)
-            }
-            .padding(.horizontal, Geist.Layout.spacingSM)
-            .padding(.vertical, 4)
-            .background(isHoveringProject ? Geist.Colors.gray200 : Geist.Colors.gray100)
-            .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
-            .onHover { hovering in isHoveringProject = hovering }
-          }
-          .menuStyle(.borderlessButton)
-          .menuIndicator(.hidden)
-          .fixedSize()
-        }
 
-        // Settings button
-        SettingsLink {
-          Image(systemName: "gearshape")
-            .font(.system(size: Geist.Layout.iconSizeMD, weight: .medium))
-            .foregroundColor(Geist.Colors.textSecondary)
+              Divider()
+
+              ForEach(availableProjects, id: \.id) { project in
+                Button {
+                  toggleProjectFilter(project.id)
+                } label: {
+                  if selectedMenuProjectIds.contains(project.id) {
+                    Label(project.name, systemImage: "checkmark")
+                  } else {
+                    Text(project.name)
+                  }
+                }
+              }
+            } label: {
+              HStack(spacing: 5) {
+                Text(projectFilterLabel)
+                  .font(Geist.Typography.caption)
+                  .foregroundColor(Geist.Colors.textSecondary)
+                Image(systemName: "chevron.down")
+                  .font(.system(size: Geist.Layout.iconSizeSM, weight: .medium))
+                  .foregroundColor(Geist.Colors.textTertiary)
+              }
+              .padding(.horizontal, Geist.Layout.spacingSM)
+              .padding(.vertical, 5)
+              .background(isHoveringProject ? Geist.Colors.gray200 : Geist.Colors.gray100)
+              .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
+              .onHover { hovering in isHoveringProject = hovering }
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+          }
+
+          Button {
+            performRefresh()
+          } label: {
+            HeaderIconButtonContent(systemName: "arrow.clockwise")
+          }
+          .buttonStyle(.plain)
+          .help("Refresh deployments")
+
+          // Settings button
+          SettingsLink {
+            HeaderIconButtonContent(systemName: "gearshape")
+          }
+          .buttonStyle(.plain)
+          .help("Open settings")
         }
-        .buttonStyle(.plain)
-        .help("Open settings")
       }
+      .padding(.horizontal, Geist.Layout.spacingMD)
+      .padding(.vertical, Geist.Layout.spacingSM)
+
+      Divider()
+
+      // Filter tabs
+      environmentFilterControl
     }
-    .padding(.horizontal, Geist.Layout.spacingMD)
-    .padding(.vertical, Geist.Layout.spacingSM)
-    .frame(height: Geist.Layout.headerHeight)
   }
 
   private var environmentFilterControl: some View {
     HStack(spacing: 0) {
-      ForEach(Array(EnvironmentFilter.allCases.enumerated()), id: \.element) { index, tab in
+      ForEach(EnvironmentFilter.allCases, id: \.self) { tab in
         Button {
           withAnimation(.easeInOut(duration: 0.15)) {
             filter = tab
           }
         } label: {
           Text(tab.title)
-            .font(Geist.Typography.caption)
+            .font(.system(size: 12, weight: filter == tab ? .medium : .regular))
             .foregroundColor(filter == tab ? Geist.Colors.textPrimary : Geist.Colors.textSecondary)
             .frame(maxWidth: .infinity)
-            .frame(height: 22)
-            .background(
-              filter == tab
-                ? RoundedRectangle(cornerRadius: 4).fill(Geist.Colors.gray300)
-                : RoundedRectangle(cornerRadius: 4).fill(Color.clear)
-            )
+            .padding(.vertical, 8)
+            .overlay(alignment: .bottom) {
+              Rectangle()
+                .fill(filter == tab ? Geist.Colors.accent : Color.clear)
+                .frame(height: 2)
+            }
         }
         .buttonStyle(.plain)
-
-        if index < EnvironmentFilter.allCases.count - 1 {
-          Rectangle()
-            .fill(Geist.Colors.borderSubtle)
-            .frame(width: 1, height: 12)
-        }
       }
     }
-    .padding(2)
-    .background(Geist.Colors.gray100)
-    .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
-    .overlay(
-      RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius)
-        .stroke(Geist.Colors.borderSubtle, lineWidth: 1)
-    )
   }
 
   private func performRefresh() {
@@ -606,6 +611,17 @@ struct StatusBarMenu: View {
     // Note: Third escape would close the popover, but that's handled by the popover behavior
   }
 
+}
+
+private struct HeaderIconButtonContent: View {
+  let systemName: String
+
+  var body: some View {
+    Image(systemName: systemName)
+      .font(.system(size: Geist.Layout.iconSizeMD, weight: .medium))
+      .foregroundColor(Geist.Colors.textSecondary)
+      .frame(width: 24, height: 24)
+  }
 }
 
 private struct FooterActionButtonStyle: ButtonStyle {

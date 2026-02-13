@@ -25,20 +25,21 @@ struct DeploymentRowView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
-      // Collapsed content (always shown)
+    VStack(alignment: .leading, spacing: 0) {
+      // Collapsed content (always visible)
       collapsedContent
+        .padding(.horizontal, Geist.Layout.rowPaddingH)
+        .padding(.vertical, Geist.Layout.rowPaddingV)
 
-      // Expanded content
+      // Expanded actions in bordered container
       if isExpanded {
-        expandedContent
+        expandedActionsContainer
+          .padding(.horizontal, Geist.Layout.rowPaddingH)
+          .padding(.bottom, Geist.Layout.spacingSM)
           .transition(.opacity.combined(with: .move(edge: .top)))
       }
     }
-    .frame(height: isExpanded ? Geist.Layout.rowExpandedHeight : Geist.Layout.rowHeight)
-    .padding(.horizontal, Geist.Layout.rowPaddingH)
-    .padding(.vertical, Geist.Layout.rowPaddingV)
-    .background(isExpanded ? Geist.Colors.rowExpanded : isHovered ? Geist.Colors.rowHover : Color.clear)
+    .background(isHovered ? Geist.Colors.rowHover : Color.clear)
     .overlay(
       RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
         .strokeBorder(Color.accentColor, lineWidth: 2)
@@ -180,17 +181,17 @@ struct DeploymentRowView: View {
         if deployment.state == .ready, let _ = deployment.buildDuration {
           Text(deployment.formattedBuildDuration)
             .font(Geist.Typography.buildDuration)
-            .foregroundColor(Geist.Colors.textTertiary)
+            .foregroundColor(Geist.Colors.gray700)
 
           Text("·")
             .font(Geist.Typography.timestamp)
-            .foregroundColor(Geist.Colors.textTertiary)
+            .foregroundColor(Geist.Colors.gray700)
             .padding(.horizontal, 2)
         }
 
         Text(relativeTime)
           .font(Geist.Typography.timestamp)
-          .foregroundColor(Geist.Colors.textTertiary)
+          .foregroundColor(Geist.Colors.gray700)
       }
 
       // Line 2: Commit message (indented to align with project name)
@@ -201,7 +202,7 @@ struct DeploymentRowView: View {
         if let commitMessage = deployment.commitMessage {
           Text(commitMessage)
             .font(Geist.Typography.commitMessage)
-            .foregroundColor(Geist.Colors.textPrimary)
+            .foregroundColor(Geist.Colors.textSecondary)
             .lineLimit(isExpanded ? 3 : 1)
         } else {
           Text("No commit message")
@@ -222,7 +223,7 @@ struct DeploymentRowView: View {
             .font(.system(size: 10, weight: .medium, design: .monospaced))
             .foregroundColor(targetTextColor)
             .lineLimit(1)
-            .padding(.horizontal, Geist.Layout.badgePaddingH)
+            .padding(.horizontal, Geist.Layout.badgePaddingH + 2)
             .padding(.vertical, Geist.Layout.badgePaddingV)
             .background(targetBackgroundColor)
             .clipShape(Capsule())
@@ -235,9 +236,9 @@ struct DeploymentRowView: View {
         // Branch badge
         Text(deployment.branch ?? "—")
           .font(Geist.Typography.branchName)
-          .foregroundColor(Geist.Colors.textSecondary)
+          .foregroundColor(Geist.Colors.gray1000)
           .lineLimit(1)
-          .padding(.horizontal, Geist.Layout.badgePaddingH)
+          .padding(.horizontal, Geist.Layout.badgePaddingH + 2)
           .padding(.vertical, Geist.Layout.badgePaddingV)
           .background(Geist.Colors.badgeBackground)
           .cornerRadius(Geist.Layout.badgeCornerRadius)
@@ -246,7 +247,7 @@ struct DeploymentRowView: View {
         if let author = deployment.commitAuthor {
           Text("by \(author)")
             .font(Geist.Typography.author)
-            .foregroundColor(Geist.Colors.textTertiary)
+            .foregroundColor(Geist.Colors.gray700)
             .lineLimit(1)
         }
 
@@ -268,139 +269,66 @@ struct DeploymentRowView: View {
     }
   }
 
-  // MARK: - Expanded Content
+  // MARK: - Expanded Actions Container
 
-  private var expandedContent: some View {
-    VStack(alignment: .leading, spacing: 0) {
-      Divider()
-        .padding(.top, 4)
-        .padding(.bottom, 8)
-
-      // For failed deployments, show prominent View Build Log button
-      if deployment.state == .error {
-        failedDeploymentActions
-      } else {
-        regularActions
-      }
-    }
-    .padding(.bottom, 8)
-  }
-
-  private var failedDeploymentActions: some View {
-    VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
-      // Primary action: View Build Log
-      Button {
-        viewBuildLog()
-      } label: {
-        HStack(spacing: 6) {
-          Image(systemName: "doc.text.magnifyingglass")
-            .font(.system(size: 12))
-          Text("View Build Log")
-            .font(Geist.Typography.caption)
-        }
-      }
-      .buttonStyle(.borderedProminent)
-      .tint(Geist.Colors.statusError)
-      .controlSize(.small)
-
-      // Secondary actions
-      HStack(alignment: .center, spacing: 8) {
-        ActionButton(
+  private var expandedActionsContainer: some View {
+    VStack(alignment: .leading, spacing: 6) {
+      // Row 1: Link/copy actions
+      HStack(spacing: 6) {
+        FlatActionButton(
           icon: copiedURL ? "checkmark" : "doc.on.doc",
-          label: copiedURL ? "Copied!" : "Copy URL",
-          color: copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText,
-          action: copyDeploymentURL
-        )
-
-        if let url = vercelDashboardURL {
-          ActionButton(icon: "safari", label: "Open in Vercel") { openURL(url) }
-        }
-
-        Spacer()
-      }
-    }
-    .padding(.leading, Geist.Layout.statusDotSize + Geist.Layout.spacingSM)
-  }
-
-  private var regularActions: some View {
-    VStack(alignment: .leading, spacing: 10) {
-      HStack(alignment: .center, spacing: 8) {
-        ActionButton(
-          icon: copiedURL ? "checkmark" : "doc.on.doc",
-          label: copiedURL ? "Copied!" : "Copy URL",
-          color: copiedURL ? Geist.Colors.statusReady : Geist.Colors.buttonText,
+          label: copiedURL ? "Copied" : "Copy URL",
+          isAccent: copiedURL,
           action: copyDeploymentURL
         )
 
         if let url = previewURL {
-          ActionButton(icon: "globe", label: "Open in Browser") { openURL(url) }
+          FlatActionButton(icon: "globe", label: "Open in Browser") { openURL(url) }
         }
 
         if let url = vercelDashboardURL {
-          ActionButton(icon: "safari", label: "Open in Vercel") { openURL(url) }
+          FlatActionButton(icon: "safari", label: "Open in Vercel") { openURL(url) }
         }
 
         if let prURL = deployment.prURL, let prId = deployment.prId {
-          ActionButton(icon: "arrow.up.right.square", label: "#\(prId)") { openURL(prURL) }
+          FlatActionButton(icon: "arrow.up.right.square", label: "#\(prId)") { openURL(prURL) }
         }
-
-        Spacer()
       }
 
-      // Action buttons row (Redeploy, Rollback)
-      HStack(alignment: .center, spacing: 8) {
-        // Redeploy button
-        Button {
+      // Row 2: Deploy actions
+      HStack(spacing: 6) {
+        if deployment.state == .error {
+          FlatActionButton(icon: "doc.text.magnifyingglass", label: "View Build Log", action: viewBuildLog)
+        }
+
+        FlatActionButton(
+          icon: "arrow.clockwise.circle",
+          label: isRedeploying ? "Deploying…" : "Redeploy"
+        ) {
           showRedeployAlert = true
-        } label: {
-          HStack(spacing: 4) {
-            if isRedeploying {
-              ProgressView()
-                .scaleEffect(0.6)
-                .frame(width: 12, height: 12)
-            } else {
-              Image(systemName: "arrow.clockwise.circle")
-                .font(.system(size: 11))
-            }
-            Text("Redeploy")
-              .font(Geist.Typography.caption)
-          }
-          .foregroundColor(Geist.Colors.buttonText)
         }
-        .buttonStyle(.bordered)
-        .controlSize(.small)
-        .disabled(isRedeploying || isRollingBack)
 
-        // Rollback button (only for production deploys)
         if deployment.target == "production" && deployment.state == .ready {
-          Button {
+          FlatActionButton(
+            icon: "arrow.uturn.backward.circle",
+            label: isRollingBack ? "Rolling back…" : "Rollback",
+            isDestructive: true
+          ) {
             showRollbackAlert = true
-          } label: {
-            HStack(spacing: 4) {
-              if isRollingBack {
-                ProgressView()
-                  .scaleEffect(0.6)
-                  .frame(width: 12, height: 12)
-              } else {
-                Image(systemName: "arrow.uturn.backward.circle")
-                  .font(.system(size: 11))
-              }
-              Text("Rollback")
-                .font(Geist.Typography.caption)
-            }
-            .foregroundColor(Geist.Colors.statusError)
           }
-          .buttonStyle(.bordered)
-          .controlSize(.small)
-          .disabled(isRedeploying || isRollingBack)
         }
-
-        Spacer()
       }
-
-      Spacer()
     }
-    .padding(.leading, Geist.Layout.statusDotSize + Geist.Layout.spacingSM)
+    .padding(.horizontal, 10)
+    .padding(.vertical, 8)
+    .background(
+      RoundedRectangle(cornerRadius: 8)
+        .fill(Geist.Colors.expandedContainerBg)
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: 8)
+        .stroke(Geist.Colors.gray100, lineWidth: 1)
+    )
   }
 
   private func viewBuildLog() {
@@ -562,25 +490,47 @@ struct DeploymentRowView: View {
   }
 }
 
-// MARK: - Reusable Action Button
+// MARK: - Flat Action Button (matching InteractiveDemo style)
 
-private struct ActionButton: View {
+private struct FlatActionButton: View {
   let icon: String
   let label: String
-  var color: Color = Geist.Colors.buttonText
+  var isDestructive: Bool = false
+  var isAccent: Bool = false
   let action: () -> Void
+
+  @State private var isHovered = false
 
   var body: some View {
     Button(action: action) {
       HStack(spacing: 4) {
         Image(systemName: icon)
-          .font(.system(size: 11))
+          .font(.system(size: 12))
         Text(label)
-          .font(Geist.Typography.caption)
+          .font(.system(size: 11))
       }
-      .foregroundColor(color)
+      .foregroundColor(textColor)
+      .padding(.horizontal, 8)
+      .padding(.vertical, 5)
+      .background(
+        RoundedRectangle(cornerRadius: 6)
+          .stroke(borderColor, lineWidth: 1)
+      )
     }
-    .buttonStyle(.bordered)
-    .controlSize(.small)
+    .buttonStyle(.plain)
+    .onHover { hovering in isHovered = hovering }
+  }
+
+  private var textColor: Color {
+    if isAccent { return Geist.Colors.statusReady }
+    if isDestructive { return Geist.Colors.statusError }
+    return isHovered ? Geist.Colors.textPrimary : Geist.Colors.textSecondary
+  }
+
+  private var borderColor: Color {
+    if isDestructive {
+      return isHovered ? Geist.Colors.statusError.opacity(0.6) : Geist.Colors.statusError.opacity(0.3)
+    }
+    return isHovered ? Geist.Colors.textSecondary.opacity(0.3) : Geist.Colors.gray100
   }
 }
