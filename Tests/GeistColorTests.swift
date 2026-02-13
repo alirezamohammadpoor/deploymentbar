@@ -16,15 +16,15 @@ final class GeistColorTests: XCTestCase {
     XCTAssertEqual(rgb.alphaComponent, 1.0, accuracy: 0.001)
   }
 
-  func testBuildingStatusTokenUsesBlue() {
+  func testBuildingStatusTokenUsesOrange() {
     let color = NSColor(Geist.Colors.status(for: .building))
     guard let rgb = color.usingColorSpace(.sRGB) else {
       XCTFail("Expected sRGB color for building status token")
       return
     }
 
-    XCTAssertEqual(rgb.redComponent, 0x00 / 255.0, accuracy: 0.001)
-    XCTAssertEqual(rgb.greenComponent, 0x70 / 255.0, accuracy: 0.001)
-    XCTAssertEqual(rgb.blueComponent, 0xF3 / 255.0, accuracy: 0.001)
+    XCTAssertEqual(rgb.redComponent, 0xF5 / 255.0, accuracy: 0.001)
+    XCTAssertEqual(rgb.greenComponent, 0xA6 / 255.0, accuracy: 0.001)
+    XCTAssertEqual(rgb.blueComponent, 0x23 / 255.0, accuracy: 0.001)
   }
 }

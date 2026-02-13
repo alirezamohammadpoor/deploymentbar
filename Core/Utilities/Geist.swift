@@ -62,7 +62,7 @@ enum Geist {
 
     // Status colors
     static let statusReady = Color(hex: "#00C853")
-    static let statusBuilding = Color(hex: "#0070F3")
+    static let statusBuilding = Color(hex: "#F5A623")
     static let statusError = Color(hex: "#EE0000")
     static let statusQueued = Color(hex: "#666666")
     static let statusCanceled = Color(hex: "#666666")
