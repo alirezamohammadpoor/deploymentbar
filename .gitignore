@@ -6,3 +6,9 @@ Config/Secrets.xcconfig
 VercelBar.xcodeproj/xcuserdata/
 VercelBar.xcodeproj/project.xcworkspace/xcuserdata/
 VercelBar *.xcodeproj/
+
+# Web
+web/node_modules/
+web/.next/
+web/out/
+web/.env*.local
