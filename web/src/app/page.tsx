@@ -1,6 +1,5 @@
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
-// import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { BentoGrid } from "@/components/BentoGrid";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
@@ -13,7 +12,6 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        {/* <InteractiveDemo /> */}
         <BentoGrid />
         <HowItWorks />
         <FAQ />

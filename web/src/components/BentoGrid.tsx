@@ -1,11 +1,9 @@
-import {
-  ListChecks,
-  CursorClick,
-  Lightning,
-  Terminal,
-  AppleLogo,
-  ShieldCheck,
-} from "@phosphor-icons/react/dist/ssr";
+import { ListChecks } from "@phosphor-icons/react/dist/ssr/ListChecks";
+import { CursorClick } from "@phosphor-icons/react/dist/ssr/CursorClick";
+import { Lightning } from "@phosphor-icons/react/dist/ssr/Lightning";
+import { Terminal } from "@phosphor-icons/react/dist/ssr/Terminal";
+import { AppleLogo } from "@phosphor-icons/react/dist/ssr/AppleLogo";
+import { ShieldCheck } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
 import type { Icon } from "@phosphor-icons/react/dist/lib/types";
 
 interface Feature {

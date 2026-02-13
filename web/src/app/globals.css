@@ -292,6 +292,57 @@ html {
   transition: opacity 0.3s ease;
 }
 
+/* ── Coded Hero: Scene layer crossfade ──────────────────── */
+.scene-layer {
+  transition: opacity 0.3s ease;
+}
+
+/* Row expand animation */
+@keyframes coded-hero-row-expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    max-height: 80px;
+    transform: translateY(0);
+  }
+}
+.coded-hero-row-expand {
+  animation: coded-hero-row-expand 0.25s ease-out both;
+  overflow: hidden;
+}
+
+/* List fade for filter transitions */
+@keyframes coded-hero-list-fade {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.coded-hero-list-fade {
+  animation: coded-hero-list-fade 0.3s ease-out;
+}
+
+/* Tooltip fade in */
+@keyframes coded-hero-tooltip-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.coded-hero-tooltip {
+  animation: coded-hero-tooltip-enter 0.2s ease-out both;
+}
+
 /* Pill progress bar */
 @keyframes pill-progress {
   from { width: 0%; }
@@ -315,9 +366,26 @@ html {
   .video-layer {
     transition: none;
   }
+  .scene-layer {
+    transition: none;
+  }
   .pill-progress-bar {
     animation: none;
     width: 100%;
+  }
+  .coded-hero-row-expand {
+    animation: none;
+    opacity: 1;
+    max-height: none;
+    transform: none;
+  }
+  .coded-hero-list-fade {
+    animation: none;
+    opacity: 1;
+  }
+  .coded-hero-tooltip {
+    animation: none;
+    opacity: 1;
   }
 }
 

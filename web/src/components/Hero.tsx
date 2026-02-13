@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { HeroShowcase } from "./HeroShowcase";
+import { CodedHero } from "./CodedHero/CodedHero";
 
 const B = "0, 112, 243";
 
@@ -41,7 +41,7 @@ export function Hero() {
   return (
     <section className="relative flex flex-col items-center overflow-hidden px-6 pt-36 pb-16 text-center">
       <Background />
-      <HeroShowcase />
+      <CodedHero />
     </section>
   );
 }
