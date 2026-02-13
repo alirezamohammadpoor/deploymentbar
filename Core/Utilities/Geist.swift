@@ -83,7 +83,7 @@ enum Geist {
 
     enum StatusBarIcon {
       static let ready = NSColor(srgbRed: 0, green: 0xC8/255.0, blue: 0x53/255.0, alpha: 1)
-      static let building = NSColor(srgbRed: 0x00/255.0, green: 0x70/255.0, blue: 0xF3/255.0, alpha: 1)
+      static let building = NSColor(srgbRed: 0xF5/255.0, green: 0xA6/255.0, blue: 0x23/255.0, alpha: 1)
       static let queued = NSColor(srgbRed: 0x66/255.0, green: 0x66/255.0, blue: 0x66/255.0, alpha: 1)
       static let error = NSColor(srgbRed: 0xEE/255.0, green: 0, blue: 0, alpha: 1)
 
