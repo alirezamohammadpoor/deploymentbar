@@ -65,11 +65,15 @@ struct SettingsView: View {
           PersonalTokenView()
         }
 
+        section("GitHub CI Checks", description: "Add a GitHub token to show CI check status on deployments. Needs the repo scope.") {
+          GitHubTokenView()
+        }
+
         section("Projects", description: "Leave everything unchecked to monitor every project.") {
           ProjectFilterView()
         }
 
-        section("Notifications", description: "Choose which deployment states trigger alerts.") {
+        section("Notifications", description: "Choose which events trigger desktop alerts.") {
           VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
             Toggle("Notify on ready", isOn: $settings.notifyOnReady)
               .toggleStyle(VercelToggleStyle())
@@ -79,6 +83,20 @@ struct SettingsView: View {
             VercelCardDivider()
 
             Toggle("Notify on failed", isOn: $settings.notifyOnFailed)
+              .toggleStyle(VercelToggleStyle())
+              .font(Geist.Typography.Settings.fieldLabel)
+              .foregroundColor(Geist.Colors.gray1000)
+
+            VercelCardDivider()
+
+            Toggle("Notify on checks passed", isOn: $settings.notifyOnChecksPassed)
+              .toggleStyle(VercelToggleStyle())
+              .font(Geist.Typography.Settings.fieldLabel)
+              .foregroundColor(Geist.Colors.gray1000)
+
+            VercelCardDivider()
+
+            Toggle("Notify on checks failed", isOn: $settings.notifyOnChecksFailed)
               .toggleStyle(VercelToggleStyle())
               .font(Geist.Typography.Settings.fieldLabel)
               .foregroundColor(Geist.Colors.gray1000)

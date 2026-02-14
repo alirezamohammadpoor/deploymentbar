@@ -141,6 +141,28 @@ final class RefreshEngine {
         store.apply(deployments: filtered)
       }
 
+      // Poll GitHub check runs for eligible deployments
+      let githubToken = credentialStore.loadGitHubToken()
+      if let githubToken {
+        let deploymentsNeedingChecks = await MainActor.run {
+          store.deploymentIdsNeedingCheckPoll.compactMap { id in
+            store.deployments.first(where: { $0.id == id })
+          }
+        }
+        for deployment in deploymentsNeedingChecks {
+          guard let org = deployment.githubOrg,
+                let repo = deployment.githubRepo,
+                let sha = deployment.commitSha else { continue }
+          do {
+            let checks = try await fetchGitHubCheckRuns(owner: org, repo: repo, sha: sha, token: githubToken)
+            let status = AggregateCheckStatus.from(checks: checks)
+            await MainActor.run { store.applyCheckStatus(status, for: deployment.id) }
+          } catch {
+            DebugLog.write("RefreshEngine: GitHub check fetch failed for \(deployment.id): \(error)")
+          }
+        }
+      }
+
       backoffStep = 0
       await updateStatus(isStale: false, error: nil, markRefresh: true)
     } catch let error as APIError {
@@ -164,6 +186,27 @@ final class RefreshEngine {
         status.nextRefresh = nextDate
       }
     }
+  }
+
+  private func fetchGitHubCheckRuns(owner: String, repo: String, sha: String, token: String) async throws -> [GitHubCheckRunDTO] {
+    guard var components = URLComponents(string: "https://api.github.com/repos/\(owner)/\(repo)/commits/\(sha)/check-runs") else {
+      return []
+    }
+    components.queryItems = [URLQueryItem(name: "per_page", value: "100")]
+    guard let url = components.url else { return [] }
+
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+
+    let (data, response) = try await URLSession.shared.data(for: request)
+    guard let http = response as? HTTPURLResponse else { return [] }
+    DebugLog.write("GitHub /repos/\(owner)/\(repo)/commits/\(sha.prefix(7))/check-runs → \(http.statusCode) (\(data.count) bytes)")
+
+    guard (200...299).contains(http.statusCode) else { return [] }
+
+    let decoded = try JSONDecoder().decode(GitHubCheckRunsResponse.self, from: data)
+    return decoded.checkRuns
   }
 
   private func updateStatus(isStale: Bool, error: String?, markRefresh: Bool = false) async {

@@ -13,6 +13,7 @@
 		0B59A8007C2E8A68599E94C7 /* GeistMono-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 03EA8E9080DCE69ACCDF43C0 /* GeistMono-SemiBold.otf */; };
 		0E6A2B9A44423C54FEDF8D54 /* VercelComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BFE07D66844D06F20AD581D /* VercelComponents.swift */; };
 		0E7DE6B10CD24F2DF574267C /* APIClientFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C9F521E1E3EFE9DE6A210A /* APIClientFactory.swift */; };
+		0F751B2B507DE1ADFB373F00 /* CheckRun.swift in Sources */ = {isa = PBXBuildFile; fileRef = E00AE7A12AEA21D4DD155D73 /* CheckRun.swift */; };
 		125F140EE36EA9E53D95175D /* BrowserOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21E89679C5915C2E0733CDB /* BrowserOption.swift */; };
 		15ECB43BEC49A6087971E6D6 /* GeistMono-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 76D624C1F2F5097A4423F903 /* GeistMono-Bold.otf */; };
 		18FEC7D78A0D3F56348E027E /* GeistMono-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = A93E2D724C28ED3C651252C0 /* GeistMono-Medium.otf */; };
@@ -84,6 +85,7 @@
 		D153EA9866E052C3EE0EAA72 /* Deployment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42C6C72472FF271E4BED36E9 /* Deployment.swift */; };
 		DB7222F279BAE14F6C57BE77 /* VercelBarApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17D9DF0A5BA572AA0D3AB120 /* VercelBarApp.swift */; };
 		DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C20CF436D58E6113D6762394 /* KeychainWrapper.swift */; };
+		DC4330F1EA9D3CF7D44D6FA5 /* GitHubTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57C974479504C9177B9B1F9 /* GitHubTokenView.swift */; };
 		DD16BA4E94069B29D9219449 /* AppInstanceCheckerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F253450B9273185D7B38168 /* AppInstanceCheckerTests.swift */; };
 		E0FC413A2E8D31CED64FBFDE /* RefreshEngineErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B303B5A75A99A19840A2AE79 /* RefreshEngineErrorTests.swift */; };
 		E37EC40409B68AAD2160D1CB /* AuthSessionStateStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78572312102F76E80A9ADD4 /* AuthSessionStateStoreTests.swift */; };
@@ -193,7 +195,9 @@
 		DD7032C6DD72D44D324226A2 /* TokenResponseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenResponseParserTests.swift; sourceTree = "<group>"; };
 		DD8D8B5BC384A6AFE64E3BC4 /* AuthSessionInitialStatusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionInitialStatusTests.swift; sourceTree = "<group>"; };
 		DEA0DBA60EAB828D882EFBB1 /* Geist-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Geist-Regular.otf"; sourceTree = "<group>"; };
+		E00AE7A12AEA21D4DD155D73 /* CheckRun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckRun.swift; sourceTree = "<group>"; };
 		E21E89679C5915C2E0733CDB /* BrowserOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserOption.swift; sourceTree = "<group>"; };
+		E57C974479504C9177B9B1F9 /* GitHubTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubTokenView.swift; sourceTree = "<group>"; };
 		E8733EA8F63C7DF65A4F74C2 /* StatusBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarController.swift; sourceTree = "<group>"; };
 		ED7EFCE5A4BC80199BB0B660 /* AppInstanceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppInstanceChecker.swift; sourceTree = "<group>"; };
 		FD53DDD6F408880191F32065 /* Geist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Geist.swift; sourceTree = "<group>"; };
@@ -214,6 +218,7 @@
 		050CAC5457FE9B5DAD912D87 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				E57C974479504C9177B9B1F9 /* GitHubTokenView.swift */,
 				BB3938D74ABD8BE1F727CF33 /* PersonalTokenView.swift */,
 				0A111B06747AA9A2D8177780 /* ProjectFilterView.swift */,
 				2059CB0908FBF2598B74EDB6 /* SettingsView.swift */,
@@ -226,6 +231,7 @@
 			isa = PBXGroup;
 			children = (
 				4358CC9248F52D2385D12C85 /* APIError.swift */,
+				E00AE7A12AEA21D4DD155D73 /* CheckRun.swift */,
 				42C6C72472FF271E4BED36E9 /* Deployment.swift */,
 				5229DC62ADDAB8F632AD0FC4 /* LogLine.swift */,
 				7D23F0D2F6ED1E675C469327 /* Project.swift */,
@@ -575,12 +581,14 @@
 				125F140EE36EA9E53D95175D /* BrowserOption.swift in Sources */,
 				B7CA2E8942FAD429F9C07D7D /* BuildLogWindow.swift in Sources */,
 				22F56B13B7DBA9E068A9759B /* BuildLogWindowController.swift in Sources */,
+				0F751B2B507DE1ADFB373F00 /* CheckRun.swift in Sources */,
 				3E8358BF729387745452FBBD /* CredentialStore.swift in Sources */,
 				5286ECF071471E1ACA5C89E1 /* DebugLog.swift in Sources */,
 				D153EA9866E052C3EE0EAA72 /* Deployment.swift in Sources */,
 				1C98A3873E036909D59D1C05 /* DeploymentRowView.swift in Sources */,
 				F1004A724903A12DC33C2706 /* DeploymentStore.swift in Sources */,
 				E49E77E259C7D7596C651F5E /* Geist.swift in Sources */,
+				DC4330F1EA9D3CF7D44D6FA5 /* GitHubTokenView.swift in Sources */,
 				FD0F0AD11E15169BC9BC6908 /* JSONDecoder+Vercel.swift in Sources */,
 				DBF9384703FF069DAEA2E013 /* KeychainWrapper.swift in Sources */,
 				547AA3E69B941C24A87B3AFE /* LaunchAtLoginManager.swift in Sources */,

@@ -120,6 +120,71 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     completionHandler([.banner, .sound])
   }
 
+  func postCheckNotification(deployment: Deployment, status: AggregateCheckStatus) {
+    Task { @MainActor in
+      DebugLog.write("postCheckNotification: \(deployment.projectName) status=\(status)")
+
+      guard status == .passed || status == .failed else { return }
+
+      let allowed: Bool
+      switch status {
+      case .passed: allowed = settings.notifyOnChecksPassed
+      case .failed: allowed = settings.notifyOnChecksFailed
+      default: allowed = false
+      }
+      guard allowed else {
+        DebugLog.write("postCheckNotification: skipped by settings")
+        return
+      }
+
+      let checkKey = "check-\(deployment.id)"
+      let pseudoState: DeploymentState = status == .passed ? .ready : .error
+      guard historyStore.shouldNotify(id: checkKey, state: pseudoState) else {
+        DebugLog.write("postCheckNotification: skipped by history (already notified)")
+        return
+      }
+
+      let authStatus = await center.notificationSettings().authorizationStatus
+      guard authStatus == .authorized || authStatus == .provisional else {
+        DebugLog.write("postCheckNotification: not authorized (status=\(authStatus.rawValue))")
+        return
+      }
+
+      let content = UNMutableNotificationContent()
+      content.title = deployment.projectName
+      content.body = status == .passed
+        ? "All CI checks passed"
+        : "CI checks failed"
+      content.sound = .default
+
+      // Prefer PR URL, fall back to deployment URL
+      if let prURL = deployment.prURL {
+        content.userInfo["url"] = prURL.absoluteString
+      } else if let rawURL = deployment.url, !rawURL.isEmpty {
+        if let parsed = URL(string: rawURL), parsed.scheme != nil {
+          content.userInfo["url"] = rawURL
+        } else {
+          content.userInfo["url"] = "https://\(rawURL)"
+        }
+      }
+
+      let statusLabel = status == .passed ? "passed" : "failed"
+      let request = UNNotificationRequest(
+        identifier: "vercelbar.check.\(deployment.id).\(statusLabel)",
+        content: content,
+        trigger: nil
+      )
+
+      do {
+        try await center.add(request)
+        DebugLog.write("postCheckNotification: notification posted for \(deployment.projectName)")
+        historyStore.markNotified(id: checkKey, state: pseudoState)
+      } catch {
+        DebugLog.write("postCheckNotification: center.add failed: \(error)")
+      }
+    }
+  }
+
   @MainActor
   private func shouldNotify(for state: DeploymentState) -> Bool {
     switch state {

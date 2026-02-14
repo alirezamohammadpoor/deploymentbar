@@ -11,6 +11,9 @@ struct Deployment: Identifiable, Equatable {
   let createdAt: Date
   let readyAt: Date?
 
+  // Dashboard URL
+  let inspectorUrl: String?
+
   // GitHub metadata
   let commitMessage: String?
   let commitAuthor: String?
@@ -61,6 +64,7 @@ struct DeploymentDTO: Codable, Equatable {
   let ready: Int64?
   let projectId: String?
   let target: String?
+  let inspectorUrl: String?
   let meta: [String: String]?
   let gitSource: GitSource?
 
@@ -100,6 +104,7 @@ extension Deployment {
       url: dto.url,
       createdAt: createdAt,
       readyAt: readyAt,
+      inspectorUrl: dto.inspectorUrl,
       commitMessage: commitMessage,
       commitAuthor: commitAuthor,
       commitSha: commitSha,

@@ -482,6 +482,7 @@ struct StatusBarMenu: View {
         ForEach(Array(filteredDeployments.enumerated()), id: \.element.id) { index, deployment in
           DeploymentRowView(
             deployment: deployment,
+            checkStatus: store.checkStatuses[deployment.id],
             relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt, now: now),
             isExpanded: expandedDeploymentId == deployment.id,
             isFocused: focusedDeploymentId == deployment.id,

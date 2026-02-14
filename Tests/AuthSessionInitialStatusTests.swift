@@ -59,4 +59,7 @@ private final class FakeCredentialStore: CredentialStoring {
   func loadPersonalToken() -> String? { nil }
   func savePersonalToken(_ token: String) {}
   func clearPersonalToken() {}
+  func loadGitHubToken() -> String? { nil }
+  func saveGitHubToken(_ token: String) {}
+  func clearGitHubToken() {}
 }

@@ -3,6 +3,7 @@ import AppKit
 
 struct DeploymentRowView: View {
   let deployment: Deployment
+  let checkStatus: AggregateCheckStatus?
   let relativeTime: String
   let isExpanded: Bool
   let isFocused: Bool
@@ -243,6 +244,13 @@ struct DeploymentRowView: View {
           .background(Geist.Colors.badgeBackground)
           .cornerRadius(Geist.Layout.badgeCornerRadius)
 
+        // CI status icon
+        if let checkStatus, checkStatus != .none {
+          Image(systemName: checkStatusIcon(checkStatus))
+            .font(.system(size: 12))
+            .foregroundColor(checkStatusColor(checkStatus))
+        }
+
         // Author
         if let author = deployment.commitAuthor {
           Text("by \(author)")
@@ -271,56 +279,38 @@ struct DeploymentRowView: View {
 
   // MARK: - Expanded Actions Container
 
+  private static let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 4), count: 3)
+
   private var expandedActionsContainer: some View {
-    VStack(alignment: .leading, spacing: 6) {
-      // Row 1: Link/copy actions
-      HStack(spacing: 6) {
-        FlatActionButton(
-          icon: copiedURL ? "checkmark" : "doc.on.doc",
-          label: copiedURL ? "Copied" : "Copy URL",
-          isAccent: copiedURL,
-          action: copyDeploymentURL
-        )
+    LazyVGrid(columns: Self.gridColumns, spacing: 4) {
+      GridActionCell(
+        icon: copiedURL ? "checkmark" : "doc.on.doc",
+        label: copiedURL ? "Copied" : "Copy URL",
+        isAccent: copiedURL,
+        action: copyDeploymentURL
+      )
 
-        if let url = previewURL {
-          FlatActionButton(icon: "globe", label: "Open in Browser") { openURL(url) }
-        }
-
-        if let url = vercelDashboardURL {
-          FlatActionButton(icon: "safari", label: "Open in Vercel") { openURL(url) }
-        }
-
-        if let prURL = deployment.prURL, let prId = deployment.prId {
-          FlatActionButton(icon: "arrow.up.right.square", label: "#\(prId)") { openURL(prURL) }
-        }
+      if let url = previewURL {
+        GridActionCell(icon: "globe", label: "Browser") { openURL(url) }
       }
 
-      // Row 2: Deploy actions
-      HStack(spacing: 6) {
-        if deployment.state == .error {
-          FlatActionButton(icon: "doc.text.magnifyingglass", label: "View Build Log", action: viewBuildLog)
-        }
+      if let url = vercelDashboardURL {
+        GridActionCell(icon: "arrow.up.right.square", label: "Vercel") { openURL(url) }
+      }
 
-        FlatActionButton(
-          icon: "arrow.clockwise.circle",
-          label: isRedeploying ? "Deploying…" : "Redeploy"
-        ) {
-          showRedeployAlert = true
-        }
+      if let prURL = deployment.prURL, let prId = deployment.prId {
+        GridActionCell(icon: "arrow.triangle.pull", label: "PR #\(prId)") { openURL(prURL) }
+      }
 
-        if deployment.target == "production" && deployment.state == .ready {
-          FlatActionButton(
-            icon: "arrow.uturn.backward.circle",
-            label: isRollingBack ? "Rolling back…" : "Rollback",
-            isDestructive: true
-          ) {
-            showRollbackAlert = true
-          }
-        }
+      GridActionCell(
+        icon: "arrow.clockwise",
+        label: isRedeploying ? "Deploying…" : "Redeploy"
+      ) {
+        showRedeployAlert = true
       }
     }
-    .padding(.horizontal, 10)
-    .padding(.vertical, 8)
+    .padding(.horizontal, 8)
+    .padding(.vertical, 4)
     .background(
       RoundedRectangle(cornerRadius: 8)
         .fill(Geist.Colors.expandedContainerBg)
@@ -368,8 +358,8 @@ struct DeploymentRowView: View {
   }
 
   private var vercelDashboardURL: URL? {
-    guard let projectId = deployment.projectId else { return nil }
-    return URL(string: "https://vercel.com/~/\(projectId)/\(deployment.id)")
+    guard let urlString = deployment.inspectorUrl, !urlString.isEmpty else { return nil }
+    return URL(string: urlString)
   }
 
   private var previewURL: URL? {
@@ -401,6 +391,24 @@ struct DeploymentRowView: View {
     guard let sha = deployment.commitSha else { return }
     NSPasteboard.general.clearContents()
     NSPasteboard.general.setString(sha, forType: .string)
+  }
+
+  private func checkStatusIcon(_ status: AggregateCheckStatus) -> String {
+    switch status {
+    case .running: return "circle.dashed"
+    case .passed: return "checkmark.circle.fill"
+    case .failed: return "xmark.circle.fill"
+    case .none: return ""
+    }
+  }
+
+  private func checkStatusColor(_ status: AggregateCheckStatus) -> Color {
+    switch status {
+    case .running: return Geist.Colors.statusBuilding
+    case .passed: return Geist.Colors.statusReady
+    case .failed: return Geist.Colors.statusError
+    case .none: return .clear
+    }
   }
 
   private func startPulseAnimation() {
@@ -490,12 +498,11 @@ struct DeploymentRowView: View {
   }
 }
 
-// MARK: - Flat Action Button (matching InteractiveDemo style)
+// MARK: - Grid Action Cell
 
-private struct FlatActionButton: View {
+private struct GridActionCell: View {
   let icon: String
   let label: String
-  var isDestructive: Bool = false
   var isAccent: Bool = false
   let action: () -> Void
 
@@ -503,34 +510,22 @@ private struct FlatActionButton: View {
 
   var body: some View {
     Button(action: action) {
-      HStack(spacing: 4) {
+      VStack(spacing: 2) {
         Image(systemName: icon)
-          .font(.system(size: 12))
+          .font(.system(size: 15))
         Text(label)
-          .font(.system(size: 11))
+          .font(.system(size: 9))
+          .lineLimit(1)
       }
-      .foregroundColor(textColor)
-      .padding(.horizontal, 8)
-      .padding(.vertical, 5)
+      .foregroundColor(isAccent ? Geist.Colors.statusReady : Geist.Colors.textSecondary)
+      .frame(maxWidth: .infinity)
+      .padding(.vertical, 4)
       .background(
-        RoundedRectangle(cornerRadius: 6)
-          .stroke(borderColor, lineWidth: 1)
+        RoundedRectangle(cornerRadius: 8)
+          .fill(isHovered ? Color.white.opacity(0.08) : Color.clear)
       )
     }
     .buttonStyle(.plain)
     .onHover { hovering in isHovered = hovering }
-  }
-
-  private var textColor: Color {
-    if isAccent { return Geist.Colors.statusReady }
-    if isDestructive { return Geist.Colors.statusError }
-    return isHovered ? Geist.Colors.textPrimary : Geist.Colors.textSecondary
-  }
-
-  private var borderColor: Color {
-    if isDestructive {
-      return isHovered ? Geist.Colors.statusError.opacity(0.6) : Geist.Colors.statusError.opacity(0.3)
-    }
-    return isHovered ? Geist.Colors.textSecondary.opacity(0.3) : Geist.Colors.gray100
   }
 }

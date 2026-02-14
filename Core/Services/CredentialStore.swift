@@ -7,6 +7,9 @@ protocol CredentialStoring {
   func loadPersonalToken() -> String?
   func savePersonalToken(_ token: String)
   func clearPersonalToken()
+  func loadGitHubToken() -> String?
+  func saveGitHubToken(_ token: String)
+  func clearGitHubToken()
 }
 
 protocol KeychainDataStoring {
@@ -30,6 +33,7 @@ final class CredentialStore: CredentialStoring {
   enum Account {
     static let oauthTokens = "oauth-tokens"
     static let personalToken = "personal-token"
+    static let githubToken = "github-token"
   }
 
   static var defaultKeychainService: String {
@@ -133,6 +137,28 @@ final class CredentialStore: CredentialStoring {
   func clearPersonalToken() {
     keychain.removeData(for: Account.personalToken)
     legacyStore.clearPersonalTokenData()
+  }
+
+  func loadGitHubToken() -> String? {
+    guard let data = keychain.data(for: Account.githubToken),
+          let token = String(data: data, encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+          !token.isEmpty else {
+      return nil
+    }
+    return token
+  }
+
+  func saveGitHubToken(_ token: String) {
+    let trimmed = token.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard let data = trimmed.data(using: .utf8), !trimmed.isEmpty else { return }
+    if !keychain.setData(data, for: Account.githubToken) {
+      DebugLog.write("CredentialStore.saveGitHubToken failed to persist Keychain item")
+    }
+  }
+
+  func clearGitHubToken() {
+    keychain.removeData(for: Account.githubToken)
   }
 
   private func decodeTokens(from data: Data) -> TokenPair? {

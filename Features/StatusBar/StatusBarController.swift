@@ -158,6 +158,10 @@ final class StatusBarController: NSObject {
       self?.notificationManager?.postDeploymentNotification(deployment: deployment)
     }
 
+    deploymentStore.onCheckStatusChange = { [weak self] deployment, status in
+      self?.notificationManager?.postCheckNotification(deployment: deployment, status: status)
+    }
+
     deploymentStore.$deployments
       .receive(on: RunLoop.main)
       .sink { [weak self] deployments in

@@ -28,6 +28,14 @@ final class SettingsStore: ObservableObject {
     didSet { defaults.set(Array(selectedProjectIds), forKey: Keys.selectedProjectIds) }
   }
 
+  @Published var notifyOnChecksPassed: Bool {
+    didSet { defaults.set(notifyOnChecksPassed, forKey: Keys.notifyOnChecksPassed) }
+  }
+
+  @Published var notifyOnChecksFailed: Bool {
+    didSet { defaults.set(notifyOnChecksFailed, forKey: Keys.notifyOnChecksFailed) }
+  }
+
   @Published var defaultLogLines: Int {
     didSet { defaults.set(defaultLogLines, forKey: Keys.defaultLogLines) }
   }
@@ -40,6 +48,8 @@ final class SettingsStore: ObservableObject {
     defaults.register(defaults: [
       Keys.notifyOnReady: true,
       Keys.notifyOnFailed: true,
+      Keys.notifyOnChecksPassed: true,
+      Keys.notifyOnChecksFailed: true,
       Keys.browserBundleId: "",
       Keys.pollingInterval: 30.0,
       Keys.selectedProjectIds: [],
@@ -48,6 +58,8 @@ final class SettingsStore: ObservableObject {
 
     self.notifyOnReady = defaults.bool(forKey: Keys.notifyOnReady)
     self.notifyOnFailed = defaults.bool(forKey: Keys.notifyOnFailed)
+    self.notifyOnChecksPassed = defaults.bool(forKey: Keys.notifyOnChecksPassed)
+    self.notifyOnChecksFailed = defaults.bool(forKey: Keys.notifyOnChecksFailed)
     self.browserBundleId = defaults.string(forKey: Keys.browserBundleId) ?? ""
     self.pollingInterval = defaults.double(forKey: Keys.pollingInterval)
 
@@ -67,6 +79,8 @@ final class SettingsStore: ObservableObject {
   private enum Keys {
     static let notifyOnReady = "settings.notifyOnReady"
     static let notifyOnFailed = "settings.notifyOnFailed"
+    static let notifyOnChecksPassed = "settings.notifyOnChecksPassed"
+    static let notifyOnChecksFailed = "settings.notifyOnChecksFailed"
     static let browserBundleId = "settings.browserBundleId"
     static let launchAtLogin = "settings.launchAtLogin"
     static let pollingInterval = "settings.pollingInterval"
