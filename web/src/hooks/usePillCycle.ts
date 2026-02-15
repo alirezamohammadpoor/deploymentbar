@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const CYCLE_INTERVAL = 6000;
+const CYCLE_INTERVAL = 8000;
 const INACTIVITY_DELAY = 10000;
 
 interface UsePillCycleOptions {

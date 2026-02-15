@@ -28,19 +28,23 @@ export function QuickActionsScene({ active }: { active: boolean }) {
         apply: (prev) => ({ ...prev, highlightedButton: "copy" }),
       },
       {
-        at: 2400,
+        at: 2200,
         apply: (prev) => ({ ...prev, highlightedButton: "browser" }),
       },
       {
-        at: 3200,
+        at: 2800,
         apply: (prev) => ({ ...prev, highlightedButton: "vercel" }),
+      },
+      {
+        at: 3400,
+        apply: (prev) => ({ ...prev, highlightedButton: "pr" }),
       },
       {
         at: 4000,
         apply: (prev) => ({ ...prev, highlightedButton: "redeploy" }),
       },
       {
-        at: 5200,
+        at: 5000,
         apply: () => ({ expandedRow: null, highlightedButton: null }),
       },
     ],

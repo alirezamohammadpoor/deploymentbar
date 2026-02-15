@@ -7,26 +7,31 @@ import { AppMockup } from "./AppMockup";
 import { SceneRenderer } from "./SceneRenderer";
 import { MonitoringScene } from "./scenes/MonitoringScene";
 import { QuickActionsScene } from "./scenes/QuickActionsScene";
-import { RollbackScene } from "./scenes/RollbackScene";
 import { FilterScene } from "./scenes/FilterScene";
-import { BrowserScene } from "./scenes/BrowserScene";
 import type { FilterTab } from "./mockData";
 
 const features = [
-  { id: "monitoring", label: "Monitoring" },
-  { id: "actions", label: "Quick Actions" },
-  { id: "rollback", label: "Rollback" },
-  { id: "filter", label: "Filter" },
-  { id: "browser", label: "Browser" },
+  {
+    id: "monitoring",
+    label: "Monitoring",
+    description:
+      "Track builds, CI checks, and deployment status in real time",
+  },
+  {
+    id: "actions",
+    label: "Quick Actions",
+    description:
+      "Copy URLs, open in browser, view on Vercel, redeploy — all in one click",
+  },
+  {
+    id: "filter",
+    label: "Filter",
+    description:
+      "Filter by project, environment, or branch to find any deployment fast",
+  },
 ];
 
 const SCENE_COUNT = features.length;
-
-// Map scene index to the filter tab it should show
-function defaultTabForScene(idx: number): FilterTab {
-  if (idx === 2) return "Production"; // Rollback scene
-  return "All";
-}
 
 export function CodedHero() {
   const { activeIdx, progressKey, handlePillClick } = usePillCycle(SCENE_COUNT);
@@ -41,6 +46,9 @@ export function CodedHero() {
 
   // Filter tab state (driven by FilterScene, or default per scene)
   const [filterTab, setFilterTab] = useState<FilterTab>("All");
+
+  // Project filter state (driven by FilterScene)
+  const [projectFilter, setProjectFilter] = useState<string | null>(null);
 
   const handleNotification = useCallback(
     (visible: boolean, exiting: boolean) => {
@@ -62,9 +70,13 @@ export function CodedHero() {
     setFilterTab(tab);
   }, []);
 
+  const handleProjectChange = useCallback((project: string | null) => {
+    setProjectFilter(project);
+  }, []);
+
   // Reset state when scene changes
-  const activeTab =
-    activeIdx === 3 ? filterTab : defaultTabForScene(activeIdx);
+  const activeTab = activeIdx === 2 ? filterTab : "All";
+  const activeProject = activeIdx === 2 ? projectFilter : null;
 
   // Reset notification/phase when leaving monitoring scene
   const effectivePhase = activeIdx === 0 ? menuPhase : "idle";
@@ -86,18 +98,18 @@ export function CodedHero() {
         case 1:
           return <QuickActionsScene active={isActive} />;
         case 2:
-          return <RollbackScene active={isActive} />;
-        case 3:
           return (
-            <FilterScene active={isActive} onTabChange={handleTabChange} />
+            <FilterScene
+              active={isActive}
+              onTabChange={handleTabChange}
+              onProjectChange={handleProjectChange}
+            />
           );
-        case 4:
-          return <BrowserScene active={isActive} />;
         default:
           return null;
       }
     },
-    [handleNotification, handlePhaseChange, handleTabChange]
+    [handleNotification, handlePhaseChange, handleTabChange, handleProjectChange]
   );
 
   return (
@@ -147,16 +159,19 @@ export function CodedHero() {
                 <span className="pill-dot mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-accent-blue align-middle" />
               )}
               {f.label}
-              {idx === activeIdx && (
-                <span
-                  key={progressKey}
-                  className="pill-progress-bar absolute bottom-0 left-0 h-[2px] rounded-full bg-accent-blue/60"
-                />
-              )}
             </button>
           ))}
         </div>
       </div>
+
+      {/* Feature description */}
+      <p
+        key={features[activeIdx].id}
+        className="mt-3 text-sm text-text-secondary animate-fade-in-up"
+        style={{ animationDuration: "0.3s" }}
+      >
+        {features[activeIdx].description}
+      </p>
 
       {/* Coded mockup (replaces video player) */}
       <div className="hero-enter-delay-4 relative mt-8 w-full">
@@ -164,6 +179,7 @@ export function CodedHero() {
           phase={effectivePhase}
           progress={effectiveProgress}
           activeTab={activeTab}
+          activeProject={activeProject}
           notificationVisible={effectiveNotifVisible}
           notificationExiting={effectiveNotifExiting}
         >

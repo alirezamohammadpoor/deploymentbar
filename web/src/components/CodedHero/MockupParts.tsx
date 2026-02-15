@@ -4,9 +4,10 @@ import { Copy } from "@phosphor-icons/react/dist/icons/Copy";
 import { Globe } from "@phosphor-icons/react/dist/icons/Globe";
 import { ArrowSquareOut } from "@phosphor-icons/react/dist/icons/ArrowSquareOut";
 import { ArrowsClockwise } from "@phosphor-icons/react/dist/icons/ArrowsClockwise";
-import { ArrowCounterClockwise } from "@phosphor-icons/react/dist/icons/ArrowCounterClockwise";
+import { GitPullRequest } from "@phosphor-icons/react/dist/icons/GitPullRequest";
 import { GitBranch } from "@phosphor-icons/react/dist/icons/GitBranch";
-import type { DeploymentStatus, MockDeployment, FilterTab } from "./mockData";
+import { CaretDown } from "@phosphor-icons/react/dist/icons/CaretDown";
+import type { DeploymentStatus, MockDeployment, FilterTab, CIStatus } from "./mockData";
 
 /* ── Color helpers for deploy animation ───────────────────── */
 
@@ -21,8 +22,8 @@ export function lerpColor(
   return `rgb(${r}, ${g}, ${bl})`;
 }
 
-export const ORANGE: [number, number, number] = [245, 158, 11];
-export const AMBER: [number, number, number] = [234, 179, 8];
+export const ORANGE: [number, number, number] = [245, 166, 35];
+export const AMBER: [number, number, number] = [245, 185, 60];
 export const GREEN: [number, number, number] = [0, 200, 83];
 
 export function triangleColor(progress: number): string {
@@ -43,7 +44,42 @@ export function StatusDot({ status }: { status: DeploymentStatus }) {
   );
 }
 
-/* ── FilterTabs ───────────────────────────────────────────── */
+/* ── CICheckBadge ────────────────────────────────────────── */
+
+export function CICheckBadge({ status }: { status: CIStatus }) {
+  if (!status) return null;
+
+  const config: Record<
+    NonNullable<CIStatus>,
+    { dot: string; label: string; text: string }
+  > = {
+    passed: {
+      dot: "bg-status-ready",
+      label: "Checks passed",
+      text: "text-status-ready/70",
+    },
+    running: {
+      dot: "bg-status-building animate-pulse-building",
+      label: "Running",
+      text: "text-status-building/70",
+    },
+    failed: {
+      dot: "bg-status-error",
+      label: "Checks failed",
+      text: "text-status-error/70",
+    },
+  };
+
+  const c = config[status];
+  return (
+    <span className={`inline-flex items-center gap-1 text-[10px] ${c.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
+      {c.label}
+    </span>
+  );
+}
+
+/* ── FilterTabs (matches real app: 3 equal tabs, 2pt blue underline) */
 
 export function FilterTabs({
   activeTab,
@@ -59,10 +95,10 @@ export function FilterTabs({
           key={tab}
           type="button"
           onClick={() => onTabChange?.(tab)}
-          className={`flex-1 py-2 text-xs font-medium transition-colors ${
+          className={`flex-1 py-2 text-[12px] transition-all duration-150 ${
             activeTab === tab
-              ? "text-text-primary border-b-2 border-accent-blue"
-              : "text-text-secondary"
+              ? "font-medium text-text-primary border-b-2 border-accent-blue"
+              : "font-normal text-text-secondary"
           }`}
         >
           {tab}
@@ -72,24 +108,35 @@ export function FilterTabs({
   );
 }
 
-/* ── PopoverHeader ────────────────────────────────────────── */
+/* ── PopoverHeader (matches real app: icon + title + project dropdown + buttons) */
 
-export function PopoverHeader() {
+export function PopoverHeader({
+  activeProject,
+}: {
+  activeProject?: string | null;
+}) {
   return (
-    <div className="flex items-center justify-between border-b border-card-border px-4 py-3">
+    <div className="flex items-center justify-between border-b border-card-border px-3 py-2.5">
       <div className="flex items-center gap-2">
         <div className="flex h-[18px] w-[18px] items-center justify-center rounded bg-black text-[10px] text-white">
           ▲
         </div>
-        <span className="text-sm font-medium text-text-primary">
+        <span className="text-[14px] font-medium text-text-primary">
           DeployBar
         </span>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="rounded p-1 text-text-secondary">
-          <ArrowsClockwise size={14} />
+      <div className="flex items-center gap-1">
+        {/* Project filter dropdown */}
+        <span className="inline-flex items-center gap-0.5 rounded-md bg-[#1a1a1a] px-2 py-1 text-[11px] text-text-secondary transition-colors">
+          {activeProject ?? "Project"}
+          <CaretDown size={9} weight="bold" className="text-text-secondary/60" />
         </span>
-        <span className="rounded p-1 text-text-secondary">
+        {/* Refresh */}
+        <span className="flex h-6 w-6 items-center justify-center rounded text-text-secondary">
+          <ArrowsClockwise size={14} weight="regular" />
+        </span>
+        {/* Settings */}
+        <span className="flex h-6 w-6 items-center justify-center rounded text-text-secondary">
           <svg
             width={14}
             height={14}
@@ -104,58 +151,48 @@ export function PopoverHeader() {
   );
 }
 
-/* ── ActionButtons ────────────────────────────────────────── */
+/* ── ActionButtons (3×2 grid — matches real app) ─────────── */
 
 export type ActionButtonId =
   | "copy"
   | "browser"
   | "vercel"
-  | "redeploy"
-  | "rollback";
+  | "pr"
+  | "redeploy";
 
-const actionButtonBase =
-  "flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[11px] transition-all duration-200";
+const actions: { id: ActionButtonId; icon: typeof Copy; label: string }[] = [
+  { id: "copy", icon: Copy, label: "Copy URL" },
+  { id: "browser", icon: Globe, label: "Browser" },
+  { id: "vercel", icon: ArrowSquareOut, label: "Vercel" },
+  { id: "pr", icon: GitPullRequest, label: "PR #42" },
+  { id: "redeploy", icon: ArrowsClockwise, label: "Redeploy" },
+];
 
 export function ActionButtons({
-  showRollback = false,
   highlightedButton,
 }: {
-  showRollback?: boolean;
   highlightedButton?: ActionButtonId | null;
 }) {
-  const highlight = (id: ActionButtonId) =>
-    highlightedButton === id
-      ? id === "rollback"
-        ? "border-status-error/60 text-status-error shadow-[0_0_12px_rgba(238,0,0,0.3)] scale-105"
-        : "border-accent-blue/60 text-accent-blue shadow-[0_0_12px_rgba(0,112,243,0.3)] scale-105"
-      : id === "rollback"
-        ? "border-status-error/30 text-status-error"
-        : "border-card-border text-text-secondary";
-
   return (
-    <div className="mx-3 mb-2 flex flex-wrap gap-2 rounded-lg border border-card-border bg-[#050505] px-3 py-2.5">
-      <span className={`${actionButtonBase} ${highlight("copy")}`}>
-        <Copy size={12} />
-        Copy URL
-      </span>
-      <span className={`${actionButtonBase} ${highlight("browser")}`}>
-        <Globe size={12} />
-        Open in Browser
-      </span>
-      <span className={`${actionButtonBase} ${highlight("vercel")}`}>
-        <ArrowSquareOut size={12} />
-        Open in Vercel
-      </span>
-      <span className={`${actionButtonBase} ${highlight("redeploy")}`}>
-        <ArrowsClockwise size={12} />
-        Redeploy
-      </span>
-      {showRollback && (
-        <span className={`${actionButtonBase} ${highlight("rollback")}`}>
-          <ArrowCounterClockwise size={12} />
-          Rollback
-        </span>
-      )}
+    <div className="mx-3 mb-2 rounded-lg border border-card-border bg-[#050505] p-1">
+      <div className="grid grid-cols-3 gap-1">
+        {actions.map(({ id, icon: Icon, label }) => {
+          const isHighlighted = highlightedButton === id;
+          return (
+            <div
+              key={id}
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 transition-all duration-200 ${
+                isHighlighted
+                  ? "bg-white/[0.08] text-accent-blue"
+                  : "text-text-secondary"
+              }`}
+            >
+              <Icon size={15} weight="regular" />
+              <span className="text-[9px] font-medium">{label}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -202,7 +239,7 @@ export function DeployNotification({
   );
 }
 
-/* ── DeploymentRow ────────────────────────────────────────── */
+/* ── DeploymentRow (matches real app: 3-line layout) ─────── */
 
 export function DeploymentRow({
   deployment,
@@ -215,57 +252,57 @@ export function DeploymentRow({
   highlightedButton?: ActionButtonId | null;
   tooltip?: string | null;
 }) {
-  const showRollback =
-    deployment.env === "Production" && deployment.status === "ready";
-
   return (
     <div>
-      <div className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors">
-        <div className="mt-1.5">
+      <div className="flex w-full items-start gap-2.5 px-3 py-2 text-left transition-colors">
+        <div className="mt-[5px]">
           <StatusDot status={deployment.status} />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-medium text-text-primary">
+          {/* Line 1: project · duration · time */}
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[13px] font-semibold text-text-primary leading-tight">
               {deployment.project}
             </span>
-            <span className="font-mono text-[10px] text-text-secondary">
+            <span className="font-mono text-[11px] text-text-secondary/70">
               {deployment.duration}
             </span>
-            <span className="text-[10px] text-text-secondary">
-              {deployment.time}
+            <span className="text-[11px] text-text-secondary/60">
+              · {deployment.time}
             </span>
           </div>
-          <p className="mt-0.5 truncate text-xs text-text-secondary">
+          {/* Line 2: commit message */}
+          <p className="mt-0.5 truncate text-[12px] text-text-secondary leading-tight">
             {deployment.commit}
           </p>
-          <div className="mt-1 flex items-center gap-2">
+          {/* Line 3: badges — capsule shapes with border, matching real app */}
+          <div className="mt-1.5 flex items-center gap-1.5">
             <span
-              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
+              className={`rounded-full border px-1.5 py-[1px] text-[10px] font-medium leading-tight ${
                 deployment.env === "Production"
-                  ? "bg-accent-blue/10 text-accent-blue"
-                  : "bg-text-secondary/10 text-text-secondary"
+                  ? "border-accent-blue/20 bg-accent-blue/[0.14] text-accent-blue"
+                  : "border-card-border bg-[#1a1a1a] text-text-secondary"
               }`}
             >
               {deployment.env}
             </span>
-            <span className="flex items-center gap-1 text-[10px] text-text-secondary">
+            <span className="flex items-center gap-1 rounded-full border border-card-border bg-[#1a1a1a] px-1.5 py-[1px] text-[10px] text-text-secondary leading-tight">
               <GitBranch size={10} />
               <span className="font-mono">{deployment.branch}</span>
             </span>
-            <span className="text-[10px] text-text-secondary">
-              by {deployment.author}
+            {deployment.ciStatus && (
+              <CICheckBadge status={deployment.ciStatus} />
+            )}
+            <span className="text-[10px] text-text-secondary/60">
+              {deployment.author}
             </span>
           </div>
         </div>
       </div>
 
       {expanded && (
-        <div className="relative coded-hero-row-expand">
-          <ActionButtons
-            showRollback={showRollback}
-            highlightedButton={highlightedButton}
-          />
+        <div className="relative coded-hero-row-expand pb-2">
+          <ActionButtons highlightedButton={highlightedButton} />
           {tooltip && (
             <div className="coded-hero-tooltip absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white/10 px-3 py-1.5 text-[11px] text-white/80 backdrop-blur-md border border-white/10">
               {tooltip}

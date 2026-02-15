@@ -19,6 +19,7 @@ export function useSceneTimeline<T>(
   options: UseSceneTimelineOptions = {}
 ) {
   const [state, setState] = useState<T>(initialState);
+  const stateRef = useRef<T>(initialState);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const loopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotionRef = useRef(false);
@@ -45,6 +46,7 @@ export function useSceneTimeline<T>(
 
   const runTimeline = useCallback(() => {
     cleanup();
+    stateRef.current = initialState;
     setState(initialState);
 
     if (reducedMotionRef.current) {
@@ -53,6 +55,7 @@ export function useSceneTimeline<T>(
       for (const step of timeline) {
         s = step.apply(s);
       }
+      stateRef.current = s;
       setState(s);
       return;
     }
@@ -60,7 +63,11 @@ export function useSceneTimeline<T>(
     const sorted = [...timeline].sort((a, b) => a.at - b.at);
     for (const step of sorted) {
       const timer = setTimeout(() => {
-        setState((prev) => step.apply(prev));
+        // Call apply outside setState updater so side effects
+        // don't run during React's render phase
+        const next = step.apply(stateRef.current);
+        stateRef.current = next;
+        setState(next);
       }, step.at);
       timersRef.current.push(timer);
     }
@@ -77,6 +84,7 @@ export function useSceneTimeline<T>(
       runTimeline();
     } else {
       cleanup();
+      stateRef.current = initialState;
       setState(initialState);
     }
     return cleanup;

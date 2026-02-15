@@ -70,6 +70,7 @@ export function AppMockup({
   phase,
   progress,
   activeTab,
+  activeProject,
   notificationVisible,
   notificationExiting,
   children,
@@ -77,6 +78,7 @@ export function AppMockup({
   phase: string;
   progress: number;
   activeTab: FilterTab;
+  activeProject?: string | null;
   notificationVisible: boolean;
   notificationExiting: boolean;
   children: ReactNode;
@@ -105,7 +107,7 @@ export function AppMockup({
 
           {/* Popover card */}
           <div className="overflow-hidden rounded-xl border border-card-border bg-card-bg shadow-2xl">
-            <PopoverHeader />
+            <PopoverHeader activeProject={activeProject} />
             <FilterTabs activeTab={activeTab} />
 
             {/* Scene content area */}

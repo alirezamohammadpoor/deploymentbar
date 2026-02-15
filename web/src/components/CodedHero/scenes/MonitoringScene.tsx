@@ -4,14 +4,16 @@ import { useEffect, useMemo } from "react";
 import { useSceneTimeline, type TimelineStep } from "../../../hooks/useSceneTimeline";
 import { useDeployAnimation } from "../../../hooks/useDeployAnimation";
 import { DeploymentRow } from "../MockupParts";
-import { deployments, type MockDeployment } from "../mockData";
+import { deployments, type MockDeployment, type CIStatus } from "../mockData";
 
 interface MonitoringState {
   buildingStatus: "building" | "ready";
+  buildingCiStatus: CIStatus;
 }
 
 const initialState: MonitoringState = {
   buildingStatus: "building",
+  buildingCiStatus: "running",
 };
 
 export function MonitoringScene({
@@ -29,7 +31,10 @@ export function MonitoringScene({
     () => [
       {
         at: 1500,
-        apply: (prev) => ({ ...prev, buildingStatus: "ready" as const }),
+        apply: () => ({
+          buildingStatus: "ready" as const,
+          buildingCiStatus: "passed" as CIStatus,
+        }),
       },
     ],
     []
@@ -85,7 +90,11 @@ export function MonitoringScene({
 
   const sceneDeployments: MockDeployment[] = deployments.map((d) => {
     if (d.id === "dpl_2") {
-      return { ...d, status: state.buildingStatus };
+      return {
+        ...d,
+        status: state.buildingStatus,
+        ciStatus: state.buildingCiStatus,
+      };
     }
     return d;
   });

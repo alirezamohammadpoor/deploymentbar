@@ -1,7 +1,7 @@
 import { ListChecks } from "@phosphor-icons/react/dist/ssr/ListChecks";
 import { CursorClick } from "@phosphor-icons/react/dist/ssr/CursorClick";
-import { Lightning } from "@phosphor-icons/react/dist/ssr/Lightning";
-import { Terminal } from "@phosphor-icons/react/dist/ssr/Terminal";
+import { CheckCircle } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { Funnel } from "@phosphor-icons/react/dist/ssr/Funnel";
 import { AppleLogo } from "@phosphor-icons/react/dist/ssr/AppleLogo";
 import { ShieldCheck } from "@phosphor-icons/react/dist/ssr/ShieldCheck";
 import type { Icon } from "@phosphor-icons/react/dist/lib/types";
@@ -16,22 +16,22 @@ const features: Feature[] = [
   {
     icon: ListChecks,
     title: "Every deployment, one place",
-    body: "All projects. All environments. Production, preview, dev. Filtered, sorted, instant.",
+    body: "All projects. All environments. CI check status at a glance. Filtered, sorted, instant.",
   },
   {
     icon: CursorClick,
     title: "One click to action",
-    body: "Open in Vercel. Copy URLs. View logs. Trigger redeploys. All from your menubar.",
+    body: "Copy URLs. Open in browser. Open in Vercel. Trigger redeploys. All from your menubar.",
   },
   {
-    icon: Lightning,
-    title: "Real-time, always",
-    body: "10-second polling. Know about failures before your users do.",
+    icon: CheckCircle,
+    title: "CI check status",
+    body: "See GitHub Actions results inline. Green, yellow, red — know if checks passed before you merge.",
   },
   {
-    icon: Terminal,
-    title: "Build logs on demand",
-    body: "Full logs, one click. Jump to errors instantly.",
+    icon: Funnel,
+    title: "Smart filtering",
+    body: "Filter by environment and by project. Find the deployment you need in seconds.",
   },
   {
     icon: AppleLogo,
@@ -41,7 +41,7 @@ const features: Feature[] = [
   {
     icon: ShieldCheck,
     title: "Secure by default",
-    body: "OAuth with Vercel. No tokens stored. Your permissions.",
+    body: "OAuth with Vercel. No tokens stored in plain text. Your permissions, your control.",
   },
 ];
 

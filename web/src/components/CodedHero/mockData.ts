@@ -1,6 +1,7 @@
 export type DeploymentStatus = "ready" | "building" | "error";
 export type Environment = "Production" | "Preview";
 export type FilterTab = "All" | "Production" | "Preview";
+export type CIStatus = "passed" | "running" | "failed" | null;
 
 export interface MockDeployment {
   id: string;
@@ -12,6 +13,7 @@ export interface MockDeployment {
   env: Environment;
   duration: string;
   time: string;
+  ciStatus: CIStatus;
 }
 
 export const deployments: MockDeployment[] = [
@@ -25,6 +27,7 @@ export const deployments: MockDeployment[] = [
     env: "Production",
     duration: "48s",
     time: "2m ago",
+    ciStatus: "passed",
   },
   {
     id: "dpl_2",
@@ -36,6 +39,7 @@ export const deployments: MockDeployment[] = [
     env: "Preview",
     duration: "1m 12s",
     time: "30s ago",
+    ciStatus: "running",
   },
   {
     id: "dpl_3",
@@ -47,6 +51,7 @@ export const deployments: MockDeployment[] = [
     env: "Production",
     duration: "32s",
     time: "15m ago",
+    ciStatus: "passed",
   },
   {
     id: "dpl_4",
@@ -58,6 +63,7 @@ export const deployments: MockDeployment[] = [
     env: "Preview",
     duration: "2m 5s",
     time: "5m ago",
+    ciStatus: "failed",
   },
   {
     id: "dpl_5",
@@ -69,6 +75,7 @@ export const deployments: MockDeployment[] = [
     env: "Production",
     duration: "29s",
     time: "1h ago",
+    ciStatus: "passed",
   },
 ];
 
@@ -76,3 +83,13 @@ export function filterDeployments(tab: FilterTab): MockDeployment[] {
   if (tab === "All") return deployments;
   return deployments.filter((d) => d.env === tab);
 }
+
+export function filterByProject(
+  items: MockDeployment[],
+  projectName: string | null
+): MockDeployment[] {
+  if (!projectName) return items;
+  return items.filter((d) => d.project === projectName);
+}
+
+export const projectNames = [...new Set(deployments.map((d) => d.project))];
