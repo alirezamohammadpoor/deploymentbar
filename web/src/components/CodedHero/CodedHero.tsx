@@ -8,7 +8,7 @@ import { SceneRenderer } from "./SceneRenderer";
 import { MonitoringScene } from "./scenes/MonitoringScene";
 import { QuickActionsScene } from "./scenes/QuickActionsScene";
 import { FilterScene } from "./scenes/FilterScene";
-import type { FilterTab } from "./mockData";
+import type { FilterTab, ZoomPhase } from "./mockData";
 
 const features = [
   {
@@ -33,8 +33,6 @@ const features = [
 
 const SCENE_COUNT = features.length;
 const SCENE_DURATIONS = [6500, 6000, 10500];
-
-type ZoomPhase = "zooming-in" | "zoomed" | "zooming-out" | "normal";
 
 export function CodedHero() {
   const { activeIdx, progressKey, handlePillClick } = usePillCycle(SCENE_COUNT, {}, SCENE_DURATIONS);
@@ -158,7 +156,7 @@ export function CodedHero() {
             Download for macOS
           </a>
           <a
-            href="https://github.com/nicktrienenern/deploybar"
+            href="https://github.com/alirezamohammadpoor/deploymentbar"
             className="text-sm text-text-secondary hover:text-text-primary transition-colors"
           >
             View on GitHub &rarr;

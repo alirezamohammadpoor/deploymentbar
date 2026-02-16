@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useSceneTimeline, type TimelineStep } from "../../../hooks/useSceneTimeline";
 import { useDeployAnimation } from "../../../hooks/useDeployAnimation";
 import { DeploymentRow } from "../MockupParts";
-import { deployments, type MockDeployment, type CIStatus } from "../mockData";
+import { deployments, type MockDeployment, type CIStatus, type ZoomPhase } from "../mockData";
 
 interface MonitoringState {
   buildingStatus: "building" | "ready";
@@ -15,8 +15,6 @@ const initialState: MonitoringState = {
   buildingStatus: "building",
   buildingCiStatus: "running",
 };
-
-type ZoomPhase = "zooming-in" | "zoomed" | "zooming-out" | "normal";
 
 export function MonitoringScene({
   active,

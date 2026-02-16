@@ -88,6 +88,9 @@ export function useSceneTimeline<T>(
       setState(initialState);
     }
     return cleanup;
+    // Only re-run when `active` changes. Other deps (runTimeline, cleanup,
+    // initialState) are intentionally excluded to avoid restarting all timers
+    // on every parent re-render — the timeline should only reset on scene switch.
   }, [active]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return state;

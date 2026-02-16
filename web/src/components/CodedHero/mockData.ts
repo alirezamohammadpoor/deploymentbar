@@ -2,6 +2,7 @@ export type DeploymentStatus = "ready" | "building" | "error";
 export type Environment = "Production" | "Preview";
 export type FilterTab = "All" | "Production" | "Preview";
 export type CIStatus = "passed" | "running" | "failed" | null;
+export type ZoomPhase = "zooming-in" | "zoomed" | "zooming-out" | "normal";
 
 export interface MockDeployment {
   id: string;

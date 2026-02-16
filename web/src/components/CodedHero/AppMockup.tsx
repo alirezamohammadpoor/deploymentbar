@@ -4,7 +4,7 @@ import { useState, useEffect, type ReactNode } from "react";
 import { WifiHigh } from "@phosphor-icons/react/dist/icons/WifiHigh";
 import { BatteryFull } from "@phosphor-icons/react/dist/icons/BatteryFull";
 import { triangleColor, PopoverHeader, FilterTabs, DeployNotification } from "./MockupParts";
-import type { FilterTab } from "./mockData";
+import type { FilterTab, ZoomPhase } from "./mockData";
 
 function formatMenuBarDate(date: Date): string {
   const day = date.toLocaleDateString("en-US", { weekday: "short" });
@@ -84,8 +84,6 @@ function MacOSMenuBar({
 }
 
 /* ── AppMockup (shared frame) ─────────────────────────────── */
-
-type ZoomPhase = "zooming-in" | "zoomed" | "zooming-out" | "normal";
 
 export function AppMockup({
   zoomPhase = "normal",

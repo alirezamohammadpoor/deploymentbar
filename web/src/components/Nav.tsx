@@ -29,14 +29,14 @@ export function Nav() {
             Features
           </a>
           <a
-            href="https://github.com"
+            href="https://github.com/alirezamohammadpoor/deploymentbar"
             target="_blank"
             rel="noopener noreferrer"
             className="hidden text-sm font-medium text-text-secondary transition-opacity hover:opacity-50 md:block"
           >
             GitHub
           </a>
-          <a href="#waitlist">
+          <a href="#download">
             <button className="rounded-md border border-accent-blue/30 bg-accent-blue px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-80">
               Download
             </button>

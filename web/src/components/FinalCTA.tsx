@@ -14,7 +14,7 @@ export function FinalCTA() {
 
         <div className="mt-8 flex flex-col items-center gap-3">
           <a
-            href="#"
+            href="#download"
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-blue px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#005bd4]"
           >
             <DownloadSimple size={18} weight="bold" />
