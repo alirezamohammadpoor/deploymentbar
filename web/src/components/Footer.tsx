@@ -43,7 +43,7 @@ export function Footer() {
         </div>
 
         <p className="text-sm text-text-secondary/60">
-          &copy; 2025 DeployBar
+          &copy; 2026 DeployBar
         </p>
       </div>
     </footer>
