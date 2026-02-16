@@ -5,7 +5,6 @@ import { useState, useRef, useCallback, useEffect } from "react";
 type Phase = "idle" | "building" | "complete";
 
 const BUILDING_DURATION = 1500; // ms
-const COMPLETE_DURATION = 2000; // ms
 
 export function useDeployAnimation() {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -13,7 +12,6 @@ export function useDeployAnimation() {
 
   const rafRef = useRef<number>(0);
   const buildTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const completeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const startTimeRef = useRef(0);
 
   const prefersReducedMotion =
@@ -23,10 +21,15 @@ export function useDeployAnimation() {
   const cleanup = useCallback(() => {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     if (buildTimerRef.current) clearTimeout(buildTimerRef.current);
-    if (completeTimerRef.current) clearTimeout(completeTimerRef.current);
   }, []);
 
   useEffect(() => cleanup, [cleanup]);
+
+  const reset = useCallback(() => {
+    cleanup();
+    setPhase("idle");
+    setProgress(0);
+  }, [cleanup]);
 
   const deploy = useCallback(() => {
     if (phase !== "idle") return;
@@ -36,14 +39,9 @@ export function useDeployAnimation() {
     setProgress(0);
 
     if (prefersReducedMotion) {
-      // Instant transitions for reduced motion
       setProgress(1);
       buildTimerRef.current = setTimeout(() => {
         setPhase("complete");
-        completeTimerRef.current = setTimeout(() => {
-          setPhase("idle");
-          setProgress(0);
-        }, COMPLETE_DURATION);
       }, 100);
       return;
     }
@@ -63,17 +61,11 @@ export function useDeployAnimation() {
 
     rafRef.current = requestAnimationFrame(tick);
 
-    // building → complete
+    // building → complete (stays complete until reset)
     buildTimerRef.current = setTimeout(() => {
       setPhase("complete");
-
-      // complete → idle
-      completeTimerRef.current = setTimeout(() => {
-        setPhase("idle");
-        setProgress(0);
-      }, COMPLETE_DURATION);
     }, BUILDING_DURATION);
   }, [phase, cleanup, prefersReducedMotion]);
 
-  return { phase, progress, deploy } as const;
+  return { phase, progress, deploy, reset } as const;
 }

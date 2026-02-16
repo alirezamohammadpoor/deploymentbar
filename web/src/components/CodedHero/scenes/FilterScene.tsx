@@ -30,20 +30,28 @@ export function FilterScene({
         at: 0,
         apply: () => {
           onTabChange("All");
-          onProjectChange?.("web-app");
-          return { activeTab: "All" as FilterTab, activeProject: "web-app" };
-        },
-      },
-      {
-        at: 2000,
-        apply: () => {
-          onTabChange("All");
           onProjectChange?.(null);
           return { activeTab: "All" as FilterTab, activeProject: null };
         },
       },
       {
-        at: 4000,
+        at: 1500,
+        apply: () => {
+          onTabChange("All");
+          onProjectChange?.("web-app");
+          return { activeTab: "All" as FilterTab, activeProject: "web-app" };
+        },
+      },
+      {
+        at: 3500,
+        apply: () => {
+          onTabChange("All");
+          onProjectChange?.("dashboard");
+          return { activeTab: "All" as FilterTab, activeProject: "dashboard" };
+        },
+      },
+      {
+        at: 5500,
         apply: () => {
           onTabChange("Production");
           onProjectChange?.(null);
@@ -51,7 +59,7 @@ export function FilterScene({
         },
       },
       {
-        at: 6000,
+        at: 7500,
         apply: () => {
           onTabChange("Preview");
           onProjectChange?.(null);
@@ -59,7 +67,7 @@ export function FilterScene({
         },
       },
       {
-        at: 7500,
+        at: 9500,
         apply: () => {
           onTabChange("All");
           onProjectChange?.(null);

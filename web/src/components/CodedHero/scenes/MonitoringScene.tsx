@@ -16,16 +16,25 @@ const initialState: MonitoringState = {
   buildingCiStatus: "running",
 };
 
+type ZoomPhase = "zooming-in" | "zoomed" | "zooming-out" | "normal";
+
 export function MonitoringScene({
   active,
   onNotification,
   onPhaseChange,
+  onZoom,
 }: {
   active: boolean;
   onNotification: (visible: boolean, exiting: boolean) => void;
   onPhaseChange: (phase: string, progress: number) => void;
+  onZoom: (phase: ZoomPhase) => void;
 }) {
-  const { phase, progress, deploy } = useDeployAnimation();
+  const { phase, progress, deploy, reset } = useDeployAnimation();
+
+  // Reset deploy animation when scene deactivates so it can re-trigger on re-entry
+  useEffect(() => {
+    if (!active) reset();
+  }, [active, reset]);
 
   const timeline = useMemo<TimelineStep<MonitoringState>[]>(
     () => [
@@ -42,7 +51,7 @@ export function MonitoringScene({
 
   const state = useSceneTimeline(initialState, timeline, active);
 
-  // Drive the deploy animation and notifications via a side-effect timeline
+  // Drive the deploy animation, zoom, and notifications via a side-effect timeline
   useSceneTimeline(
     null,
     useMemo<TimelineStep<null>[]>(
@@ -55,28 +64,49 @@ export function MonitoringScene({
           },
         },
         {
-          at: 1800,
+          at: 600,
+          apply: () => {
+            onZoom("zoomed");
+            return null;
+          },
+        },
+        {
+          at: 2000,
+          apply: () => {
+            onZoom("zooming-out");
+            return null;
+          },
+        },
+        {
+          at: 3200,
+          apply: () => {
+            onZoom("normal");
+            return null;
+          },
+        },
+        {
+          at: 3600,
           apply: () => {
             onNotification(true, false);
             return null;
           },
         },
         {
-          at: 3800,
+          at: 5600,
           apply: () => {
             onNotification(true, true);
             return null;
           },
         },
         {
-          at: 4100,
+          at: 5900,
           apply: () => {
             onNotification(false, false);
             return null;
           },
         },
       ],
-      [deploy, onNotification]
+      [deploy, onNotification, onZoom]
     ),
     active
   );

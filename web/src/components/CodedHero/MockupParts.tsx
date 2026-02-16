@@ -128,7 +128,7 @@ export function PopoverHeader({
       <div className="flex items-center gap-1">
         {/* Project filter dropdown */}
         <span className="inline-flex items-center gap-0.5 rounded-md bg-[#1a1a1a] px-2 py-1 text-[11px] text-text-secondary transition-colors">
-          {activeProject ?? "Project"}
+          {activeProject ?? "All Projects"}
           <CaretDown size={9} weight="bold" className="text-text-secondary/60" />
         </span>
         {/* Refresh */}

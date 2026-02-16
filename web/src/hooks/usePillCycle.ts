@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const CYCLE_INTERVAL = 8000;
+const CYCLE_INTERVAL = 10000;
 const INACTIVITY_DELAY = 10000;
 
 interface UsePillCycleOptions {
@@ -10,7 +10,7 @@ interface UsePillCycleOptions {
   inactivityDelay?: number;
 }
 
-export function usePillCycle(count: number, options: UsePillCycleOptions = {}) {
+export function usePillCycle(count: number, options: UsePillCycleOptions = {}, intervals?: number[]) {
   const interval = options.interval ?? CYCLE_INTERVAL;
   const inactivityDelay = options.inactivityDelay ?? INACTIVITY_DELAY;
 
@@ -57,15 +57,16 @@ export function usePillCycle(count: number, options: UsePillCycleOptions = {}) {
     const startCycle = () => {
       clearCycle();
       if (!autoCycleRef.current) return;
+      const duration = intervals?.[activeIdxRef.current] ?? interval;
       cycleTimerRef.current = setTimeout(() => {
         const next = (activeIdxRef.current + 1) % count;
         advance(next);
-      }, interval);
+      }, duration);
     };
 
     startCycle();
     return clearCycle;
-  }, [activeIdx, count, interval, advance]);
+  }, [activeIdx, count, interval, intervals, advance]);
 
   const handlePillClick = useCallback(
     (idx: number) => {

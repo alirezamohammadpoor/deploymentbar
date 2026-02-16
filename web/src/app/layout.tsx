@@ -6,11 +6,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "DeployBar — All your deployments. One glance away.",
   description:
-    "DeployBar lives in your macOS menubar. See every Vercel deployment the moment it starts. Monitor progress. Catch failures instantly.",
+    "DeployBar lives in your macOS menu bar. See every Vercel deployment the moment it starts. Monitor progress. Catch failures instantly.",
   openGraph: {
     title: "DeployBar — All your deployments. One glance away.",
     description:
-      "A native macOS menubar app for monitoring Vercel deployments in real-time.",
+      "A native macOS menu bar app for monitoring Vercel deployments in real-time.",
     type: "website",
   },
 };

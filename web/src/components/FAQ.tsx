@@ -5,9 +5,9 @@ import { CaretDown } from "@phosphor-icons/react/dist/icons/CaretDown";
 
 const faqs = [
   {
-    question: "Will this actually save my time?",
+    question: "How much time will this save me?",
     answer:
-      "Absolutely. Instead of switching to your browser, finding the Vercel tab, and navigating to your project, DeployBar shows every deployment status right in your menubar. Most developers save 10+ context switches per day.",
+      "Absolutely. Instead of switching to your browser, finding the Vercel tab, and navigating to your project, DeployBar shows every deployment status right in your menu bar. Most developers save 10+ context switches per day.",
   },
   {
     question: "Is it secure?",

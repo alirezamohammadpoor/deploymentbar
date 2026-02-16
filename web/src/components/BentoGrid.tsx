@@ -15,13 +15,13 @@ interface Feature {
 const features: Feature[] = [
   {
     icon: ListChecks,
-    title: "Every deployment, one place",
+    title: "Every deployment in one place",
     body: "All projects. All environments. CI check status at a glance. Filtered, sorted, instant.",
   },
   {
     icon: CursorClick,
-    title: "One click to action",
-    body: "Copy URLs. Open in browser. Open in Vercel. Trigger redeploys. All from your menubar.",
+    title: "One-click actions",
+    body: "Copy URLs. Open in browser. Open in Vercel. Trigger redeploys. All from your menu bar.",
   },
   {
     icon: CheckCircle,
@@ -36,12 +36,12 @@ const features: Feature[] = [
   {
     icon: AppleLogo,
     title: "Native macOS",
-    body: "Lightweight SwiftUI. Fast launch. Respects your system.",
+    body: "Lightweight SwiftUI. Fast launch. Under 20MB memory.",
   },
   {
     icon: ShieldCheck,
     title: "Secure by default",
-    body: "OAuth with Vercel. No tokens stored in plain text. Your permissions, your control.",
+    body: "OAuth with Vercel (read-only scope). Tokens stored in macOS Keychain. Nothing leaves your machine.",
   },
 ];
 

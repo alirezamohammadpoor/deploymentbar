@@ -307,7 +307,7 @@ html {
   to { width: 100%; }
 }
 .pill-progress-bar {
-  animation: pill-progress 8s linear;
+  animation: pill-progress var(--pill-duration, 8s) linear;
 }
 
 /* Hide scrollbar for pill bar */

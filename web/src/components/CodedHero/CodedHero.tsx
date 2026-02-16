@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { DownloadSimple } from "@phosphor-icons/react/dist/icons/DownloadSimple";
 import { usePillCycle } from "../../hooks/usePillCycle";
 import { AppMockup } from "./AppMockup";
@@ -32,9 +32,25 @@ const features = [
 ];
 
 const SCENE_COUNT = features.length;
+const SCENE_DURATIONS = [6500, 6000, 10500];
+
+type ZoomPhase = "zooming-in" | "zoomed" | "zooming-out" | "normal";
 
 export function CodedHero() {
-  const { activeIdx, progressKey, handlePillClick } = usePillCycle(SCENE_COUNT);
+  const { activeIdx, progressKey, handlePillClick } = usePillCycle(SCENE_COUNT, {}, SCENE_DURATIONS);
+
+  // Zoom state (driven by MonitoringScene)
+  const [zoomPhase, setZoomPhase] = useState<ZoomPhase>("normal");
+
+  // When switching TO monitoring scene, kick off zoom-in
+  useEffect(() => {
+    if (activeIdx === 0) {
+      setZoomPhase("zooming-in");
+    }
+  }, [activeIdx]);
+
+  // Derive effective zoom (only applies during scene 0)
+  const effectiveZoom: ZoomPhase = activeIdx === 0 ? zoomPhase : "normal";
 
   // Menu bar state (driven by MonitoringScene)
   const [menuPhase, setMenuPhase] = useState("idle");
@@ -74,6 +90,10 @@ export function CodedHero() {
     setProjectFilter(project);
   }, []);
 
+  const handleZoom = useCallback((phase: ZoomPhase) => {
+    setZoomPhase(phase);
+  }, []);
+
   // Reset state when scene changes
   const activeTab = activeIdx === 2 ? filterTab : "All";
   const activeProject = activeIdx === 2 ? projectFilter : null;
@@ -93,6 +113,7 @@ export function CodedHero() {
               active={isActive}
               onNotification={handleNotification}
               onPhaseChange={handlePhaseChange}
+              onZoom={handleZoom}
             />
           );
         case 1:
@@ -109,35 +130,45 @@ export function CodedHero() {
           return null;
       }
     },
-    [handleNotification, handlePhaseChange, handleTabChange, handleProjectChange]
+    [handleNotification, handlePhaseChange, handleTabChange, handleProjectChange, handleZoom]
   );
 
   return (
     <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center">
       {/* Headline */}
       <h1 className="hero-enter max-w-3xl text-4xl font-medium leading-tight tracking-tight text-text-primary sm:text-5xl md:text-[64px] md:leading-[1.1]">
-        All your deployments.{" "}
-        <span className="text-accent-blue">One glance away.</span>
+        Track every Vercel deployment{" "}
+        <span className="text-accent-blue">from your menu bar</span>
       </h1>
 
       {/* Subheadline */}
       <p className="hero-enter-delay-1 mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
-        DeployBar lives in your menubar. See every Vercel deployment the moment
-        it starts. Monitor progress. Catch failures instantly. No browser tabs.
-        No context switching. Just ship.
+        Monitor builds without switching tabs or breaking focus. Know the moment
+        a deployment succeeds or fails.
       </p>
 
       {/* CTA */}
       <div className="hero-enter-delay-2 mt-10 flex flex-col items-center gap-3">
-        <a
-          href="#waitlist"
-          className="hero-shine inline-flex items-center justify-center gap-2 rounded-lg bg-accent-blue px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#005bd4]"
-        >
-          <DownloadSimple size={18} weight="bold" />
-          Download for macOS
-        </a>
+        <div className="flex items-center gap-4">
+          <a
+            href="#download"
+            className="hero-shine inline-flex items-center justify-center gap-2 rounded-lg bg-accent-blue px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#005bd4]"
+          >
+            <DownloadSimple size={18} weight="bold" />
+            Download for macOS
+          </a>
+          <a
+            href="https://github.com/nicktrienenern/deploybar"
+            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+          >
+            View on GitHub &rarr;
+          </a>
+        </div>
+        <p className="text-[14px] text-text-secondary">
+          Sign in with Vercel and see deployments instantly.
+        </p>
         <p className="text-xs text-text-secondary/50">
-          Free during beta &middot; macOS 14+ required
+          Free public beta &middot; macOS 14+
         </p>
       </div>
 
@@ -176,12 +207,15 @@ export function CodedHero() {
       {/* Coded mockup (replaces video player) */}
       <div className="hero-enter-delay-4 relative mt-8 w-full">
         <AppMockup
+          zoomPhase={effectiveZoom}
           phase={effectivePhase}
           progress={effectiveProgress}
           activeTab={activeTab}
           activeProject={activeProject}
           notificationVisible={effectiveNotifVisible}
           notificationExiting={effectiveNotifExiting}
+          progressKey={progressKey}
+          sceneDuration={SCENE_DURATIONS[activeIdx]}
         >
           <SceneRenderer
             activeIdx={activeIdx}
