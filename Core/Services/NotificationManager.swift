@@ -60,7 +60,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
       }
 
       let content = UNMutableNotificationContent()
-      content.title = deployment.projectName
+      content.title = {
+        if let branch = deployment.branch, !branch.isEmpty {
+          return "\(deployment.projectName) (\(branch))"
+        }
+        return deployment.projectName
+      }()
       content.body = deployment.state == .ready
         ? "Deployment ready"
         : "Deployment failed"
@@ -151,7 +156,12 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
       }
 
       let content = UNMutableNotificationContent()
-      content.title = deployment.projectName
+      content.title = {
+        if let branch = deployment.branch, !branch.isEmpty {
+          return "\(deployment.projectName) (\(branch))"
+        }
+        return deployment.projectName
+      }()
       content.body = status == .passed
         ? "All CI checks passed"
         : "CI checks failed"
