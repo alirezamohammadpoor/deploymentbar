@@ -5,7 +5,7 @@ enum APIClientFactory {
     guard let config = VercelAuthConfig.load() else {
       throw APIError.invalidResponse
     }
-    let credentialStore = CredentialStore()
+    let credentialStore = CredentialStore.shared
     let tokenProvider: () -> String? = {
       credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
     }

@@ -24,7 +24,7 @@ final class AuthSession: ObservableObject {
   }
 
   static let shared = AuthSession(
-    credentialStore: CredentialStore(),
+    credentialStore: CredentialStore.shared,
     stateStore: AuthSessionStateStore()
   )
 

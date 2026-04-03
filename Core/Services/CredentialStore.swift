@@ -30,6 +30,8 @@ protocol LegacyCredentialFileStoring {
 }
 
 final class CredentialStore: CredentialStoring {
+  static let shared = CredentialStore()
+
   enum Account {
     static let oauthTokens = "oauth-tokens"
     static let personalToken = "personal-token"

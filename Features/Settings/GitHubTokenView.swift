@@ -4,7 +4,7 @@ struct GitHubTokenView: View {
   @State private var tokenInput: String = ""
   @State private var statusMessage: String?
   @State private var hasToken: Bool = false
-  private let credentialStore = CredentialStore()
+  private let credentialStore = CredentialStore.shared
 
   var body: some View {
     VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {

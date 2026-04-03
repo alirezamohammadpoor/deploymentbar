@@ -3,8 +3,8 @@ import SwiftUI
 struct PersonalTokenView: View {
   @State private var tokenInput: String = ""
   @State private var statusMessage: String?
-  private let credentialStore = CredentialStore()
-  @StateObject private var authSession = AuthSession.shared
+  private let credentialStore = CredentialStore.shared
+  @ObservedObject private var authSession = AuthSession.shared
 
   var body: some View {
     VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {

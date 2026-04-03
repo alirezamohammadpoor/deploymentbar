@@ -8,7 +8,7 @@ final class ProjectStore: ObservableObject {
   @Published private(set) var isLoading: Bool = false
   @Published private(set) var error: String?
 
-  private let credentialStore = CredentialStore()
+  private let credentialStore = CredentialStore.shared
   private let authSession = AuthSession.shared
   private var apiClient: VercelAPIClientImpl?
 

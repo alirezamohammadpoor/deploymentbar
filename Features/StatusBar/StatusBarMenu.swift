@@ -50,12 +50,11 @@ struct StatusBarMenu: View {
   let refreshNow: () -> Void
   let signOut: () -> Void
 
-  @StateObject private var authSession = AuthSession.shared
-  @StateObject private var networkMonitor = NetworkMonitor.shared
-  @StateObject private var projectStore = ProjectStore.shared
+  @ObservedObject private var authSession = AuthSession.shared
+  @ObservedObject private var networkMonitor = NetworkMonitor.shared
+  @ObservedObject private var projectStore = ProjectStore.shared
   @State private var filter: EnvironmentFilter = .all
   @State private var selectedMenuProjectIds: Set<String> = []
-  @State private var isRefreshing: Bool = false
   @State private var isInitialLoad: Bool = true
   @State private var expandedDeploymentId: String?
   @State private var focusedDeploymentId: String?
@@ -277,15 +276,8 @@ struct StatusBarMenu: View {
   }
 
   private func performRefresh() {
-    guard !isRefreshing else { return }
-    isRefreshing = true
-
+    guard !refreshStatusStore.status.isRefreshing else { return }
     refreshNow()
-
-    // Reset refreshing state after animation
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-      isRefreshing = false
-    }
   }
 
   // MARK: - Content

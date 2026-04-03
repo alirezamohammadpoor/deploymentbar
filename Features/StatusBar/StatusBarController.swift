@@ -72,18 +72,15 @@ final class StatusBarController: NSObject {
     self.browserLauncher = browserLauncher
     self.deploymentStore = deploymentStore
     self.refreshStatusStore = refreshStatusStore
-    DebugLog.write("StatusBarController configure deferred")
 
-    DispatchQueue.main.async { [weak self] in
-      self?.finishConfigure()
-    }
+    finishConfigure()
   }
 
   private func finishConfigure() {
     DebugLog.write("StatusBarController finishConfigure start")
     let authSession = AuthSession.shared
     DebugLog.write("Configured AuthSession")
-    let credentialStore = CredentialStore()
+    let credentialStore = CredentialStore.shared
     DebugLog.write("Configured CredentialStore")
     let settingsStore = SettingsStore.shared
     DebugLog.write("Configured SettingsStore")

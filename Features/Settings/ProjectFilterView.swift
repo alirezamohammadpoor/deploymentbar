@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ProjectFilterView: View {
-  @StateObject private var projectStore = ProjectStore.shared
-  @StateObject private var settingsStore = SettingsStore.shared
+  @ObservedObject private var projectStore = ProjectStore.shared
+  @ObservedObject private var settingsStore = SettingsStore.shared
 
   var body: some View {
     VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {

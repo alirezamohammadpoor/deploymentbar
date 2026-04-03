@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct SettingsView: View {
-  @StateObject private var settings = SettingsStore.shared
-  @StateObject private var authSession = AuthSession.shared
-  @StateObject private var updateManager = UpdateManager.shared
+  @ObservedObject private var settings = SettingsStore.shared
+  @ObservedObject private var authSession = AuthSession.shared
+  @ObservedObject private var updateManager = UpdateManager.shared
   @State private var browserOptions: [BrowserOption] = BrowserOption.availableOptions()
   @State private var showSignOutConfirmation = false
   private let launchAtLoginManager = LaunchAtLoginManager()

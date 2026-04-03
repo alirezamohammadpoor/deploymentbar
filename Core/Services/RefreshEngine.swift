@@ -69,6 +69,7 @@ final class RefreshEngine {
       let delay = currentDelay
       await updateNextRefresh(after: delay)
       try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+      guard !Task.isCancelled else { break }
       await fetchOnce(resetBackoff: false)
     }
   }
@@ -80,14 +81,13 @@ final class RefreshEngine {
   }
 
   private func fetchOnce(resetBackoff: Bool) async {
-    DebugLog.write("RefreshEngine.fetchOnce start")
     if resetBackoff {
       backoffStep = 0
     }
+    await MainActor.run { statusStore.status.isRefreshing = true }
 
     let personalToken = credentialStore.loadPersonalToken()
     let tokens = credentialStore.loadTokens()
-    DebugLog.write("RefreshEngine credentials: hasPAT=\(personalToken != nil), hasOAuth=\(tokens != nil)")
 
     if tokens == nil && personalToken == nil {
       DebugLog.write("RefreshEngine: no credentials, signing out")
@@ -97,6 +97,7 @@ final class RefreshEngine {
     }
 
     if let tokens, tokens.isExpired, !tokens.canRefresh {
+      DebugLog.write("RefreshEngine: session expired, signing out")
       await MainActor.run { authSession.signOut() }
       await updateStatus(isStale: true, error: "Session expired. Sign in again.")
       return
@@ -115,9 +116,8 @@ final class RefreshEngine {
       }
 
       let teamId = tokens?.teamId
-      DebugLog.write("RefreshEngine: fetching deployments (teamId=\(teamId ?? "nil"), filterProjects=\(selectedIds.count))")
       let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: nil, teamId: teamId)
-      DebugLog.write("RefreshEngine: received \(dtos.count) DTOs")
+      #if DEBUG
       if dtos.isEmpty {
         DebugLog.write("RefreshEngine: 0 results — probing user and team context")
         do {
@@ -127,6 +127,7 @@ final class RefreshEngine {
           DebugLog.write("RefreshEngine: user fetch failed: \(error)")
         }
       }
+      #endif
       let deployments = dtos.map(Deployment.from(dto:))
       let filtered = selectedIds.isEmpty
         ? deployments
@@ -136,7 +137,6 @@ final class RefreshEngine {
           }
 
       hasActiveBuilds = filtered.contains { $0.state == .building }
-      DebugLog.write("RefreshEngine: \(filtered.count) deployments after filtering (activeBuilds=\(hasActiveBuilds))")
       await MainActor.run {
         store.apply(deployments: filtered)
       }
@@ -149,16 +149,25 @@ final class RefreshEngine {
             store.deployments.first(where: { $0.id == id })
           }
         }
-        for deployment in deploymentsNeedingChecks {
-          guard let org = deployment.githubOrg,
-                let repo = deployment.githubRepo,
-                let sha = deployment.commitSha else { continue }
-          do {
-            let checks = try await fetchGitHubCheckRuns(owner: org, repo: repo, sha: sha, token: githubToken)
-            let status = AggregateCheckStatus.from(checks: checks)
-            await MainActor.run { store.applyCheckStatus(status, for: deployment.id) }
-          } catch {
-            DebugLog.write("RefreshEngine: GitHub check fetch failed for \(deployment.id): \(error)")
+        await withTaskGroup(of: (String, AggregateCheckStatus)?.self) { group in
+          for deployment in deploymentsNeedingChecks {
+            guard let org = deployment.githubOrg,
+                  let repo = deployment.githubRepo,
+                  let sha = deployment.commitSha else { continue }
+            let deploymentId = deployment.id
+            group.addTask { [self] in
+              do {
+                let checks = try await self.fetchGitHubCheckRuns(owner: org, repo: repo, sha: sha, token: githubToken)
+                return (deploymentId, AggregateCheckStatus.from(checks: checks))
+              } catch {
+                DebugLog.write("RefreshEngine: GitHub check fetch failed for \(deploymentId): \(error)")
+                return nil
+              }
+            }
+          }
+          for await result in group {
+            guard let (deploymentId, status) = result else { continue }
+            await MainActor.run { store.applyCheckStatus(status, for: deploymentId) }
           }
         }
       }
@@ -217,6 +226,7 @@ final class RefreshEngine {
           status.lastRefresh = now
         }
         status.isStale = isStale
+        status.isRefreshing = false
         status.error = error
       }
     }
