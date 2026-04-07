@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
 
 interface SceneRendererProps {
   activeIdx: number;
@@ -15,24 +16,45 @@ export function SceneRenderer({
 }: SceneRendererProps) {
   const [displayedIdx, setDisplayedIdx] = useState(activeIdx);
   const [transitioning, setTransitioning] = useState(false);
+  const outgoingRef = useRef<HTMLDivElement>(null);
+  const incomingRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (activeIdx === displayedIdx) return;
-    setTransitioning(true);
-    const timer = setTimeout(() => {
-      setDisplayedIdx(activeIdx);
-      setTransitioning(false);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [activeIdx, displayedIdx]);
+  useGSAP(
+    () => {
+      if (activeIdx === displayedIdx) return;
+      setTransitioning(true);
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setDisplayedIdx(activeIdx);
+          setTransitioning(false);
+        },
+      });
+
+      if (outgoingRef.current) {
+        tl.to(outgoingRef.current, { autoAlpha: 0, duration: 0.3, ease: "power1.out" }, 0);
+      }
+      if (incomingRef.current) {
+        tl.fromTo(
+          incomingRef.current,
+          { autoAlpha: 0 },
+          { autoAlpha: 1, duration: 0.3, ease: "power1.out" },
+          0
+        );
+      }
+    },
+    { dependencies: [activeIdx], scope: containerRef }
+  );
 
   return (
-    <div className="relative" style={{ minHeight: 280 }}>
+    <div ref={containerRef} className="relative" style={{ minHeight: 280 }}>
       {/* Outgoing scene */}
       {transitioning && displayedIdx !== activeIdx && (
         <div
-          className="scene-layer absolute inset-0"
-          style={{ opacity: 0, zIndex: 0 }}
+          ref={outgoingRef}
+          className="absolute inset-0"
+          style={{ zIndex: 0 }}
         >
           {children(displayedIdx, false)}
         </div>
@@ -40,9 +62,8 @@ export function SceneRenderer({
 
       {/* Current/incoming scene */}
       <div
-        className="scene-layer"
+        ref={incomingRef}
         style={{
-          opacity: 1,
           zIndex: 1,
           position: transitioning ? "absolute" : "relative",
           inset: transitioning ? 0 : undefined,

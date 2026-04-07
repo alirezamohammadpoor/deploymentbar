@@ -59,7 +59,7 @@ export function FAQ() {
                 </span>
                 <CaretDown
                   size={18}
-                  className={`shrink-0 text-text-secondary transition-transform duration-200 ${
+                  className={`shrink-0 text-white transition-transform duration-200 ${
                     isOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -70,7 +70,7 @@ export function FAQ() {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="pb-5 text-base leading-relaxed text-text-secondary">
+                  <p className="pb-5 text-base leading-relaxed text-white">
                     {faq.answer}
                   </p>
                 </div>

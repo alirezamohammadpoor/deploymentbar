@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
-import { useSceneTimeline, type TimelineStep } from "../../../hooks/useSceneTimeline";
-import { useDeployAnimation } from "../../../hooks/useDeployAnimation";
+import { useState, useRef, useCallback } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { DeploymentRow } from "../MockupParts";
 import { deployments, type MockDeployment, type CIStatus, type ZoomPhase } from "../mockData";
 
@@ -27,94 +26,85 @@ export function MonitoringScene({
   onPhaseChange: (phase: string, progress: number) => void;
   onZoom: (phase: ZoomPhase) => void;
 }) {
-  const { phase, progress, deploy, reset } = useDeployAnimation();
+  const [state, setState] = useState<MonitoringState>(initialState);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset deploy animation when scene deactivates so it can re-trigger on re-entry
-  useEffect(() => {
-    if (!active) reset();
-  }, [active, reset]);
+  const stableOnZoom = useCallback(onZoom, [onZoom]);
+  const stableOnNotification = useCallback(onNotification, [onNotification]);
+  const stableOnPhaseChange = useCallback(onPhaseChange, [onPhaseChange]);
 
-  const timeline = useMemo<TimelineStep<MonitoringState>[]>(
-    () => [
-      {
-        at: 1500,
-        apply: () => ({
-          buildingStatus: "ready" as const,
-          buildingCiStatus: "passed" as CIStatus,
-        }),
-      },
-    ],
-    []
-  );
+  useGSAP(
+    () => {
+      if (!active) {
+        setState(initialState);
+        stableOnPhaseChange("idle", 0);
+        return;
+      }
 
-  const state = useSceneTimeline(initialState, timeline, active);
+      const mm = gsap.matchMedia();
 
-  // Drive the deploy animation, zoom, and notifications via a side-effect timeline
-  useSceneTimeline(
-    null,
-    useMemo<TimelineStep<null>[]>(
-      () => [
-        {
-          at: 10,
-          apply: () => {
-            deploy();
-            return null;
-          },
-        },
-        {
-          at: 600,
-          apply: () => {
-            onZoom("zoomed");
-            return null;
-          },
-        },
-        {
-          at: 2000,
-          apply: () => {
-            onZoom("zooming-out");
-            return null;
-          },
-        },
-        {
-          at: 3200,
-          apply: () => {
-            onZoom("normal");
-            return null;
-          },
-        },
-        {
-          at: 3600,
-          apply: () => {
-            onNotification(true, false);
-            return null;
-          },
-        },
-        {
-          at: 5600,
-          apply: () => {
-            onNotification(true, true);
-            return null;
-          },
-        },
-        {
-          at: 5900,
-          apply: () => {
-            onNotification(false, false);
-            return null;
-          },
-        },
-      ],
-      [deploy, onNotification, onZoom]
-    ),
-    active
-  );
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const proxy = { progress: 0 };
+        const tl = gsap.timeline();
 
-  // Forward phase/progress to parent
-  useEffect(() => {
-    if (active) {
-      onPhaseChange(phase, progress);
+        // Deploy progress (0→1 over 1.5s)
+        tl.to(
+          proxy,
+          {
+            progress: 1,
+            duration: 1.5,
+            ease: "none",
+            onStart: () => stableOnPhaseChange("building", 0),
+            onUpdate: () => stableOnPhaseChange("building", proxy.progress),
+            onComplete: () => stableOnPhaseChange("complete", 1),
+          },
+          0.01
+        );
+
+        // Zoom in
+        tl.call(() => stableOnZoom("zoomed"), [], 0.6);
+
+        // Building → Ready
+        tl.call(
+          () =>
+            setState({
+              buildingStatus: "ready",
+              buildingCiStatus: "passed",
+            }),
+          [],
+          1.5
+        );
+
+        // Zoom out sequence
+        tl.call(() => stableOnZoom("zooming-out"), [], 2.0);
+        tl.call(() => stableOnZoom("normal"), [], 3.2);
+
+        // Notification enter → exit
+        tl.call(() => stableOnNotification(true, false), [], 3.6);
+        tl.call(() => stableOnNotification(true, true), [], 5.6);
+        tl.call(() => stableOnNotification(false, false), [], 5.9);
+
+        return () => {
+          setState(initialState);
+          stableOnPhaseChange("idle", 0);
+        };
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        setState({ buildingStatus: "ready", buildingCiStatus: "passed" });
+        stableOnPhaseChange("complete", 1);
+        return () => {
+          setState(initialState);
+          stableOnPhaseChange("idle", 0);
+        };
+      });
+    },
+    {
+      dependencies: [active, stableOnZoom, stableOnNotification, stableOnPhaseChange],
+      revertOnUpdate: true,
+      scope: containerRef,
     }
-  }, [phase, progress, active, onPhaseChange]);
+  );
 
   const sceneDeployments: MockDeployment[] = deployments.map((d) => {
     if (d.id === "dpl_2") {
@@ -128,7 +118,7 @@ export function MonitoringScene({
   });
 
   return (
-    <div className="max-h-[280px] overflow-y-auto">
+    <div ref={containerRef} className="max-h-[280px] overflow-y-auto">
       {sceneDeployments.map((d) => (
         <DeploymentRow key={d.id} deployment={d} />
       ))}

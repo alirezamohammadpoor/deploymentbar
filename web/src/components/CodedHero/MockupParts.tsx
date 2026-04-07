@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef, useEffect } from "react";
+import { gsap } from "@/lib/gsap";
 import { Copy } from "@phosphor-icons/react/dist/icons/Copy";
 import { Globe } from "@phosphor-icons/react/dist/icons/Globe";
 import { ArrowSquareOut } from "@phosphor-icons/react/dist/icons/ArrowSquareOut";
@@ -206,15 +208,33 @@ export function DeployNotification({
   visible: boolean;
   exiting: boolean;
 }) {
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!notifRef.current) return;
+    if (visible && !exiting) {
+      gsap.fromTo(
+        notifRef.current,
+        { x: "110%", autoAlpha: 0 },
+        { x: 0, autoAlpha: 1, duration: 0.4, ease: "back.out(1.56)" }
+      );
+    } else if (visible && exiting) {
+      gsap.to(notifRef.current, {
+        x: "110%",
+        autoAlpha: 0,
+        duration: 0.3,
+        ease: "power1.in",
+      });
+    }
+  }, [visible, exiting]);
+
   if (!visible) return null;
 
   return (
     <div
-      className={`
-        absolute top-[34px] right-3 z-10
-        w-[280px] rounded-xl border border-white/10 bg-white/10 p-3 shadow-2xl backdrop-blur-xl
-        ${exiting ? "deploy-notification-exit" : "deploy-notification-enter"}
-      `}
+      ref={notifRef}
+      className="absolute top-[34px] right-3 z-10 w-[280px] rounded-xl border border-white/10 bg-white/10 p-3 shadow-2xl backdrop-blur-xl"
+      style={{ visibility: "hidden" }}
     >
       <div className="flex items-start gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#1a1a1a] text-white text-base">
@@ -235,6 +255,41 @@ export function DeployNotification({
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ── ExpandedActions (GSAP animated expand) ──────────────── */
+
+function ExpandedActions({
+  highlightedButton,
+  tooltip,
+}: {
+  highlightedButton?: ActionButtonId | null;
+  tooltip?: string | null;
+}) {
+  const expandRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!expandRef.current) return;
+    const el = expandRef.current;
+    // Measure natural height, then animate from 0
+    const naturalHeight = el.offsetHeight;
+    gsap.fromTo(
+      el,
+      { height: 0, opacity: 0, y: -4 },
+      { height: naturalHeight, opacity: 1, y: 0, duration: 0.25, ease: "power2.out", clearProps: "height" }
+    );
+  }, []);
+
+  return (
+    <div ref={expandRef} className="relative pb-2 overflow-hidden">
+      <ActionButtons highlightedButton={highlightedButton} />
+      {tooltip && (
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white/10 px-3 py-1.5 text-[11px] text-white/80 backdrop-blur-md border border-white/10">
+          {tooltip}
+        </div>
+      )}
     </div>
   );
 }
@@ -301,14 +356,7 @@ export function DeploymentRow({
       </div>
 
       {expanded && (
-        <div className="relative coded-hero-row-expand pb-2">
-          <ActionButtons highlightedButton={highlightedButton} />
-          {tooltip && (
-            <div className="coded-hero-tooltip absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-white/10 px-3 py-1.5 text-[11px] text-white/80 backdrop-blur-md border border-white/10">
-              {tooltip}
-            </div>
-          )}
-        </div>
+        <ExpandedActions highlightedButton={highlightedButton} tooltip={tooltip} />
       )}
     </div>
   );

@@ -4,6 +4,7 @@ import { BentoGrid } from "@/components/BentoGrid";
 import { FAQ } from "@/components/FAQ";
 import { FinalCTA } from "@/components/FinalCTA";
 import { Footer } from "@/components/Footer";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function Home() {
   return (
@@ -11,9 +12,15 @@ export default function Home() {
       <Nav />
       <main>
         <Hero />
-        <BentoGrid />
-        <FAQ />
-        <FinalCTA />
+        <ScrollReveal>
+          <BentoGrid />
+        </ScrollReveal>
+        <ScrollReveal>
+          <FAQ />
+        </ScrollReveal>
+        <ScrollReveal>
+          <FinalCTA />
+        </ScrollReveal>
       </main>
       <Footer />
     </>

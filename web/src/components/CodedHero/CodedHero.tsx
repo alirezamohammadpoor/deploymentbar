@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { DownloadSimple } from "@phosphor-icons/react/dist/icons/DownloadSimple";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { usePillCycle } from "../../hooks/usePillCycle";
 import { AppMockup } from "./AppMockup";
 import { SceneRenderer } from "./SceneRenderer";
@@ -92,6 +93,43 @@ export function CodedHero() {
     setZoomPhase(phase);
   }, []);
 
+  const heroRef = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLParagraphElement>(null);
+
+  // Hero entry stagger animation
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from("[data-hero-enter]", {
+          y: 20,
+          autoAlpha: 0,
+          duration: 0.7,
+          ease: "power2.out",
+          stagger: { each: 0.1, from: "start" },
+        });
+      });
+    },
+    { scope: heroRef }
+  );
+
+  // Feature description fade on scene change
+  useGSAP(
+    () => {
+      if (!descriptionRef.current) return;
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.from(descriptionRef.current, {
+          y: 10,
+          autoAlpha: 0,
+          duration: 0.3,
+          ease: "power2.out",
+        });
+      });
+    },
+    { dependencies: [activeIdx], scope: heroRef }
+  );
+
   // Reset state when scene changes
   const activeTab = activeIdx === 2 ? filterTab : "All";
   const activeProject = activeIdx === 2 ? projectFilter : null;
@@ -132,21 +170,21 @@ export function CodedHero() {
   );
 
   return (
-    <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center">
+    <div ref={heroRef} className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center">
       {/* Headline */}
-      <h1 className="hero-enter max-w-3xl text-4xl font-medium leading-tight tracking-tight text-text-primary sm:text-5xl md:text-[64px] md:leading-[1.1]">
+      <h1 data-hero-enter className="max-w-3xl text-4xl font-medium leading-tight tracking-tight text-text-primary sm:text-5xl md:text-[64px] md:leading-[1.1]">
         Track every Vercel deployment{" "}
         <span className="text-accent-blue">from your menu bar</span>
       </h1>
 
       {/* Subheadline */}
-      <p className="hero-enter-delay-1 mt-6 max-w-xl text-base leading-relaxed text-text-secondary sm:text-lg">
+      <p data-hero-enter className="mt-6 max-w-xl text-base leading-relaxed text-white sm:text-lg">
         Monitor builds without switching tabs or breaking focus. Know the moment
         a deployment succeeds or fails.
       </p>
 
       {/* CTA */}
-      <div className="hero-enter-delay-2 mt-10 flex flex-col items-center gap-3">
+      <div data-hero-enter className="mt-10 flex flex-col items-center gap-3">
         <div className="flex items-center gap-4">
           <a
             href="#download"
@@ -157,21 +195,21 @@ export function CodedHero() {
           </a>
           <a
             href="https://github.com/alirezamohammadpoor/deploymentbar"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm text-white hover:text-white/70 transition-colors"
           >
             View on GitHub &rarr;
           </a>
         </div>
-        <p className="text-[14px] text-text-secondary">
+        <p className="text-[14px] text-white">
           Sign in with Vercel and see deployments instantly.
         </p>
-        <p className="text-xs text-text-secondary/50">
+        <p className="text-sm text-white">
           Free public beta &middot; macOS 14+
         </p>
       </div>
 
       {/* Pill bar */}
-      <div className="hero-enter-delay-3 mt-14 flex w-full justify-center overflow-x-auto snap-x snap-mandatory scrollbar-none">
+      <div data-hero-enter className="mt-14 flex w-full justify-center overflow-x-auto snap-x snap-mandatory scrollbar-none">
         <div className="flex gap-2">
           {features.map((f, idx) => (
             <button
@@ -181,7 +219,7 @@ export function CodedHero() {
               className={`relative snap-center shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors cursor-pointer ${
                 idx === activeIdx
                   ? "bg-white text-black"
-                  : "text-text-secondary hover:text-text-primary hover:bg-white/5"
+                  : "text-white hover:text-white hover:bg-white/5"
               }`}
             >
               {idx === activeIdx && (
@@ -195,15 +233,15 @@ export function CodedHero() {
 
       {/* Feature description */}
       <p
+        ref={descriptionRef}
         key={features[activeIdx].id}
-        className="mt-3 text-sm text-text-secondary animate-fade-in-up"
-        style={{ animationDuration: "0.3s" }}
+        className="mt-3 text-sm text-white"
       >
         {features[activeIdx].description}
       </p>
 
       {/* Coded mockup (replaces video player) */}
-      <div className="hero-enter-delay-4 relative mt-8 w-full">
+      <div data-hero-enter className="relative mt-8 w-full">
         <AppMockup
           zoomPhase={effectiveZoom}
           phase={effectivePhase}

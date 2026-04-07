@@ -50,7 +50,7 @@ export function BentoGrid() {
     <section id="features" className="mx-auto max-w-6xl px-6 py-24">
       <h2 className="mb-12 text-center text-3xl font-medium text-text-primary md:text-[32px]">
         Everything you need.{" "}
-        <span className="text-text-secondary">Nothing you don&apos;t.</span>
+        <span className="text-white">Nothing you don&apos;t.</span>
       </h2>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -65,7 +65,7 @@ export function BentoGrid() {
               <h3 className="mb-3 text-lg font-medium text-text-primary">
                 {feature.title}
               </h3>
-              <p className="text-sm leading-relaxed text-text-secondary">
+              <p className="text-sm leading-relaxed text-white">
                 {feature.body}
               </p>
             </div>

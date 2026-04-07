@@ -8,7 +8,7 @@ export function FinalCTA() {
           Stop refreshing Vercel.
         </h2>
 
-        <p className="mx-auto mt-4 max-w-md text-lg text-text-secondary">
+        <p className="mx-auto mt-4 max-w-md text-lg text-white">
           Your deployments, always one glance away.
         </p>
 
@@ -20,7 +20,7 @@ export function FinalCTA() {
             <DownloadSimple size={18} weight="bold" />
             Download for macOS
           </a>
-          <p className="text-xs text-text-secondary/50">
+          <p className="text-sm text-white">
             Free public beta &middot; macOS 14+
           </p>
         </div>

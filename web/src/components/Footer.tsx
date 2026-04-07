@@ -22,7 +22,7 @@ export function Footer() {
             href="https://github.com/alirezamohammadpoor/deploymentbar"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm text-white hover:text-text-primary transition-colors"
           >
             GitHub
           </a>
@@ -30,19 +30,19 @@ export function Footer() {
             href="https://twitter.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm text-white hover:text-text-primary transition-colors"
           >
             Twitter
           </a>
           <a
             href="#"
-            className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+            className="text-sm text-white hover:text-text-primary transition-colors"
           >
             Privacy
           </a>
         </div>
 
-        <p className="text-sm text-text-secondary/60">
+        <p className="text-sm text-white/60">
           &copy; 2026 DeployBar
         </p>
       </div>

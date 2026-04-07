@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 
 export function Nav() {
@@ -24,7 +22,7 @@ export function Nav() {
         <div className="flex items-center gap-6">
           <a
             href="#features"
-            className="hidden text-sm font-medium text-text-secondary transition-opacity hover:opacity-50 md:block"
+            className="hidden text-sm font-medium text-white transition-opacity hover:opacity-50 md:block"
           >
             Features
           </a>
@@ -32,7 +30,7 @@ export function Nav() {
             href="https://github.com/alirezamohammadpoor/deploymentbar"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden text-sm font-medium text-text-secondary transition-opacity hover:opacity-50 md:block"
+            className="hidden text-sm font-medium text-white transition-opacity hover:opacity-50 md:block"
           >
             GitHub
           </a>

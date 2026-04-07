@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { WifiHigh } from "@phosphor-icons/react/dist/icons/WifiHigh";
 import { BatteryFull } from "@phosphor-icons/react/dist/icons/BatteryFull";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { triangleColor, PopoverHeader, FilterTabs, DeployNotification } from "./MockupParts";
 import type { FilterTab, ZoomPhase } from "./mockData";
 
@@ -108,41 +109,78 @@ export function AppMockup({
   sceneDuration: number;
   children: ReactNode;
 }) {
-  const isZoomed = zoomPhase === "zooming-in" || zoomPhase === "zoomed";
+  const zoomRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const zoomStyle: React.CSSProperties = {
-    transform: isZoomed ? "scale(2.5)" : "scale(1)",
-    transformOrigin: "75% 0",
-    transition:
-      zoomPhase === "zooming-in"
-        ? "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)"
-        : zoomPhase === "zooming-out"
-          ? "transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)"
-          : "none",
-  };
+  // Zoom animation
+  useGSAP(
+    () => {
+      if (!zoomRef.current) return;
+      const isZoomed = zoomPhase === "zooming-in" || zoomPhase === "zoomed";
 
-  const popoverStyle: React.CSSProperties = {
-    opacity: isZoomed ? 0 : 1,
-    transition:
-      zoomPhase === "zooming-out"
-        ? "opacity 0.8s ease 0.3s"
-        : "none",
-  };
+      if (zoomPhase === "zooming-in" || zoomPhase === "zoomed") {
+        gsap.to(zoomRef.current, {
+          scale: 2.5,
+          duration: 0.6,
+          ease: "power3.inOut",
+          transformOrigin: "100% 3%",
+        });
+        if (popoverRef.current) {
+          gsap.to(popoverRef.current, { autoAlpha: 0, duration: 0.3 });
+        }
+      } else if (zoomPhase === "zooming-out") {
+        gsap.to(zoomRef.current, {
+          scale: 1,
+          duration: 1.2,
+          ease: "power3.inOut",
+        });
+        if (popoverRef.current) {
+          gsap.to(popoverRef.current, { autoAlpha: 1, duration: 0.8, delay: 0.3 });
+        }
+      } else {
+        // normal — snap to default (no animation on initial render)
+        gsap.set(zoomRef.current, { scale: 1 });
+        if (popoverRef.current) {
+          gsap.set(popoverRef.current, { autoAlpha: 1 });
+        }
+      }
+    },
+    { dependencies: [zoomPhase], scope: containerRef }
+  );
+
+  // Pill progress bar animation
+  useGSAP(
+    () => {
+      if (!progressBarRef.current) return;
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.fromTo(
+          progressBarRef.current,
+          { width: "0%" },
+          {
+            width: "100%",
+            duration: sceneDuration / 1000,
+            ease: "none",
+          }
+        );
+      });
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.set(progressBarRef.current, { width: "100%" });
+      });
+    },
+    { dependencies: [progressKey, sceneDuration], scope: containerRef }
+  );
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] shadow-2xl">
-      {/* Scene progress bar — clipped by parent's rounded corners */}
+    <div ref={containerRef} className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] shadow-2xl">
+      {/* Scene progress bar */}
       <div className="h-[2px] w-full bg-white/10">
-        <div
-          key={progressKey}
-          className="pill-progress-bar h-full bg-accent-blue"
-          style={{
-            "--pill-duration": `${sceneDuration}ms`,
-          } as React.CSSProperties}
-        />
+        <div ref={progressBarRef} className="h-full bg-accent-blue" style={{ width: 0 }} />
       </div>
 
-      <div style={zoomStyle}>
+      <div ref={zoomRef}>
         <MacOSMenuBar phase={phase} progress={progress} />
 
         <DeployNotification
@@ -152,7 +190,7 @@ export function AppMockup({
 
         <div className="relative px-4 pt-2 pb-4 bg-gradient-to-b from-[#1a1a1a] to-[#111]">
           <div className="ml-auto w-full max-w-[375px] mr-[52px]">
-            <div style={popoverStyle}>
+            <div ref={popoverRef}>
               {/* Popover arrow */}
               <div className="flex justify-end mr-[18px]">
                 <div
