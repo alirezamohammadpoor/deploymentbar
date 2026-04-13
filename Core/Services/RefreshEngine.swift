@@ -136,7 +136,7 @@ final class RefreshEngine {
             return selectedIds.contains(projectId)
           }
 
-      hasActiveBuilds = filtered.contains { $0.state == .building }
+      hasActiveBuilds = filtered.contains { $0.state == .building || $0.state == .queued }
       await MainActor.run {
         store.apply(deployments: filtered)
       }

@@ -91,9 +91,10 @@ enum Geist {
         switch state {
         case .ready: return ready
         case .building: return building
-        case .queued: return queued
+        case .queued: return building
         case .error: return error
-        case .canceled, nil: return nil
+        case .canceled: return nil
+        case nil: return nil
         }
       }
     }
