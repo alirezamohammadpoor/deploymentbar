@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build macOS app
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+
+      - name: Create Secrets.xcconfig
+        run: |
+          mkdir -p Config
+          cat > Config/Secrets.xcconfig <<EOF
+          VERCEL_CLIENT_ID = ${{ secrets.VERCEL_CLIENT_ID }}
+          VERCEL_CLIENT_SECRET = ${{ secrets.VERCEL_CLIENT_SECRET }}
+          SLASH = /
+          VERCEL_REDIRECT_URI = https:\$(SLASH)\$(SLASH)deploymentbar.vercel.app/oauth/callback
+          VERCEL_SCOPES = offline_access
+          SPARKLE_PUBLIC_ED_KEY = ${{ secrets.SPARKLE_PUBLIC_ED_KEY }}
+          EOF
+
+      - name: Build
+        run: |
+          xcodebuild build \
+            -project VercelBar.xcodeproj \
+            -scheme VercelBar \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            | xcbeautify
+
+      - name: Test
+        run: |
+          xcodebuild test \
+            -project VercelBar.xcodeproj \
+            -scheme VercelBar \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            | xcbeautify
+        continue-on-error: true
