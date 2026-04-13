@@ -255,7 +255,7 @@ final class StatusBarController: NSObject {
       button.image?.isTemplate = true
     }
 
-    if isRecent && latestDeploymentState == .building && !isStale {
+    if isRecent && (latestDeploymentState == .building || latestDeploymentState == .queued) && !isStale {
       startPulse()
     } else {
       stopPulse()
