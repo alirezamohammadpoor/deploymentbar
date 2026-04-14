@@ -34,7 +34,7 @@ export function Nav() {
           >
             GitHub
           </a>
-          <a href="#download">
+          <a href="https://github.com/alirezamohammadpoor/deploymentbar/releases/latest">
             <button className="rounded-md border border-accent-blue/30 bg-accent-blue px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-80">
               Download
             </button>

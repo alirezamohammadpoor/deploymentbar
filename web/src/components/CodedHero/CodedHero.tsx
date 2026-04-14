@@ -187,7 +187,7 @@ export function CodedHero() {
       <div data-hero-enter className="mt-10 flex flex-col items-center gap-3">
         <div className="flex items-center gap-4">
           <a
-            href="#download"
+            href="https://github.com/alirezamohammadpoor/deploymentbar/releases/latest"
             className="hero-shine inline-flex items-center justify-center gap-2 rounded-lg bg-accent-blue px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#005bd4]"
           >
             <DownloadSimple size={18} weight="bold" />
