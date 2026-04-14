@@ -1,7 +1,4 @@
-# DeployBar
-
-[![Build](https://github.com/alirezamohammadpoor/deploymentbar/actions/workflows/build.yml/badge.svg)](https://github.com/alirezamohammadpoor/deploymentbar/actions/workflows/build.yml)
-[![Web](https://github.com/alirezamohammadpoor/deploymentbar/actions/workflows/web.yml/badge.svg)](https://github.com/alirezamohammadpoor/deploymentbar/actions/workflows/web.yml)
+# Deploymentbar
 
 A native macOS menu bar application for monitoring Vercel deployments in real-time.
 

@@ -3,6 +3,15 @@
     <channel>
         <title>VercelBar</title>
         <item>
+            <title>1.2.1</title>
+            <pubDate>Tue, 14 Apr 2026 17:08:30 +0200</pubDate>
+            <link>https://github.com/alirezamohammadpoor/deploymentbar/releases/tag/v1.2.1</link>
+            <sparkle:version>11</sparkle:version>
+            <sparkle:shortVersionString>1.2.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alirezamohammadpoor/deploymentbar/releases/download/v1.2.1/VercelBar-1.2.1-11.zip" length="2423671" type="application/octet-stream" sparkle:edSignature="BEOY/BS4o9T0qlMksfxMN+EPqCHwwgVrnueLA8+510Dxi341biPzJoQY2oAMEx4a4NX4gxajP61LUi90dwwdBw=="/>
+        </item>
+        <item>
             <title>1.2.0</title>
             <pubDate>Sat, 05 Apr 2026 20:44:12 +0200</pubDate>
             <link>https://github.com/alirezamohammadpoor/deploymentbar/releases/tag/v1.2.0</link>
