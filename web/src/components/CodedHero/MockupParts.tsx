@@ -124,7 +124,7 @@ export function PopoverHeader({
           ▲
         </div>
         <span className="text-[14px] font-medium text-text-primary">
-          DeployBar
+          Deploymentbar
         </span>
       </div>
       <div className="flex items-center gap-1">
@@ -243,7 +243,7 @@ export function DeployNotification({
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-medium text-white">
-              DeployBar
+              Deploymentbar
             </span>
             <span className="text-[10px] text-white/40">now</span>
           </div>

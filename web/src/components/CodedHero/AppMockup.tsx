@@ -39,7 +39,7 @@ function MacOSMenuBar({
     <div className="flex h-[26px] items-center justify-between bg-black/60 backdrop-blur-xl border-b border-white/10 px-3 text-[13px] select-none">
       <div className="flex items-center gap-4">
         <span className="text-[15px] text-white/90"></span>
-        <span className="font-semibold text-white">DeployBar</span>
+        <span className="font-semibold text-white">Deploymentbar</span>
       </div>
 
       <div className="flex items-center gap-2.5 text-white/60">

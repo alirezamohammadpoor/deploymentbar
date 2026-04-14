@@ -7,13 +7,13 @@ export function Footer() {
         <div className="flex items-center gap-2">
           <Image
             src="/app-icon.png"
-            alt="DeployBar"
+            alt="Deploymentbar"
             width={20}
             height={20}
             className="rounded"
           />
           <span className="text-sm font-medium text-text-primary">
-            DeployBar
+            Deploymentbar
           </span>
         </div>
 
@@ -43,7 +43,7 @@ export function Footer() {
         </div>
 
         <p className="text-sm text-white/60">
-          &copy; 2026 DeployBar
+          &copy; 2026 Deploymentbar
         </p>
       </div>
     </footer>

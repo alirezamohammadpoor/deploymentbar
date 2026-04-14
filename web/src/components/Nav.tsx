@@ -8,13 +8,13 @@ export function Nav() {
         <a href="/" className="flex items-center gap-2">
           <Image
             src="/app-icon.png"
-            alt="DeployBar"
+            alt="Deploymentbar"
             width={28}
             height={28}
             className="rounded-md"
           />
           <span className="text-lg font-medium text-text-primary">
-            DeployBar
+            Deploymentbar
           </span>
         </a>
 

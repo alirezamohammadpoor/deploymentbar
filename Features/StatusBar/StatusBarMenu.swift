@@ -171,7 +171,7 @@ struct StatusBarMenu: View {
             .resizable()
             .frame(width: 18, height: 18)
             .cornerRadius(4)
-          Text("DeployBar")
+          Text("Deploymentbar")
             .font(.system(size: 14, weight: .medium))
             .foregroundColor(Geist.Colors.textPrimary)
         }

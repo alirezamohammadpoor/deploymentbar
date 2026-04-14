@@ -34,7 +34,7 @@ final class StatusBarController: NSObject {
       statusItem.length = NSStatusItem.variableLength
       let titleOnly = ProcessInfo.processInfo.environment["VERCELBAR_TITLE_ONLY"] == "1"
       if titleOnly {
-        button.title = "VercelBar"
+        button.title = "Deploymentbar"
         button.image = nil
         button.imagePosition = .noImage
       } else {
@@ -245,7 +245,7 @@ final class StatusBarController: NSObject {
       return Date().timeIntervalSince(created) < 300
     }()
 
-    button.toolTip = isStale ? "Last refresh failed" : "VercelBar"
+    button.toolTip = isStale ? "Last refresh failed" : "Deploymentbar"
 
     if isRecent, let tintColor = Geist.Colors.StatusBarIcon.color(for: latestDeploymentState) {
       button.image = tintedIcon(color: tintColor)

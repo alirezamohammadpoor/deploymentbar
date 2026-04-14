@@ -7,12 +7,12 @@ const faqs = [
   {
     question: "How much time will this save me?",
     answer:
-      "Absolutely. Instead of switching to your browser, finding the Vercel tab, and navigating to your project, DeployBar shows every deployment status right in your menu bar. Most developers save 10+ context switches per day.",
+      "Absolutely. Instead of switching to your browser, finding the Vercel tab, and navigating to your project, Deploymentbar shows every deployment status right in your menu bar. Most developers save 10+ context switches per day.",
   },
   {
     question: "Is it secure?",
     answer:
-      "Yes. DeployBar uses Vercel's official OAuth2 with PKCE — the same security standard used by Vercel's own integrations. Your credentials are never stored in plain text.",
+      "Yes. Deploymentbar uses Vercel's official OAuth2 with PKCE — the same security standard used by Vercel's own integrations. Your credentials are never stored in plain text.",
   },
   {
     question: "How long does setup take?",
@@ -22,7 +22,7 @@ const faqs = [
   {
     question: "What happens after the beta?",
     answer:
-      "We're keeping DeployBar free during the beta period. When we introduce pricing, early waitlist members will get a generous discount.",
+      "We're keeping Deploymentbar free during the beta period. When we introduce pricing, early waitlist members will get a generous discount.",
   },
   {
     question: "What if I need help?",
