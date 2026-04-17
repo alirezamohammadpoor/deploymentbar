@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { DeploymentRow } from "../MockupParts";
-import { deployments, type MockDeployment, type CIStatus, type ZoomPhase } from "../mockData";
+import { deployments, type MockDeployment, type CIStatus } from "../mockData";
 
 interface MonitoringState {
   buildingStatus: "building" | "ready";
@@ -19,17 +19,14 @@ export function MonitoringScene({
   active,
   onNotification,
   onPhaseChange,
-  onZoom,
 }: {
   active: boolean;
   onNotification: (visible: boolean, exiting: boolean) => void;
   onPhaseChange: (phase: string, progress: number) => void;
-  onZoom: (phase: ZoomPhase) => void;
 }) {
   const [state, setState] = useState<MonitoringState>(initialState);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const stableOnZoom = useCallback(onZoom, [onZoom]);
   const stableOnNotification = useCallback(onNotification, [onNotification]);
   const stableOnPhaseChange = useCallback(onPhaseChange, [onPhaseChange]);
 
@@ -47,12 +44,12 @@ export function MonitoringScene({
         const proxy = { progress: 0 };
         const tl = gsap.timeline();
 
-        // Deploy progress (0→1 over 1.5s)
+        // Deploy progress (0→1 over 2s) — triangle pulses orange while building
         tl.to(
           proxy,
           {
             progress: 1,
-            duration: 1.5,
+            duration: 2.0,
             ease: "none",
             onStart: () => stableOnPhaseChange("building", 0),
             onUpdate: () => stableOnPhaseChange("building", proxy.progress),
@@ -61,10 +58,7 @@ export function MonitoringScene({
           0.01
         );
 
-        // Zoom in
-        tl.call(() => stableOnZoom("zoomed"), [], 0.6);
-
-        // Building → Ready
+        // Building → Ready (row flips to green + CI passed)
         tl.call(
           () =>
             setState({
@@ -72,17 +66,13 @@ export function MonitoringScene({
               buildingCiStatus: "passed",
             }),
           [],
-          1.5
+          2.0
         );
 
-        // Zoom out sequence
-        tl.call(() => stableOnZoom("zooming-out"), [], 2.0);
-        tl.call(() => stableOnZoom("normal"), [], 3.2);
-
         // Notification enter → exit
-        tl.call(() => stableOnNotification(true, false), [], 3.6);
-        tl.call(() => stableOnNotification(true, true), [], 5.6);
-        tl.call(() => stableOnNotification(false, false), [], 5.9);
+        tl.call(() => stableOnNotification(true, false), [], 2.4);
+        tl.call(() => stableOnNotification(true, true), [], 5.4);
+        tl.call(() => stableOnNotification(false, false), [], 5.7);
 
         return () => {
           setState(initialState);
@@ -100,7 +90,7 @@ export function MonitoringScene({
       });
     },
     {
-      dependencies: [active, stableOnZoom, stableOnNotification, stableOnPhaseChange],
+      dependencies: [active, stableOnNotification, stableOnPhaseChange],
       revertOnUpdate: true,
       scope: containerRef,
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { DownloadSimple } from "@phosphor-icons/react/dist/icons/DownloadSimple";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { usePillCycle } from "../../hooks/usePillCycle";
@@ -9,7 +9,7 @@ import { SceneRenderer } from "./SceneRenderer";
 import { MonitoringScene } from "./scenes/MonitoringScene";
 import { QuickActionsScene } from "./scenes/QuickActionsScene";
 import { FilterScene } from "./scenes/FilterScene";
-import type { FilterTab, ZoomPhase } from "./mockData";
+import type { FilterTab } from "./mockData";
 
 const features = [
   {
@@ -37,19 +37,6 @@ const SCENE_DURATIONS = [6500, 6000, 10500];
 
 export function CodedHero() {
   const { activeIdx, progressKey, handlePillClick } = usePillCycle(SCENE_COUNT, {}, SCENE_DURATIONS);
-
-  // Zoom state (driven by MonitoringScene)
-  const [zoomPhase, setZoomPhase] = useState<ZoomPhase>("normal");
-
-  // When switching TO monitoring scene, kick off zoom-in
-  useEffect(() => {
-    if (activeIdx === 0) {
-      setZoomPhase("zooming-in");
-    }
-  }, [activeIdx]);
-
-  // Derive effective zoom (only applies during scene 0)
-  const effectiveZoom: ZoomPhase = activeIdx === 0 ? zoomPhase : "normal";
 
   // Menu bar state (driven by MonitoringScene)
   const [menuPhase, setMenuPhase] = useState("idle");
@@ -87,10 +74,6 @@ export function CodedHero() {
 
   const handleProjectChange = useCallback((project: string | null) => {
     setProjectFilter(project);
-  }, []);
-
-  const handleZoom = useCallback((phase: ZoomPhase) => {
-    setZoomPhase(phase);
   }, []);
 
   const heroRef = useRef<HTMLDivElement>(null);
@@ -149,7 +132,6 @@ export function CodedHero() {
               active={isActive}
               onNotification={handleNotification}
               onPhaseChange={handlePhaseChange}
-              onZoom={handleZoom}
             />
           );
         case 1:
@@ -166,7 +148,7 @@ export function CodedHero() {
           return null;
       }
     },
-    [handleNotification, handlePhaseChange, handleTabChange, handleProjectChange, handleZoom]
+    [handleNotification, handlePhaseChange, handleTabChange, handleProjectChange]
   );
 
   return (
@@ -243,7 +225,6 @@ export function CodedHero() {
       {/* Coded mockup (replaces video player) */}
       <div data-hero-enter className="relative mt-8 w-full">
         <AppMockup
-          zoomPhase={effectiveZoom}
           phase={effectivePhase}
           progress={effectiveProgress}
           activeTab={activeTab}

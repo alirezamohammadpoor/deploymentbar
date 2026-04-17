@@ -5,7 +5,7 @@ import { WifiHigh } from "@phosphor-icons/react/dist/icons/WifiHigh";
 import { BatteryFull } from "@phosphor-icons/react/dist/icons/BatteryFull";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { triangleColor, PopoverHeader, FilterTabs, DeployNotification } from "./MockupParts";
-import type { FilterTab, ZoomPhase } from "./mockData";
+import type { FilterTab } from "./mockData";
 
 function formatMenuBarDate(date: Date): string {
   const day = date.toLocaleDateString("en-US", { weekday: "short" });
@@ -87,7 +87,6 @@ function MacOSMenuBar({
 /* ── AppMockup (shared frame) ─────────────────────────────── */
 
 export function AppMockup({
-  zoomPhase = "normal",
   phase,
   progress,
   activeTab,
@@ -98,7 +97,6 @@ export function AppMockup({
   sceneDuration,
   children,
 }: {
-  zoomPhase?: ZoomPhase;
   phase: string;
   progress: number;
   activeTab: FilterTab;
@@ -109,46 +107,9 @@ export function AppMockup({
   sceneDuration: number;
   children: ReactNode;
 }) {
-  const zoomRef = useRef<HTMLDivElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Zoom animation
-  useGSAP(
-    () => {
-      if (!zoomRef.current) return;
-      const isZoomed = zoomPhase === "zooming-in" || zoomPhase === "zoomed";
-
-      if (zoomPhase === "zooming-in" || zoomPhase === "zoomed") {
-        gsap.to(zoomRef.current, {
-          scale: 2.5,
-          duration: 0.6,
-          ease: "power3.inOut",
-          transformOrigin: "100% 3%",
-        });
-        if (popoverRef.current) {
-          gsap.to(popoverRef.current, { autoAlpha: 0, duration: 0.3 });
-        }
-      } else if (zoomPhase === "zooming-out") {
-        gsap.to(zoomRef.current, {
-          scale: 1,
-          duration: 1.2,
-          ease: "power3.inOut",
-        });
-        if (popoverRef.current) {
-          gsap.to(popoverRef.current, { autoAlpha: 1, duration: 0.8, delay: 0.3 });
-        }
-      } else {
-        // normal — snap to default (no animation on initial render)
-        gsap.set(zoomRef.current, { scale: 1 });
-        if (popoverRef.current) {
-          gsap.set(popoverRef.current, { autoAlpha: 1 });
-        }
-      }
-    },
-    { dependencies: [zoomPhase], scope: containerRef }
-  );
 
   // Pill progress bar animation
   useGSAP(
@@ -180,7 +141,7 @@ export function AppMockup({
         <div ref={progressBarRef} className="h-full bg-accent-blue" style={{ width: 0 }} />
       </div>
 
-      <div ref={zoomRef}>
+      <div>
         <MacOSMenuBar phase={phase} progress={progress} />
 
         <DeployNotification

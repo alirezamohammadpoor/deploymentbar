@@ -248,7 +248,7 @@ export function DeployNotification({
             <span className="text-[10px] text-white/40">now</span>
           </div>
           <p className="mt-0.5 text-[12px] font-medium text-white/90">
-            Deployment Ready
+            Deployment Ready · CI passed
           </p>
           <p className="text-[11px] text-white/50">
             api-server deployed to preview
