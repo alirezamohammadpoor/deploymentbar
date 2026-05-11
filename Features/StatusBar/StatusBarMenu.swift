@@ -255,7 +255,7 @@ struct StatusBarMenu: View {
     HStack(spacing: 0) {
       ForEach(EnvironmentFilter.allCases, id: \.self) { tab in
         Button {
-          withAnimation(.easeInOut(duration: 0.15)) {
+          withAnimation(Geist.Motion.filterTab) {
             filter = tab
           }
         } label: {
@@ -475,6 +475,7 @@ struct StatusBarMenu: View {
           DeploymentRowView(
             deployment: deployment,
             checkStatus: store.checkStatuses[deployment.id],
+            failingChecks: store.failingChecks[deployment.id] ?? [],
             relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt, now: now),
             isExpanded: expandedDeploymentId == deployment.id,
             isFocused: focusedDeploymentId == deployment.id,
@@ -498,9 +499,9 @@ struct StatusBarMenu: View {
   }
 
   private func toggleExpand(for deploymentId: String) {
-    let animation = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-      ? Animation?.none
-      : .spring(dampingFraction: 0.85)
+    let animation: Animation? = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+      ? nil
+      : Geist.Motion.rowExpand
 
     withAnimation(animation) {
       if expandedDeploymentId == deploymentId {
@@ -590,9 +591,9 @@ struct StatusBarMenu: View {
   private func handleEscape() {
     if expandedDeploymentId != nil {
       // First escape: collapse expanded row
-      let animation = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
-        ? Animation?.none
-        : .spring(dampingFraction: 0.85)
+      let animation: Animation? = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+        ? nil
+        : Geist.Motion.rowExpand
 
       withAnimation(animation) {
         expandedDeploymentId = nil

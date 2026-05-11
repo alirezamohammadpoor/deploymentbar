@@ -4,6 +4,7 @@ import Foundation
 final class DeploymentStore: ObservableObject {
   @Published private(set) var deployments: [Deployment] = []
   @Published private(set) var checkStatuses: [String: AggregateCheckStatus] = [:]
+  @Published private(set) var failingChecks: [String: [FailingCheckInfo]] = [:]
   var onStateChange: ((Deployment, DeploymentState, DeploymentState) -> Void)?
   var onCheckStatusChange: ((Deployment, AggregateCheckStatus) -> Void)?
   private var didInitialLoad = false
@@ -22,16 +23,28 @@ final class DeploymentStore: ObservableObject {
     didInitialLoad = true
     self.deployments = deployments.sorted { $0.createdAt > $1.createdAt }
 
-    // Clean up stale check statuses
+    // Clean up stale check statuses and failing-check details
     let currentIds = Set(deployments.map(\.id))
     for key in checkStatuses.keys where !currentIds.contains(key) {
       checkStatuses.removeValue(forKey: key)
     }
+    for key in failingChecks.keys where !currentIds.contains(key) {
+      failingChecks.removeValue(forKey: key)
+    }
   }
 
-  func applyCheckStatus(_ status: AggregateCheckStatus, for deploymentId: String) {
+  func applyCheckStatus(
+    _ status: AggregateCheckStatus,
+    failingChecks: [FailingCheckInfo],
+    for deploymentId: String
+  ) {
     let previous = checkStatuses[deploymentId]
     checkStatuses[deploymentId] = status
+    if failingChecks.isEmpty {
+      self.failingChecks.removeValue(forKey: deploymentId)
+    } else {
+      self.failingChecks[deploymentId] = failingChecks
+    }
 
     // Fire callback when transitioning from running (or nil) to passed/failed
     if (previous == nil || previous == .running) && (status == .passed || status == .failed) {

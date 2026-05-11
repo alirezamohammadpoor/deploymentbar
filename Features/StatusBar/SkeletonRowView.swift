@@ -76,7 +76,7 @@ struct SkeletonRowView: View {
   private func startShimmer() {
     guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
 
-    withAnimation(.linear(duration: 1.5).repeatForever(autoreverses: false)) {
+    withAnimation(.linear(duration: Geist.Motion.skeletonShimmer).repeatForever(autoreverses: false)) {
       shimmerOffset = 400
     }
   }

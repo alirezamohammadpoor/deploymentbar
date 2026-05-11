@@ -1,5 +1,20 @@
 import SwiftUI
 
+// MARK: - PlainPressableButtonStyle
+
+/// Like `.buttonStyle(.plain)` but adds a subtle press-down scale so the
+/// button confirms it heard the click. Use anywhere `.plain` is currently used
+/// on a pressable element.
+struct PlainPressableButtonStyle: ButtonStyle {
+  var pressedScale: CGFloat = 0.97
+
+  func makeBody(configuration: Configuration) -> some View {
+    configuration.label
+      .scaleEffect(configuration.isPressed ? pressedScale : 1.0)
+      .animation(Geist.Motion.buttonPress, value: configuration.isPressed)
+  }
+}
+
 // MARK: - VercelToggleStyle
 
 struct VercelToggleStyle: ToggleStyle {
@@ -22,7 +37,7 @@ struct VercelToggleStyle: ToggleStyle {
         .frame(width: 22, height: 22)
         .offset(x: isOn ? 9 : -9)
     }
-    .animation(.easeInOut(duration: 0.15), value: isOn)
+    .animation(Geist.Motion.toggleSwitch, value: isOn)
   }
 }
 

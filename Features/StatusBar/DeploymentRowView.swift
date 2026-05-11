@@ -4,6 +4,7 @@ import AppKit
 struct DeploymentRowView: View {
   let deployment: Deployment
   let checkStatus: AggregateCheckStatus?
+  let failingChecks: [FailingCheckInfo]
   let relativeTime: String
   let isExpanded: Bool
   let isFocused: Bool
@@ -19,6 +20,12 @@ struct DeploymentRowView: View {
   @State private var isRedeploying = false
   @State private var isRollingBack = false
   @State private var actionError: String?
+  @State private var isCopyingError = false
+  @State private var didCopyError = false
+
+  private var canCopyError: Bool {
+    deployment.state == .error || checkStatus == .failed
+  }
 
   private var shouldAnimate: Bool {
     (deployment.state == .building || deployment.state == .queued) &&
@@ -41,6 +48,7 @@ struct DeploymentRowView: View {
       }
     }
     .background(isHovered ? Geist.Colors.rowHover : Color.clear)
+    .animation(Geist.Motion.hoverColor, value: isHovered)
     .overlay(
       RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
         .strokeBorder(Color.accentColor, lineWidth: 2)
@@ -108,6 +116,16 @@ struct DeploymentRowView: View {
       }
 
       Divider()
+
+      // Copy Error (only when something failed)
+      if canCopyError {
+        Button {
+          copyError()
+        } label: {
+          Label(isCopyingError ? "Copying…" : "Copy Error", systemImage: "exclamationmark.bubble")
+        }
+        .disabled(isCopyingError)
+      }
 
       // View Build Log
       Button {
@@ -283,6 +301,15 @@ struct DeploymentRowView: View {
 
   private var expandedActionsContainer: some View {
     LazyVGrid(columns: Self.gridColumns, spacing: 4) {
+      if canCopyError {
+        GridActionCell(
+          icon: didCopyError ? "checkmark" : "exclamationmark.bubble",
+          label: didCopyError ? "Copied" : (isCopyingError ? "Copying…" : "Copy Error"),
+          isAccent: didCopyError,
+          action: copyError
+        )
+      }
+
       GridActionCell(
         icon: copiedURL ? "checkmark" : "doc.on.doc",
         label: copiedURL ? "Copied" : "Copy URL",
@@ -376,12 +403,12 @@ struct DeploymentRowView: View {
     NSPasteboard.general.clearContents()
     NSPasteboard.general.setString(url, forType: .string)
 
-    withAnimation {
+    withAnimation(Geist.Motion.stateFeedback) {
       copiedURL = true
     }
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-      withAnimation {
+      withAnimation(Geist.Motion.stateFeedback) {
         copiedURL = false
       }
     }
@@ -412,8 +439,53 @@ struct DeploymentRowView: View {
   }
 
   private func startPulseAnimation() {
-    withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+    withAnimation(.easeInOut(duration: Geist.Motion.rowPulse).repeatForever(autoreverses: true)) {
       pulseOpacity = 0.4
+    }
+  }
+
+  // MARK: - Copy Error
+
+  private func copyError() {
+    guard !isCopyingError else { return }
+    isCopyingError = true
+    actionError = nil
+
+    Task { @MainActor in
+      var buildLogTail: [LogLine]?
+      var buildLogError: String?
+
+      if deployment.state == .error {
+        do {
+          let (client, teamId) = try APIClientFactory.create()
+          let allLines = try await client.fetchDeploymentEvents(
+            deploymentId: deployment.id,
+            teamId: teamId
+          )
+          let limit = SettingsStore.shared.defaultLogLines
+          buildLogTail = Array(allLines.suffix(limit))
+        } catch let apiError as APIError {
+          buildLogError = apiError.userMessage
+        } catch {
+          buildLogError = "Failed to fetch logs"
+        }
+      }
+
+      let prompt = ErrorPromptBuilder.build(
+        deployment: deployment,
+        buildLogTail: buildLogTail,
+        buildLogError: buildLogError,
+        failingChecks: failingChecks
+      )
+
+      NSPasteboard.general.clearContents()
+      NSPasteboard.general.setString(prompt, forType: .string)
+
+      isCopyingError = false
+      withAnimation(Geist.Motion.stateFeedback) { didCopyError = true }
+      DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        withAnimation(Geist.Motion.stateFeedback) { didCopyError = false }
+      }
     }
   }
 
@@ -513,9 +585,11 @@ private struct GridActionCell: View {
       VStack(spacing: 2) {
         Image(systemName: icon)
           .font(.system(size: 15))
+          .contentTransition(.symbolEffect(.replace))
         Text(label)
           .font(.system(size: 9))
           .lineLimit(1)
+          .contentTransition(.opacity)
       }
       .foregroundColor(isAccent ? Geist.Colors.statusReady : Geist.Colors.textSecondary)
       .frame(maxWidth: .infinity)
@@ -524,8 +598,9 @@ private struct GridActionCell: View {
         RoundedRectangle(cornerRadius: 8)
           .fill(isHovered ? Color.white.opacity(0.08) : Color.clear)
       )
+      .animation(Geist.Motion.hoverColor, value: isHovered)
     }
-    .buttonStyle(.plain)
+    .buttonStyle(PlainPressableButtonStyle())
     .onHover { hovering in isHovered = hovering }
   }
 }

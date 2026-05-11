@@ -31,8 +31,11 @@ if [[ -z "$SPARKLE_GENERATE_APPCAST_BIN" ]]; then
   fail "Unable to find Sparkle generate_appcast binary. Set SPARKLE_GENERATE_APPCAST_BIN."
 fi
 
-require_env SPARKLE_PRIVATE_KEY_FILE
-[[ -f "$SPARKLE_PRIVATE_KEY_FILE" ]] || fail "Private key not found: $SPARKLE_PRIVATE_KEY_FILE"
+# SPARKLE_PRIVATE_KEY_FILE is optional. If unset, generate_appcast falls back
+# to reading the EdDSA key from the Keychain (item: https://sparkle-project.org).
+if [[ -n "$SPARKLE_PRIVATE_KEY_FILE" ]]; then
+  [[ -f "$SPARKLE_PRIVATE_KEY_FILE" ]] || fail "Private key not found: $SPARKLE_PRIVATE_KEY_FILE"
+fi
 [[ -n "$ZIP_PATH" ]] || fail "ZIP_PATH is required"
 [[ -f "$ZIP_PATH" ]] || fail "ZIP archive not found: $ZIP_PATH"
 [[ -n "$DOWNLOAD_URL" ]] || fail "DOWNLOAD_URL is required"
@@ -42,11 +45,17 @@ rm -rf "$WORK_DIR"
 mkdir -p "$ARCHIVE_DIR"
 cp "$ZIP_PATH" "$ARCHIVE_DIR/"
 
-"$SPARKLE_GENERATE_APPCAST_BIN" "$ARCHIVE_DIR" \
-  --ed-key-file "$SPARKLE_PRIVATE_KEY_FILE" \
-  --download-url-prefix "$(dirname "$DOWNLOAD_URL")/" \
-  --link "$RELEASE_NOTES_URL" \
+GENERATE_ARGS=("$ARCHIVE_DIR")
+if [[ -n "$SPARKLE_PRIVATE_KEY_FILE" ]]; then
+  GENERATE_ARGS+=(--ed-key-file "$SPARKLE_PRIVATE_KEY_FILE")
+fi
+GENERATE_ARGS+=(
+  --download-url-prefix "$(dirname "$DOWNLOAD_URL")/"
+  --link "$RELEASE_NOTES_URL"
   --output-dir "$WORK_DIR"
+)
+
+"$SPARKLE_GENERATE_APPCAST_BIN" "${GENERATE_ARGS[@]}"
 
 GENERATED_APPCAST="$WORK_DIR/appcast.xml"
 [[ -f "$GENERATED_APPCAST" ]] || fail "generate_appcast did not produce appcast.xml"

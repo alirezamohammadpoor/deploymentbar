@@ -76,6 +76,9 @@ private final class TestCredentialStore: CredentialStoring {
   func loadPersonalToken() -> String? { personalToken }
   func savePersonalToken(_ token: String) { personalToken = token }
   func clearPersonalToken() { personalToken = nil }
+  func loadGitHubToken() -> String? { nil }
+  func saveGitHubToken(_ token: String) {}
+  func clearGitHubToken() {}
 }
 
 private final class StubAuthClient: VercelAPIClient {

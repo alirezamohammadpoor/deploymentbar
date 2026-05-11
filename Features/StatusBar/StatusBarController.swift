@@ -278,8 +278,14 @@ final class StatusBarController: NSObject {
 
   private func startPulse() {
     guard pulseTimer == nil else { return }
+    // Respect Reduce Motion — leave the icon tinted at full alpha. The tint
+    // color (warning yellow for building) is already enough of a signal.
+    guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else { return }
     isPulseHigh = true
-    pulseTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+    pulseTimer = Timer.scheduledTimer(
+      withTimeInterval: Geist.Motion.statusBarPulseInterval,
+      repeats: true
+    ) { [weak self] _ in
       DispatchQueue.main.async {
         self?.togglePulse()
       }
@@ -292,7 +298,7 @@ final class StatusBarController: NSObject {
     isPulseHigh = true
     if let button = statusItem.button {
       NSAnimationContext.runAnimationGroup { context in
-        context.duration = 0.15
+        context.duration = Geist.Motion.statusBarPulseStep / 2
         button.animator().alphaValue = 1.0
       }
     }
@@ -302,7 +308,7 @@ final class StatusBarController: NSObject {
     isPulseHigh.toggle()
     guard let button = statusItem.button else { return }
     NSAnimationContext.runAnimationGroup { context in
-      context.duration = 0.3
+      context.duration = Geist.Motion.statusBarPulseStep
       button.animator().alphaValue = isPulseHigh ? 1.0 : 0.4
     }
   }

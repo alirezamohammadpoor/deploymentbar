@@ -13,7 +13,7 @@ final class GeistLayoutTests: XCTestCase {
   }
 
   func testPopoverLayoutMatchesRefreshSpec() {
-    XCTAssertEqual(Geist.Layout.popoverWidth, 392)
+    XCTAssertEqual(Geist.Layout.popoverWidth, 375)
     XCTAssertEqual(Geist.Layout.rowHeight, 82)
     XCTAssertEqual(Geist.Layout.rowExpandedHeight, 166)
     XCTAssertEqual(Geist.Layout.headerHeight, 52)

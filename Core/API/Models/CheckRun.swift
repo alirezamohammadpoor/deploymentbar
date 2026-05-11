@@ -42,3 +42,18 @@ enum AggregateCheckStatus: Equatable {
     return .passed
   }
 }
+
+struct FailingCheckInfo: Equatable {
+  let name: String
+  let detailsUrl: String?
+
+  static func from(checks: [GitHubCheckRunDTO]) -> [FailingCheckInfo] {
+    let failureConclusions: Set<String> = ["failure", "timed_out", "cancelled"]
+    return checks.compactMap { check in
+      guard let conclusion = check.conclusion, failureConclusions.contains(conclusion) else {
+        return nil
+      }
+      return FailingCheckInfo(name: check.name, detailsUrl: check.detailsUrl)
+    }
+  }
+}

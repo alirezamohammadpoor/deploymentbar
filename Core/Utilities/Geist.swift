@@ -161,6 +161,32 @@ enum Geist {
     static let settingsIconButtonSize: CGFloat = 28
   }
 
+  // MARK: - Motion
+
+  enum Motion {
+    // Strong custom timing curves. The built-in SwiftUI easings are too weak;
+    // these match Emil Kowalski's recommended cubic-bezier values.
+    // ease-out for entrances and feedback
+    static let easeOut = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.2)
+    static let easeOutFast = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.15)
+    // ease-in-out for on-screen movement / morphs
+    static let easeInOut = Animation.timingCurve(0.77, 0, 0.175, 1, duration: 0.25)
+
+    // Specific use cases
+    static let buttonPress = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.12)
+    static let hoverColor = Animation.easeOut(duration: 0.12)
+    static let stateFeedback = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.18)
+    static let rowExpand = Animation.spring(duration: 0.28, bounce: 0)
+    static let filterTab = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.15)
+    static let toggleSwitch = Animation.timingCurve(0.23, 1, 0.32, 1, duration: 0.15)
+
+    // Continuous loops — duration constants (used with .linear/.easeInOut + repeatForever)
+    static let rowPulse: TimeInterval = 1.5
+    static let skeletonShimmer: TimeInterval = 1.5
+    static let statusBarPulseStep: TimeInterval = 0.4
+    static let statusBarPulseInterval: TimeInterval = 0.6
+  }
+
   // MARK: - Section Header Style
 
   struct SectionHeaderStyle: ViewModifier {
