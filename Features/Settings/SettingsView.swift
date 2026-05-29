@@ -29,20 +29,11 @@ struct SettingsView: View {
           VStack(alignment: .leading, spacing: Geist.Layout.spacingSM) {
             HStack(alignment: .center, spacing: Geist.Layout.spacingSM) {
               Button {
-                Task { await updateManager.checkForUpdates() }
+                UpdateWindowController.shared.show()
               } label: {
-                if updateManager.isChecking {
-                  HStack(spacing: Geist.Layout.spacingXS) {
-                    ProgressView()
-                      .controlSize(.small)
-                    Text("Checking for Updates…")
-                  }
-                } else {
-                  Text("Check for Updates")
-                }
+                Text("Check for Updates")
               }
               .buttonStyle(VercelSecondaryButtonStyle())
-              .disabled(updateManager.isChecking)
 
               Text("v\(appVersion)")
                 .font(Geist.Typography.Settings.helperText)
@@ -58,6 +49,13 @@ struct SettingsView: View {
                 .font(Geist.Typography.Settings.helperText)
                 .foregroundColor(updateStatusColor)
             }
+
+            Button {
+              OnboardingWindowController.shared.show()
+            } label: {
+              Text("Replay Setup Guide")
+            }
+            .buttonStyle(VercelSecondaryButtonStyle())
           }
         }
 
@@ -121,11 +119,16 @@ struct SettingsView: View {
 
             VercelCardDivider()
 
-            VercelDropdown(
-              label: "Open links in",
-              selection: $settings.browserBundleId,
-              options: browserOptions.map { ($0.id, $0.displayName) }
-            )
+            HStack {
+              Text("Open links in")
+                .font(Geist.Typography.Settings.fieldLabel)
+                .foregroundColor(Geist.Colors.gray1000)
+              Spacer()
+              VercelDropdownChip(
+                selection: $settings.browserBundleId,
+                options: browserOptions.map { ($0.id, $0.displayName) }
+              )
+            }
 
             VercelCardDivider()
 

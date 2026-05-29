@@ -80,6 +80,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
       controller.configure()
       self.statusBarController = controller
       DebugLog.write("StatusBarController created")
+
+      if !SettingsStore.shared.hasCompletedOnboarding {
+        DebugLog.write("First run — showing onboarding")
+        OnboardingWindowController.shared.show()
+      }
     }
   }
 
