@@ -56,6 +56,7 @@ struct VercelSegmentedControl<T: Hashable>: View {
           Text(option.label)
             .font(.system(size: 13, weight: selection == option.value ? .medium : .regular))
             .foregroundColor(selection == option.value ? Geist.Colors.gray1000 : Geist.Colors.gray900)
+            .padding(.horizontal, 10)
             .frame(maxWidth: .infinity)
             .frame(height: 28)
             .background(
@@ -70,6 +71,74 @@ struct VercelSegmentedControl<T: Hashable>: View {
     .padding(2)
     .background(Geist.Colors.gray100)
     .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius))
+  }
+}
+
+// MARK: - VercelDropdownChip (inline pill — matches the popover project-filter chip)
+
+struct VercelDropdownChip<T: Hashable>: View {
+  @Binding var selection: T
+  let options: [(value: T, label: String)]
+  @State private var isHovered = false
+  @State private var isOpen = false
+
+  var body: some View {
+    Button {
+      isOpen.toggle()
+    } label: {
+      HStack(spacing: 5) {
+        Text(selectedLabel)
+          .font(Geist.Typography.caption)
+          .foregroundColor(Geist.Colors.textSecondary)
+          .lineLimit(1)
+        Image(systemName: "chevron.down")
+          .font(.system(size: Geist.Layout.iconSizeSM, weight: .medium))
+          .foregroundColor(Geist.Colors.textTertiary)
+      }
+      .padding(.horizontal, Geist.Layout.spacingSM)
+      .padding(.vertical, 5)
+      .background(isHovered ? Geist.Colors.gray200 : Geist.Colors.gray100)
+      .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
+      .overlay(
+        RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius)
+          .stroke(Geist.Colors.borderHairline, lineWidth: 1)
+      )
+    }
+    .buttonStyle(.plain)
+    .onHover { isHovered = $0 }
+    .popover(isPresented: $isOpen, arrowEdge: .bottom) {
+      VStack(alignment: .leading, spacing: 0) {
+        ForEach(options, id: \.value) { option in
+          Button {
+            selection = option.value
+            isOpen = false
+          } label: {
+            HStack(spacing: Geist.Layout.spacingSM) {
+              Text(option.label)
+                .font(Geist.Typography.caption)
+                .foregroundColor(Geist.Colors.textPrimary)
+              Spacer(minLength: Geist.Layout.spacingMD)
+              if option.value == selection {
+                Image(systemName: "checkmark")
+                  .font(.system(size: 11, weight: .semibold))
+                  .foregroundColor(Geist.Colors.textPrimary)
+              }
+            }
+            .padding(.horizontal, Geist.Layout.spacingSM)
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+          }
+          .buttonStyle(.plain)
+        }
+      }
+      .padding(4)
+      .frame(minWidth: 180)
+      .background(Geist.Colors.backgroundSecondary)
+    }
+  }
+
+  private var selectedLabel: String {
+    options.first { $0.value == selection }?.label ?? ""
   }
 }
 
@@ -128,11 +197,11 @@ struct VercelDestructiveButtonStyle: ButtonStyle {
       .padding(.horizontal, 16)
       .background(
         RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
-          .fill(Geist.Colors.statusError.opacity(0.15))
+          .fill(Geist.Colors.bgErrorSubtle)
       )
       .overlay(
         RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
-          .stroke(Geist.Colors.statusError.opacity(0.3), lineWidth: 1)
+          .stroke(Geist.Colors.borderErrorSubtle, lineWidth: 1)
       )
       .opacity(configuration.isPressed ? 0.9 : 1)
       .onHover { isHovered = $0 }
@@ -219,7 +288,7 @@ struct VercelSectionCard<Content: View>: View {
     .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.settingsCardRadius))
     .overlay(
       RoundedRectangle(cornerRadius: Geist.Layout.settingsCardRadius)
-        .stroke(Geist.Colors.borderSubtle, lineWidth: 1)
+        .stroke(Geist.Colors.borderHairline, lineWidth: 1)
     )
   }
 }
@@ -227,7 +296,7 @@ struct VercelSectionCard<Content: View>: View {
 struct VercelCardDivider: View {
   var body: some View {
     Divider()
-      .overlay(Geist.Colors.borderSubtle)
+      .overlay(Geist.Colors.borderHairline)
       .padding(.horizontal, -Geist.Layout.settingsCardPadding)
   }
 }

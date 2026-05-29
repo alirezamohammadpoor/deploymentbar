@@ -238,29 +238,33 @@ struct DeploymentRowView: View {
           .frame(width: Geist.Layout.statusDotSize)
 
         if let targetLabel {
-          Text(targetLabel)
-            .font(.system(size: 10, weight: .medium, design: .monospaced))
-            .foregroundColor(targetTextColor)
-            .lineLimit(1)
-            .padding(.horizontal, Geist.Layout.badgePaddingH + 2)
-            .padding(.vertical, Geist.Layout.badgePaddingV)
-            .background(targetBackgroundColor)
-            .clipShape(Capsule())
-            .overlay(
-              Capsule()
-                .stroke(targetBorderColor, lineWidth: 1)
-            )
+          HStack(spacing: 3) {
+            Image(systemName: targetIconName)
+              .font(.system(size: 9, weight: .semibold))
+            Text(targetLabel)
+              .font(.system(size: 10, weight: .medium))
+          }
+          .foregroundColor(targetTextColor)
+          .lineLimit(1)
+          .padding(.horizontal, 6)
+          .padding(.vertical, Geist.Layout.badgePaddingV)
+          .overlay(
+            Capsule()
+              .stroke(targetBorderColor, lineWidth: 1)
+          )
+          .clipShape(Capsule())
         }
 
-        // Branch badge
-        Text(deployment.branch ?? "—")
-          .font(Geist.Typography.branchName)
-          .foregroundColor(Geist.Colors.gray1000)
-          .lineLimit(1)
-          .padding(.horizontal, Geist.Layout.badgePaddingH + 2)
-          .padding(.vertical, Geist.Layout.badgePaddingV)
-          .background(Geist.Colors.badgeBackground)
-          .cornerRadius(Geist.Layout.badgeCornerRadius)
+        // Branch (icon + monospace, no pill — Vercel style)
+        HStack(spacing: 3) {
+          Image(systemName: "arrow.triangle.branch")
+            .font(.system(size: 10))
+            .foregroundColor(Geist.Colors.textTertiary)
+          Text(deployment.branch ?? "—")
+            .font(Geist.Typography.branchName)
+            .foregroundColor(Geist.Colors.textSecondary)
+            .lineLimit(1)
+        }
 
         // CI status icon
         if let checkStatus, checkStatus != .none {
@@ -363,25 +367,27 @@ struct DeploymentRowView: View {
     }
 
     if target == "production" {
-      return "production"
+      return "Production"
     }
-    return target
+    return target.capitalized
   }
 
   private var isProductionTarget: Bool {
-    targetLabel == "production"
+    deployment.target?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased() == "production"
+  }
+
+  private var targetIconName: String {
+    isProductionTarget ? "smallcircle.filled.circle" : "eye"
   }
 
   private var targetTextColor: Color {
     isProductionTarget ? Geist.Colors.accent : Geist.Colors.textSecondary
   }
 
-  private var targetBackgroundColor: Color {
-    isProductionTarget ? Geist.Colors.accent.opacity(0.14) : Geist.Colors.gray100
-  }
-
   private var targetBorderColor: Color {
-    isProductionTarget ? Geist.Colors.accent.opacity(0.45) : Geist.Colors.borderSubtle
+    isProductionTarget ? Geist.Colors.borderAccentSubtle : Geist.Colors.borderHairline
   }
 
   private var vercelDashboardURL: URL? {
