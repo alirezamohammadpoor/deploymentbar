@@ -8,11 +8,14 @@ const INACTIVITY_DELAY = 10000;
 interface UsePillCycleOptions {
   interval?: number;
   inactivityDelay?: number;
+  /** When true, the auto-cycle timer is suspended (e.g. section scrolled out of view). */
+  paused?: boolean;
 }
 
 export function usePillCycle(count: number, options: UsePillCycleOptions = {}, intervals?: number[]) {
   const interval = options.interval ?? CYCLE_INTERVAL;
   const inactivityDelay = options.inactivityDelay ?? INACTIVITY_DELAY;
+  const paused = options.paused ?? false;
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [progressKey, setProgressKey] = useState(0);
@@ -21,8 +24,6 @@ export function usePillCycle(count: number, options: UsePillCycleOptions = {}, i
   const cycleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const reducedMotionRef = useRef(false);
-  const activeIdxRef = useRef(activeIdx);
-  activeIdxRef.current = activeIdx;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -45,7 +46,7 @@ export function usePillCycle(count: number, options: UsePillCycleOptions = {}, i
 
   // Auto-cycle
   useEffect(() => {
-    if (reducedMotionRef.current) return;
+    if (reducedMotionRef.current || paused) return;
 
     const clearCycle = () => {
       if (cycleTimerRef.current) {
@@ -57,16 +58,16 @@ export function usePillCycle(count: number, options: UsePillCycleOptions = {}, i
     const startCycle = () => {
       clearCycle();
       if (!autoCycleRef.current) return;
-      const duration = intervals?.[activeIdxRef.current] ?? interval;
+      const duration = intervals?.[activeIdx] ?? interval;
       cycleTimerRef.current = setTimeout(() => {
-        const next = (activeIdxRef.current + 1) % count;
+        const next = (activeIdx + 1) % count;
         advance(next);
       }, duration);
     };
 
     startCycle();
     return clearCycle;
-  }, [activeIdx, count, interval, intervals, advance]);
+  }, [activeIdx, count, interval, intervals, advance, paused]);
 
   const handlePillClick = useCallback(
     (idx: number) => {

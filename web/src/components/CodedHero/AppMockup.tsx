@@ -28,10 +28,14 @@ function MacOSMenuBar({
   phase: string;
   progress: number;
 }) {
-  const [now, setNow] = useState(() => formatMenuBarDate(new Date()));
+  // Start blank so SSR and the first client render match; fill the real time
+  // after mount. (Calling new Date() during render causes a hydration mismatch.)
+  const [now, setNow] = useState("");
 
   useEffect(() => {
-    const id = setInterval(() => setNow(formatMenuBarDate(new Date())), 30_000);
+    const update = () => setNow(formatMenuBarDate(new Date()));
+    update();
+    const id = setInterval(update, 30_000);
     return () => clearInterval(id);
   }, []);
 
@@ -95,6 +99,7 @@ export function AppMockup({
   notificationExiting,
   progressKey,
   sceneDuration,
+  variant = "default",
   children,
 }: {
   phase: string;
@@ -105,6 +110,7 @@ export function AppMockup({
   notificationExiting: boolean;
   progressKey: number;
   sceneDuration: number;
+  variant?: "default" | "hero";
   children: ReactNode;
 }) {
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -131,15 +137,20 @@ export function AppMockup({
         gsap.set(progressBarRef.current, { width: "100%" });
       });
     },
-    { dependencies: [progressKey, sceneDuration], scope: containerRef }
+    { dependencies: [progressKey, sceneDuration], scope: containerRef, revertOnUpdate: true }
   );
 
   return (
-    <div ref={containerRef} className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-[#1a1a1a] shadow-2xl">
-      {/* Scene progress bar */}
-      <div className="h-[2px] w-full bg-white/10">
-        <div ref={progressBarRef} className="h-full bg-accent-blue" style={{ width: 0 }} />
-      </div>
+    <div
+      ref={containerRef}
+      className="relative overflow-hidden rounded-[10px] border border-hairline bg-surface-2"
+    >
+      {/* Scene progress bar — only in the cycling section embeds, not the hero */}
+      {variant === "default" && (
+        <div className="h-[2px] w-full bg-white/10">
+          <div ref={progressBarRef} className="h-full bg-text-dim" style={{ width: 0 }} />
+        </div>
+      )}
 
       <div>
         <MacOSMenuBar phase={phase} progress={progress} />
@@ -164,7 +175,7 @@ export function AppMockup({
               </div>
 
               {/* Popover card */}
-              <div className="overflow-hidden rounded-xl border border-card-border bg-card-bg shadow-2xl">
+              <div className="overflow-hidden rounded-xl border border-card-border bg-card-bg">
                 <PopoverHeader activeProject={activeProject} />
                 <FilterTabs activeTab={activeTab} />
 

@@ -81,7 +81,7 @@ export function CICheckBadge({ status }: { status: CIStatus }) {
   );
 }
 
-/* ── FilterTabs (matches real app: 3 equal tabs, 2pt blue underline) */
+/* ── FilterTabs (matches real app: 3 equal tabs, active = value-driven underline) */
 
 export function FilterTabs({
   activeTab,
@@ -97,9 +97,9 @@ export function FilterTabs({
           key={tab}
           type="button"
           onClick={() => onTabChange?.(tab)}
-          className={`flex-1 py-2 text-[12px] transition-all duration-150 ${
+          className={`flex-1 py-2 text-[12px] transition-colors duration-150 ${
             activeTab === tab
-              ? "font-medium text-text-primary border-b-2 border-accent-blue"
+              ? "font-medium text-text-primary border-b-2 border-text-primary"
               : "font-normal text-text-secondary"
           }`}
         >
@@ -183,9 +183,9 @@ export function ActionButtons({
           return (
             <div
               key={id}
-              className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center gap-1 rounded-lg py-2 transition-colors duration-200 ${
                 isHighlighted
-                  ? "bg-white/[0.08] text-accent-blue"
+                  ? "bg-white/[0.08] text-text-primary"
                   : "text-text-secondary"
               }`}
             >
@@ -212,6 +212,16 @@ export function DeployNotification({
 
   useEffect(() => {
     if (!notifRef.current) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      gsap.set(notifRef.current, {
+        x: 0,
+        autoAlpha: visible && !exiting ? 1 : 0,
+      });
+      return;
+    }
     if (visible && !exiting) {
       gsap.fromTo(
         notifRef.current,
@@ -223,7 +233,7 @@ export function DeployNotification({
         x: "110%",
         autoAlpha: 0,
         duration: 0.3,
-        ease: "power1.in",
+        ease: "power2.out",
       });
     }
   }, [visible, exiting]);
@@ -233,7 +243,7 @@ export function DeployNotification({
   return (
     <div
       ref={notifRef}
-      className="absolute top-[34px] right-3 z-10 w-[280px] rounded-xl border border-white/10 bg-white/10 p-3 shadow-2xl backdrop-blur-xl"
+      className="absolute top-[34px] right-3 z-10 w-[280px] rounded-xl border border-white/10 bg-white/10 p-3 shadow-[0_6px_24px_-8px_rgba(0,0,0,0.5)] backdrop-blur-xl"
       style={{ visibility: "hidden" }}
     >
       <div className="flex items-start gap-3">
@@ -333,10 +343,10 @@ export function DeploymentRow({
           {/* Line 3: badges — capsule shapes with border, matching real app */}
           <div className="mt-1.5 flex items-center gap-1.5">
             <span
-              className={`rounded-full border px-1.5 py-[1px] text-[10px] font-medium leading-tight ${
+              className={`rounded-full border bg-transparent px-1.5 py-[1px] text-[10px] font-medium leading-tight ${
                 deployment.env === "Production"
-                  ? "border-accent-blue/20 bg-accent-blue/[0.14] text-accent-blue"
-                  : "border-card-border bg-[#1a1a1a] text-text-secondary"
+                  ? "border-hairline-strong text-text-primary"
+                  : "border-hairline text-text-secondary"
               }`}
             >
               {deployment.env}
