@@ -29,6 +29,30 @@ struct VisualEffectBackground: NSViewRepresentable {
   }
 }
 
+// MARK: - Scroll View Configurator
+// Forces a thin overlay scroller regardless of the system "Show scroll bars"
+// setting, by reaching the AppKit NSScrollView behind the SwiftUI ScrollView.
+
+struct ScrollViewConfigurator: NSViewRepresentable {
+  func makeNSView(context: Context) -> NSView {
+    let view = NSView(frame: .zero)
+    DispatchQueue.main.async { Self.configure(from: view) }
+    return view
+  }
+
+  func updateNSView(_ nsView: NSView, context: Context) {
+    DispatchQueue.main.async { Self.configure(from: nsView) }
+  }
+
+  private static func configure(from view: NSView) {
+    guard let scrollView = view.enclosingScrollView else { return }
+    scrollView.scrollerStyle = .overlay
+    scrollView.autohidesScrollers = true
+    scrollView.hasHorizontalScroller = false
+    scrollView.verticalScroller?.knobStyle = .default
+  }
+}
+
 enum EnvironmentFilter: String, CaseIterable {
   case all
   case production
@@ -115,10 +139,6 @@ struct StatusBarMenu: View {
     .frame(width: Geist.Layout.popoverWidth)
     .frame(maxHeight: Geist.Layout.popoverMaxHeight)
     .background(Geist.Colors.backgroundPrimary)
-    .overlay(
-      RoundedRectangle(cornerRadius: Geist.Layout.popoverCornerRadius)
-        .strokeBorder(Geist.Colors.border, lineWidth: Geist.Layout.popoverBorderWidth)
-    )
     .onReceive(store.$deployments) { deployments in
       if !deployments.isEmpty && isInitialLoad {
         isInitialLoad = false
@@ -483,6 +503,10 @@ struct StatusBarMenu: View {
             deployment: deployment,
             checkStatus: store.checkStatuses[deployment.id],
             failingChecks: store.failingChecks[deployment.id] ?? [],
+            ciSteps: CIStep.pipeline(
+              checks: store.checkRuns[deployment.id] ?? [],
+              deployState: deployment.state
+            ),
             relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt, now: now),
             isExpanded: expandedDeploymentId == deployment.id,
             isFocused: focusedDeploymentId == deployment.id,
@@ -503,6 +527,7 @@ struct StatusBarMenu: View {
           }
         }
       }
+      .background(ScrollViewConfigurator())
     }
   }
 

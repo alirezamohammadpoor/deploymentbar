@@ -149,7 +149,7 @@ final class RefreshEngine {
             store.deployments.first(where: { $0.id == id })
           }
         }
-        await withTaskGroup(of: (String, AggregateCheckStatus, [FailingCheckInfo])?.self) { group in
+        await withTaskGroup(of: (String, AggregateCheckStatus, [FailingCheckInfo], [GitHubCheckRunDTO])?.self) { group in
           for deployment in deploymentsNeedingChecks {
             guard let org = deployment.githubOrg,
                   let repo = deployment.githubRepo,
@@ -160,7 +160,7 @@ final class RefreshEngine {
                 let checks = try await self.fetchGitHubCheckRuns(owner: org, repo: repo, sha: sha, token: githubToken)
                 let status = AggregateCheckStatus.from(checks: checks)
                 let failing = FailingCheckInfo.from(checks: checks)
-                return (deploymentId, status, failing)
+                return (deploymentId, status, failing, checks)
               } catch {
                 DebugLog.write("RefreshEngine: GitHub check fetch failed for \(deploymentId): \(error)")
                 return nil
@@ -168,9 +168,9 @@ final class RefreshEngine {
             }
           }
           for await result in group {
-            guard let (deploymentId, status, failing) = result else { continue }
+            guard let (deploymentId, status, failing, checks) = result else { continue }
             await MainActor.run {
-              store.applyCheckStatus(status, failingChecks: failing, for: deploymentId)
+              store.applyCheckStatus(status, failingChecks: failing, checkRuns: checks, for: deploymentId)
             }
           }
         }

@@ -5,6 +5,7 @@ final class DeploymentStore: ObservableObject {
   @Published private(set) var deployments: [Deployment] = []
   @Published private(set) var checkStatuses: [String: AggregateCheckStatus] = [:]
   @Published private(set) var failingChecks: [String: [FailingCheckInfo]] = [:]
+  @Published private(set) var checkRuns: [String: [GitHubCheckRunDTO]] = [:]
   var onStateChange: ((Deployment, DeploymentState, DeploymentState) -> Void)?
   var onCheckStatusChange: ((Deployment, AggregateCheckStatus) -> Void)?
   private var didInitialLoad = false
@@ -31,11 +32,15 @@ final class DeploymentStore: ObservableObject {
     for key in failingChecks.keys where !currentIds.contains(key) {
       failingChecks.removeValue(forKey: key)
     }
+    for key in checkRuns.keys where !currentIds.contains(key) {
+      checkRuns.removeValue(forKey: key)
+    }
   }
 
   func applyCheckStatus(
     _ status: AggregateCheckStatus,
     failingChecks: [FailingCheckInfo],
+    checkRuns: [GitHubCheckRunDTO],
     for deploymentId: String
   ) {
     let previous = checkStatuses[deploymentId]
@@ -44,6 +49,11 @@ final class DeploymentStore: ObservableObject {
       self.failingChecks.removeValue(forKey: deploymentId)
     } else {
       self.failingChecks[deploymentId] = failingChecks
+    }
+    if checkRuns.isEmpty {
+      self.checkRuns.removeValue(forKey: deploymentId)
+    } else {
+      self.checkRuns[deploymentId] = checkRuns
     }
 
     // Fire callback when transitioning from running (or nil) to passed/failed

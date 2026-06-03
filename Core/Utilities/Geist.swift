@@ -47,11 +47,11 @@ enum Geist {
     static let gray1000 = Color.adaptive(light: "#171717", dark: "#EDEDED")
 
     // Expanded row container
-    static let expandedContainerBg = Color.adaptive(light: "#F5F5F5", dark: "#050505")
+    static let expandedContainerBg = Color.adaptive(light: "#F5F5F5", dark: "#1A1A1A")
 
     // Semantic aliases
     static let rowExpanded = gray100
-    static let rowHover = gray200
+    static let rowHover = Color.adaptive(light: "#FAFAFA", dark: "#101010")
     static let borderSubtle = gray400
     static let border = gray500
     static let textPrimary = gray1000
@@ -133,8 +133,6 @@ enum Geist {
   enum Layout {
     static let popoverWidth: CGFloat = 375
     static let popoverMaxHeight: CGFloat = 667
-    static let popoverCornerRadius: CGFloat = 12
-    static let popoverBorderWidth: CGFloat = 1
 
     static let spacingXS: CGFloat = 4
     static let spacingSM: CGFloat = 8

@@ -5,6 +5,7 @@ struct DeploymentRowView: View {
   let deployment: Deployment
   let checkStatus: AggregateCheckStatus?
   let failingChecks: [FailingCheckInfo]
+  let ciSteps: [CIStep]
   let relativeTime: String
   let isExpanded: Bool
   let isFocused: Bool
@@ -28,8 +29,26 @@ struct DeploymentRowView: View {
   }
 
   private var shouldAnimate: Bool {
-    (deployment.state == .building || deployment.state == .queued) &&
-    !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+    let activeBuild = deployment.state == .building || deployment.state == .queued
+    let activeCheck = ciSteps.contains { $0.status == .running }
+    return (activeBuild || activeCheck) &&
+      !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
+  }
+
+  /// The check currently running, if any — drives the collapsed live step indicator.
+  private var currentStep: CIStep? {
+    ciSteps.first { $0.status == .running }
+  }
+
+  /// Human verb for a check name (lint → "Linting", test → "Testing", …).
+  private func stepVerb(_ name: String) -> String {
+    let n = name.lowercased()
+    if n.contains("lint") { return "Linting" }
+    if n.contains("type") || n.contains("tsc") { return "Type-checking" }
+    if n.contains("test") { return "Testing" }
+    if n.contains("build") { return "Building" }
+    if n.contains("deploy") { return "Deploying" }
+    return name
   }
 
   var body: some View {
@@ -39,7 +58,7 @@ struct DeploymentRowView: View {
         .padding(.horizontal, Geist.Layout.rowPaddingH)
         .padding(.vertical, Geist.Layout.rowPaddingV)
 
-      // Expanded actions in bordered container
+      // Expanded: action grid only — CI is surfaced via the collapsed step indicator.
       if isExpanded {
         expandedActionsContainer
           .padding(.horizontal, Geist.Layout.rowPaddingH)
@@ -47,7 +66,7 @@ struct DeploymentRowView: View {
           .transition(.opacity.combined(with: .move(edge: .top)))
       }
     }
-    .background(isHovered ? Geist.Colors.rowHover : Color.clear)
+    .background(isHovered && !isExpanded ? Geist.Colors.rowHover : Color.clear)
     .animation(Geist.Motion.hoverColor, value: isHovered)
     .overlay(
       RoundedRectangle(cornerRadius: Geist.Layout.settingsInputRadius)
@@ -67,11 +86,11 @@ struct DeploymentRowView: View {
         startPulseAnimation()
       }
     }
-    .onChange(of: deployment.state) { _, newState in
-      if newState == .building || newState == .queued {
-        if !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion {
-          startPulseAnimation()
-        }
+    .onChange(of: shouldAnimate) { _, animate in
+      if animate {
+        startPulseAnimation()
+      } else {
+        stopPulseAnimation()
       }
     }
     .contextMenu {
@@ -283,8 +302,20 @@ struct DeploymentRowView: View {
 
         Spacer()
 
-        // PR link indicator
-        if deployment.prURL != nil {
+        if let step = currentStep {
+          // Live current-step indicator — which CI step the deployment is on.
+          HStack(spacing: 4) {
+            Circle()
+              .fill(Geist.Colors.statusBuilding)
+              .frame(width: 6, height: 6)
+              .opacity(shouldAnimate ? pulseOpacity : 1.0)
+            Text("\(stepVerb(step.name))…")
+              .font(Geist.Typography.buildDuration)
+              .foregroundColor(Geist.Colors.statusBuilding)
+              .lineLimit(1)
+          }
+        } else if deployment.prURL != nil {
+          // PR link indicator
           HStack(spacing: 2) {
             Image(systemName: "arrow.up.right.square")
               .font(.system(size: 10))
@@ -348,7 +379,7 @@ struct DeploymentRowView: View {
     )
     .overlay(
       RoundedRectangle(cornerRadius: 8)
-        .stroke(Geist.Colors.gray100, lineWidth: 1)
+        .stroke(Geist.Colors.gray300, lineWidth: 1)
     )
   }
 
@@ -447,6 +478,12 @@ struct DeploymentRowView: View {
   private func startPulseAnimation() {
     withAnimation(.easeInOut(duration: Geist.Motion.rowPulse).repeatForever(autoreverses: true)) {
       pulseOpacity = 0.4
+    }
+  }
+
+  private func stopPulseAnimation() {
+    withAnimation(.easeOut(duration: 0.2)) {
+      pulseOpacity = 1.0
     }
   }
 
