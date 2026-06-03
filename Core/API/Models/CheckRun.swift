@@ -57,3 +57,63 @@ struct FailingCheckInfo: Equatable {
     }
   }
 }
+
+// MARK: - Per-step pipeline (which CI step a deployment is on)
+
+enum CIStepStatus: Equatable {
+  case queued
+  case running
+  case passed
+  case failed
+  case skipped
+}
+
+struct CIStep: Identifiable, Equatable {
+  let id: String
+  let name: String
+  let status: CIStepStatus
+
+  static func status(for check: GitHubCheckRunDTO) -> CIStepStatus {
+    switch check.status {
+    case "queued":
+      return .queued
+    case "in_progress":
+      return .running
+    default: // "completed"
+      switch check.conclusion {
+      case "success":
+        return .passed
+      case "failure", "timed_out", "cancelled":
+        return .failed
+      case "skipped", "neutral":
+        return .skipped
+      default:
+        return .queued
+      }
+    }
+  }
+
+  static func from(check: GitHubCheckRunDTO) -> CIStep {
+    CIStep(id: "check-\(check.id)", name: check.name, status: status(for: check))
+  }
+
+  /// The deployment's checks in API order with a synthetic "Deploy" step appended.
+  /// Returns [] when there are no checks (the row's status dot already conveys the
+  /// deploy state). The collapsed row consumes this to surface the running step.
+  static func pipeline(checks: [GitHubCheckRunDTO], deployState: DeploymentState) -> [CIStep] {
+    guard !checks.isEmpty else { return [] }
+    return checks.map(CIStep.from(check:)) + [deployStep(for: deployState)]
+  }
+
+  static func deployStep(for state: DeploymentState) -> CIStep {
+    let status: CIStepStatus
+    switch state {
+    case .building: status = .running
+    case .ready: status = .passed
+    case .error: status = .failed
+    case .queued: status = .queued
+    case .canceled: status = .skipped
+    }
+    return CIStep(id: "deploy", name: "Deploy", status: status)
+  }
+}

@@ -1,27 +1,23 @@
-import { DownloadSimple } from "@phosphor-icons/react/dist/ssr/DownloadSimple";
+import { Pill } from "./ui/primitives";
+import { DOWNLOAD_URL, GITHUB_URL } from "@/lib/links";
 
 export function FinalCTA() {
   return (
-    <section id="download" className="mx-auto max-w-6xl px-6 py-24">
-      <div className="rounded-xl border border-card-border bg-card-bg p-10 text-center md:p-16">
-        <h2 className="text-3xl font-medium text-text-primary md:text-[32px]">
-          Stop refreshing Vercel.
-        </h2>
-
-        <p className="mx-auto mt-4 max-w-md text-lg text-white">
-          Your deployments, always one glance away.
-        </p>
-
-        <div className="mt-8 flex flex-col items-center gap-3">
-          <a
-            href="https://github.com/alirezamohammadpoor/deploymentbar/releases/latest"
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-blue px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#005bd4]"
-          >
-            <DownloadSimple size={18} weight="bold" />
-            Download for macOS
-          </a>
-          <p className="text-sm text-white">
-            Free public beta &middot; macOS 14+
+    <section id="download" className="bg-background">
+      <div className="mx-auto max-w-[1200px] px-6 pt-[144px] pb-[96px]">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-[2.5rem] font-medium leading-[1.1] tracking-[-0.03em] sm:text-[3.25rem]">
+            <span className="block text-text-primary">All your deployments.</span>
+            <span className="block text-text-secondary">One glance away.</span>
+          </h2>
+          <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+            <Pill href={DOWNLOAD_URL}>Download for macOS</Pill>
+            <Pill variant="secondary" href={GITHUB_URL}>
+              View on GitHub →
+            </Pill>
+          </div>
+          <p className="mt-5 font-mono text-[12px] text-text-dim">
+            Free public beta · macOS 14+
           </p>
         </div>
       </div>

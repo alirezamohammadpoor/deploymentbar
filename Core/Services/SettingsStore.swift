@@ -40,6 +40,10 @@ final class SettingsStore: ObservableObject {
     didSet { defaults.set(defaultLogLines, forKey: Keys.defaultLogLines) }
   }
 
+  @Published var hasCompletedOnboarding: Bool {
+    didSet { defaults.set(hasCompletedOnboarding, forKey: Keys.hasCompletedOnboarding) }
+  }
+
   private let defaults: UserDefaults
   private let launchAtLoginManager = LaunchAtLoginManager()
 
@@ -66,6 +70,7 @@ final class SettingsStore: ObservableObject {
     let storedProjects = defaults.array(forKey: Keys.selectedProjectIds) as? [String] ?? []
     self.selectedProjectIds = Set(storedProjects)
     self.defaultLogLines = defaults.integer(forKey: Keys.defaultLogLines)
+    self.hasCompletedOnboarding = defaults.bool(forKey: Keys.hasCompletedOnboarding)
 
     if let storedLaunch = defaults.object(forKey: Keys.launchAtLogin) as? Bool {
       self.launchAtLogin = storedLaunch
@@ -86,5 +91,6 @@ final class SettingsStore: ObservableObject {
     static let pollingInterval = "settings.pollingInterval"
     static let selectedProjectIds = "settings.selectedProjectIds"
     static let defaultLogLines = "settings.defaultLogLines"
+    static let hasCompletedOnboarding = "settings.hasCompletedOnboarding"
   }
 }

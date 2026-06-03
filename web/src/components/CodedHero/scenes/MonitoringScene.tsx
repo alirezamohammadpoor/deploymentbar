@@ -19,10 +19,12 @@ export function MonitoringScene({
   active,
   onNotification,
   onPhaseChange,
+  listClassName = "max-h-[280px] overflow-y-auto",
 }: {
   active: boolean;
   onNotification: (visible: boolean, exiting: boolean) => void;
   onPhaseChange: (phase: string, progress: number) => void;
+  listClassName?: string;
 }) {
   const [state, setState] = useState<MonitoringState>(initialState);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -108,7 +110,7 @@ export function MonitoringScene({
   });
 
   return (
-    <div ref={containerRef} className="max-h-[280px] overflow-y-auto">
+    <div ref={containerRef} className={listClassName}>
       {sceneDeployments.map((d) => (
         <DeploymentRow key={d.id} deployment={d} />
       ))}

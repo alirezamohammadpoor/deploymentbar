@@ -41,17 +41,17 @@ enum Geist {
     static let gray400 = Color.adaptive(light: "#EAEAEA", dark: "#333333")
     static let gray500 = Color.adaptive(light: "#E5E5E5", dark: "#3F3F3F")
     static let gray600 = Color.adaptive(light: "#D4D4D4", dark: "#525252")
-    static let gray700 = Color.adaptive(light: "#999999", dark: "#666666")
+    static let gray700 = Color.adaptive(light: "#767676", dark: "#666666") // light darkened for WCAG AA
     static let gray800 = Color.adaptive(light: "#666666", dark: "#7A7A7A")
     static let gray900 = Color.adaptive(light: "#666666", dark: "#A1A1A1")
     static let gray1000 = Color.adaptive(light: "#171717", dark: "#EDEDED")
 
     // Expanded row container
-    static let expandedContainerBg = Color.adaptive(light: "#F5F5F5", dark: "#050505")
+    static let expandedContainerBg = Color.adaptive(light: "#F5F5F5", dark: "#1A1A1A")
 
     // Semantic aliases
     static let rowExpanded = gray100
-    static let rowHover = gray200
+    static let rowHover = Color.adaptive(light: "#FAFAFA", dark: "#101010")
     static let borderSubtle = gray400
     static let border = gray500
     static let textPrimary = gray1000
@@ -59,6 +59,14 @@ enum Geist {
     static let textTertiary = gray800
     static let buttonText = textPrimary
     static let badgeBackground = gray100
+
+    // Hairline divider + subtle tinted surfaces (Vercel pass; full-opacity, theme-aware)
+    static let borderHairline = Color.adaptive(light: "#EAEAEA", dark: "#1A1A1A")
+    static let bgErrorSubtle = Color.adaptive(light: "#FDE8E8", dark: "#2A1313")
+    static let borderErrorSubtle = Color.adaptive(light: "#F7C9C9", dark: "#5C2020")
+    static let bgWarningSubtle = Color.adaptive(light: "#FEF3E2", dark: "#2E2310")
+    static let bgAccentSubtle = Color.adaptive(light: "#E7F0FE", dark: "#0E2036")
+    static let borderAccentSubtle = Color.adaptive(light: "#BBD6FB", dark: "#1E3A5F")
 
     // Status colors
     static let statusReady = Color(hex: "#00C853")
@@ -125,8 +133,6 @@ enum Geist {
   enum Layout {
     static let popoverWidth: CGFloat = 375
     static let popoverMaxHeight: CGFloat = 667
-    static let popoverCornerRadius: CGFloat = 12
-    static let popoverBorderWidth: CGFloat = 1
 
     static let spacingXS: CGFloat = 4
     static let spacingSM: CGFloat = 8

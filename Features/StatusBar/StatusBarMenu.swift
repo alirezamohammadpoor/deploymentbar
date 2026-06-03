@@ -29,6 +29,30 @@ struct VisualEffectBackground: NSViewRepresentable {
   }
 }
 
+// MARK: - Scroll View Configurator
+// Forces a thin overlay scroller regardless of the system "Show scroll bars"
+// setting, by reaching the AppKit NSScrollView behind the SwiftUI ScrollView.
+
+struct ScrollViewConfigurator: NSViewRepresentable {
+  func makeNSView(context: Context) -> NSView {
+    let view = NSView(frame: .zero)
+    DispatchQueue.main.async { Self.configure(from: view) }
+    return view
+  }
+
+  func updateNSView(_ nsView: NSView, context: Context) {
+    DispatchQueue.main.async { Self.configure(from: nsView) }
+  }
+
+  private static func configure(from view: NSView) {
+    guard let scrollView = view.enclosingScrollView else { return }
+    scrollView.scrollerStyle = .overlay
+    scrollView.autohidesScrollers = true
+    scrollView.hasHorizontalScroller = false
+    scrollView.verticalScroller?.knobStyle = .default
+  }
+}
+
 enum EnvironmentFilter: String, CaseIterable {
   case all
   case production
@@ -59,6 +83,7 @@ struct StatusBarMenu: View {
   @State private var expandedDeploymentId: String?
   @State private var focusedDeploymentId: String?
   @State private var isHoveringProject = false
+  @State private var isProjectMenuOpen = false
   @State private var now = Date()
   private let clock = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
@@ -85,15 +110,15 @@ struct StatusBarMenu: View {
     var backgroundColor: Color {
       switch self {
       case .fresh: return Geist.Colors.gray100
-      case .stale: return Geist.Colors.statusError.opacity(0.1)
+      case .stale: return Geist.Colors.bgErrorSubtle
       case .waiting: return Geist.Colors.gray100
       }
     }
 
     var borderColor: Color {
       switch self {
-      case .stale: return Geist.Colors.statusError.opacity(0.4)
-      case .fresh, .waiting: return Geist.Colors.borderSubtle
+      case .stale: return Geist.Colors.borderErrorSubtle
+      case .fresh, .waiting: return Geist.Colors.borderHairline
       }
     }
   }
@@ -104,16 +129,16 @@ struct StatusBarMenu: View {
         offlineBanner
       }
       header
-      Divider()
+      Divider().overlay(Geist.Colors.borderHairline)
       content
+      if case .signedIn = authSession.status {
+        Divider().overlay(Geist.Colors.borderHairline)
+        footer
+      }
     }
     .frame(width: Geist.Layout.popoverWidth)
     .frame(maxHeight: Geist.Layout.popoverMaxHeight)
     .background(Geist.Colors.backgroundPrimary)
-    .overlay(
-      RoundedRectangle(cornerRadius: Geist.Layout.popoverCornerRadius)
-        .strokeBorder(Geist.Colors.border, lineWidth: Geist.Layout.popoverBorderWidth)
-    )
     .onReceive(store.$deployments) { deployments in
       if !deployments.isEmpty && isInitialLoad {
         isInitialLoad = false
@@ -157,7 +182,7 @@ struct StatusBarMenu: View {
     .foregroundColor(Geist.Colors.statusWarning)
     .frame(maxWidth: .infinity)
     .padding(.vertical, Geist.Layout.spacingXS)
-    .background(Geist.Colors.statusWarning.opacity(0.15))
+    .background(Geist.Colors.bgWarningSubtle)
   }
 
   // MARK: - Header
@@ -167,10 +192,12 @@ struct StatusBarMenu: View {
       // Title bar
       HStack(spacing: Geist.Layout.spacingMD) {
         HStack(spacing: Geist.Layout.spacingSM) {
-          Image(nsImage: NSApp.applicationIconImage)
+          Image("vercel-icon")
+            .renderingMode(.template)
             .resizable()
-            .frame(width: 18, height: 18)
-            .cornerRadius(4)
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 16, height: 16)
+            .foregroundColor(Geist.Colors.textPrimary)
           Text("Deploymentbar")
             .font(.system(size: 14, weight: .medium))
             .foregroundColor(Geist.Colors.textPrimary)
@@ -181,30 +208,8 @@ struct StatusBarMenu: View {
         HStack(spacing: Geist.Layout.spacingMD) {
           // Project filter dropdown
           if !projectStore.projects.isEmpty {
-            Menu {
-              Button {
-                selectedMenuProjectIds = []
-              } label: {
-                if selectedMenuProjectIds.isEmpty {
-                  Label("All Projects", systemImage: "checkmark")
-                } else {
-                  Text("All Projects")
-                }
-              }
-
-              Divider()
-
-              ForEach(availableProjects, id: \.id) { project in
-                Button {
-                  toggleProjectFilter(project.id)
-                } label: {
-                  if selectedMenuProjectIds.contains(project.id) {
-                    Label(project.name, systemImage: "checkmark")
-                  } else {
-                    Text(project.name)
-                  }
-                }
-              }
+            Button {
+              isProjectMenuOpen.toggle()
             } label: {
               HStack(spacing: 5) {
                 Text(projectFilterLabel)
@@ -218,11 +223,33 @@ struct StatusBarMenu: View {
               .padding(.vertical, 5)
               .background(isHoveringProject ? Geist.Colors.gray200 : Geist.Colors.gray100)
               .clipShape(RoundedRectangle(cornerRadius: Geist.Layout.headerDropdownRadius))
-              .onHover { hovering in isHoveringProject = hovering }
             }
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            .fixedSize()
+            .buttonStyle(.plain)
+            .onHover { hovering in isHoveringProject = hovering }
+            .popover(isPresented: $isProjectMenuOpen, arrowEdge: .bottom) {
+              VStack(alignment: .leading, spacing: 0) {
+                Button {
+                  selectedMenuProjectIds = []
+                } label: {
+                  projectMenuRow(name: "All Projects", checked: selectedMenuProjectIds.isEmpty)
+                }
+                .buttonStyle(.plain)
+
+                Divider().overlay(Geist.Colors.borderHairline)
+
+                ForEach(availableProjects, id: \.id) { project in
+                  Button {
+                    toggleProjectFilter(project.id)
+                  } label: {
+                    projectMenuRow(name: project.name, checked: selectedMenuProjectIds.contains(project.id))
+                  }
+                  .buttonStyle(.plain)
+                }
+              }
+              .padding(4)
+              .frame(minWidth: 200)
+              .background(Geist.Colors.backgroundSecondary)
+            }
           }
 
           Button {
@@ -244,7 +271,7 @@ struct StatusBarMenu: View {
       .padding(.horizontal, Geist.Layout.spacingMD)
       .padding(.vertical, Geist.Layout.spacingSM)
 
-      Divider()
+      Divider().overlay(Geist.Colors.borderHairline)
 
       // Filter tabs
       environmentFilterControl
@@ -476,6 +503,10 @@ struct StatusBarMenu: View {
             deployment: deployment,
             checkStatus: store.checkStatuses[deployment.id],
             failingChecks: store.failingChecks[deployment.id] ?? [],
+            ciSteps: CIStep.pipeline(
+              checks: store.checkRuns[deployment.id] ?? [],
+              deployState: deployment.state
+            ),
             relativeTime: RelativeTimeFormatter.string(from: deployment.createdAt, now: now),
             isExpanded: expandedDeploymentId == deployment.id,
             isFocused: focusedDeploymentId == deployment.id,
@@ -491,10 +522,12 @@ struct StatusBarMenu: View {
           // Row separator (inset to align with project name, past status dot)
           if index < filteredDeployments.count - 1 {
             Divider()
+              .overlay(Geist.Colors.borderHairline)
               .padding(.leading, Geist.Layout.rowSeparatorInset)
           }
         }
       }
+      .background(ScrollViewConfigurator())
     }
   }
 
@@ -548,6 +581,24 @@ struct StatusBarMenu: View {
     } else {
       selectedMenuProjectIds.insert(projectId)
     }
+  }
+
+  private func projectMenuRow(name: String, checked: Bool) -> some View {
+    HStack(spacing: Geist.Layout.spacingSM) {
+      Text(name)
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.textPrimary)
+        .lineLimit(1)
+      Spacer(minLength: Geist.Layout.spacingMD)
+      if checked {
+        Image(systemName: "checkmark")
+          .font(.system(size: 11, weight: .semibold))
+          .foregroundColor(Geist.Colors.textPrimary)
+      }
+    }
+    .padding(.horizontal, Geist.Layout.spacingSM)
+    .padding(.vertical, 6)
+    .contentShape(Rectangle())
   }
 
   // MARK: - Keyboard Navigation

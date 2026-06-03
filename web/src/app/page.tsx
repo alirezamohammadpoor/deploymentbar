@@ -1,6 +1,9 @@
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
-import { BentoGrid } from "@/components/BentoGrid";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
+import { Platform } from "@/components/Platform";
+import { GetStarted } from "@/components/GetStarted";
+import { Statement } from "@/components/Statement";
 import { FAQ } from "@/components/FAQ";
 import { FinalCTA } from "@/components/FinalCTA";
 import { Footer } from "@/components/Footer";
@@ -13,7 +16,16 @@ export default function Home() {
       <main>
         <Hero />
         <ScrollReveal>
-          <BentoGrid />
+          <FeatureShowcase />
+        </ScrollReveal>
+        <ScrollReveal>
+          <Platform />
+        </ScrollReveal>
+        <ScrollReveal>
+          <GetStarted />
+        </ScrollReveal>
+        <ScrollReveal>
+          <Statement />
         </ScrollReveal>
         <ScrollReveal>
           <FAQ />

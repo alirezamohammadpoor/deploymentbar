@@ -1,82 +1,106 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ededed;
-  --card-bg: #0a0a0a;
-  --card-border: #1a1a1a;
+  /* ── Ground: near-black charcoal (skill forbids pure black) ── */
+  --background: #08090a;
+
+  /* Stepped-gray surfaces — value elevation, no shadows */
+  --surface-1: #0d0e10;
+  --surface-2: #131417;
+  --surface-3: #191b1e;
+
+  /* Hairline borders — faint low-contrast gray, 1px */
+  --hairline: #232427;
+  --hairline-strong: #2c2e32;
+
+  /* Text — hierarchy by value step, not size/color */
   --text-primary: #ededed;
-  --text-secondary: #888888;
-  --accent-blue: #0070f3;
+  --text-secondary: #8b9099;
+  --text-dim: #585c63; /* numerals, metadata, line gutters */
+
+  /* Accent = status colors only (the single saturated event) */
   --status-ready: #00c853;
   --status-building: #f5a623;
   --status-error: #ee0000;
+  --status-queued: #6b7077;   /* dim gray — matches Figma */
+  --status-canceled: #4a4e55; /* dim gray — matches Figma */
+  --accent: var(--status-ready);
+  --wordmark-blue: #0070f3;   /* DEMOTED: inert wordmark tint only — never headlines/CTAs */
+
+  /* Binary type scale — one display tier + one micro tier, nothing between */
+  --text-display: clamp(2.5rem, 6vw, 4.5rem);
+  --text-micro: 0.8125rem; /* 13px */
+  --tracking-display: -0.03em;
+
+  /* One soft consistent radius */
+  --radius: 10px;
+
+  /* Custom easing — punchier than the built-in ease-out */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ── Back-compat aliases (mapped to the new system; removed as
+     components migrate off them in later phases) ── */
+  --foreground: var(--text-primary);
+  --card-bg: var(--surface-2);
+  --card-border: var(--hairline);
+  --accent-blue: var(--wordmark-blue);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card-bg: var(--card-bg);
-  --color-card-border: var(--card-border);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
-  --color-accent-blue: var(--accent-blue);
+  --color-text-dim: var(--text-dim);
   --color-status-ready: var(--status-ready);
   --color-status-building: var(--status-building);
   --color-status-error: var(--status-error);
+  --color-status-queued: var(--status-queued);
+  --color-status-canceled: var(--status-canceled);
+  --color-accent: var(--accent);
+  --color-wordmark-blue: var(--wordmark-blue);
+  /* Binary type scale → utilities: text-display / text-micro / tracking-display */
+  --text-display: var(--text-display);
+  --text-micro: var(--text-micro);
+  --tracking-display: var(--tracking-display);
+  --radius-base: var(--radius);
+  /* back-compat */
+  --color-foreground: var(--foreground);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-accent-blue: var(--accent-blue);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--text-primary);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ── Kept as CSS: infinite decorative animations ─────────── */
+/* ── Functional motion (product truth) — kept ─────────────── */
 
-/* Building status pulse */
+/* Building/queued status pulse */
 @keyframes pulse-building {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
-.animate-pulse-building {
-  animation: pulse-building 1.5s ease-in-out infinite;
-}
+.animate-pulse-building { animation: pulse-building 1.5s ease-in-out infinite; }
 
-/* Bento card hover glow */
-.bento-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+/* Deploying-button triangle slow spin */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-.bento-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 30px rgba(0, 112, 243, 0.08);
-}
+.animate-spin-slow { animation: spin-slow 1.5s linear infinite; }
 
-/* Hero dot grid — Linear-inspired background */
-.hero-dot-grid {
-  background-image: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.15) 1px,
-    transparent 1px
-  );
-  background-size: 24px 24px;
-  mask-image: radial-gradient(
-    ellipse 60% 50% at 50% 40%,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(0, 0, 0, 0.15) 50%,
-    transparent 80%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 60% 50% at 50% 40%,
-    rgba(0, 0, 0, 0.6) 0%,
-    rgba(0, 0, 0, 0.15) 50%,
-    transparent 80%
-  );
-}
-
-/* Streaming grid pulse animation */
+/* CodedHero streaming-pulse paths */
 @keyframes streaming-pulse {
   0% { stroke-dashoffset: 200%; }
   100% { stroke-dashoffset: -200%; }
@@ -88,77 +112,31 @@ body {
   animation-iteration-count: infinite;
 }
 
-/* Hero CTA shine sweep */
-@keyframes hero-shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.hero-shine {
-  position: relative;
-  overflow: hidden;
-}
-.hero-shine::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    105deg,
-    transparent 40%,
-    rgba(255, 255, 255, 0.15) 50%,
-    transparent 60%
-  );
-  animation: hero-shine 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* Menu bar icon green glow pulse */
-@keyframes deploy-triangle-glow {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(0, 200, 83, 0.4)); }
-  50% { filter: drop-shadow(0 0 14px rgba(0, 200, 83, 0.7)); }
-}
-.deploy-triangle-complete {
-  animation: deploy-triangle-glow 1s ease-in-out infinite;
-}
-
-/* Slow spin for deploying button triangle */
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 1.5s linear infinite;
-}
-
-/* Hide scrollbar for pill bar */
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-
-/* List fade for filter transitions (still CSS — triggered by key change) */
+/* CodedHero filter list fade */
 @keyframes coded-hero-list-fade {
   from { opacity: 0.4; }
   to { opacity: 1; }
 }
-.coded-hero-list-fade {
-  animation: coded-hero-list-fade 0.3s ease-out;
-}
+.coded-hero-list-fade { animation: coded-hero-list-fade 0.3s var(--ease-out); }
 
-/* ── Reduced motion ───────���──────────────────────────────── */
+/* Menu-bar deploy triangle — functional status pulse inside the product embed */
+@keyframes deploy-triangle-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(0, 200, 83, 0.35)); }
+  50% { filter: drop-shadow(0 0 11px rgba(0, 200, 83, 0.6)); }
+}
+.deploy-triangle-complete { animation: deploy-triangle-glow 1s ease-in-out infinite; }
+
+/* Hide scrollbar for the CodedHero pill bar */
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ── Reduced motion ───────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .animate-pulse-building,
   .deploy-triangle-complete,
   .animate-spin-slow {
     animation: none;
   }
-  .deploy-triangle-complete {
-    filter: none;
-  }
-  .coded-hero-list-fade {
-    animation: none;
-    opacity: 1;
-  }
+  .deploy-triangle-complete { filter: none; }
+  .coded-hero-list-fade { animation: none; opacity: 1; }
 }

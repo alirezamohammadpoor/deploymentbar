@@ -1,83 +1,89 @@
 "use client";
 
 import { useState } from "react";
-import { CaretDown } from "@phosphor-icons/react/dist/icons/CaretDown";
+import { SectionLabel } from "./ui/primitives";
 
-const faqs = [
+const FAQS: { q: string; a: string }[] = [
   {
-    question: "How much time will this save me?",
-    answer:
-      "Absolutely. Instead of switching to your browser, finding the Vercel tab, and navigating to your project, Deploymentbar shows every deployment status right in your menu bar. Most developers save 10+ context switches per day.",
+    q: "How much time will this save me?",
+    a: "Instead of switching to your browser, finding the Vercel tab, and navigating to your project, every deployment status sits in your menu bar. Most developers save 10+ context switches a day.",
   },
   {
-    question: "Is it secure?",
-    answer:
-      "Yes. Deploymentbar uses Vercel's official OAuth2 with PKCE — the same security standard used by Vercel's own integrations. Your credentials are never stored in plain text.",
+    q: "Is it secure?",
+    a: "Yes. Deploymentbar uses Vercel’s official OAuth2 with PKCE — a read-only scope, with tokens stored in the macOS Keychain. Nothing leaves your machine.",
   },
   {
-    question: "How long does setup take?",
-    answer:
-      "Under a minute. Install the app, click \"Sign in with Vercel\", authorize, and you're done. Your deployments appear immediately.",
+    q: "How long does setup take?",
+    a: "Under a minute. Install the app, click Sign in with Vercel, authorize, and your deployments appear immediately.",
   },
   {
-    question: "What happens after the beta?",
-    answer:
-      "We're keeping Deploymentbar free during the beta period. When we introduce pricing, early waitlist members will get a generous discount.",
+    q: "macOS says the app is “damaged.” How do I open it?",
+    a: "During the public beta the app isn’t notarized by Apple yet, so macOS quarantines it on first launch. Right-click the app and choose Open, or run xattr -dr com.apple.quarantine /Applications/VercelBar.app in Terminal once. It launches normally after that, and updates install automatically.",
   },
   {
-    question: "What if I need help?",
-    answer:
-      "Reach out on GitHub Issues or Twitter. We're a small team and we respond fast.",
+    q: "What happens after the beta?",
+    a: "It’s free during the public beta. If we introduce pricing later, early users get a generous discount.",
+  },
+  {
+    q: "What if I need help?",
+    a: "Reach out on GitHub Issues — we’re a small team and we respond fast.",
   },
 ];
 
 export function FAQ() {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  function toggle(index: number) {
-    setOpenIndex(openIndex === index ? null : index);
-  }
+  const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="mx-auto max-w-3xl px-6 py-24">
-      <h2 className="mb-12 text-center text-3xl font-medium text-text-primary md:text-[32px]">
-        Frequently Asked Questions
-      </h2>
+    <section className="bg-background">
+      <div className="mx-auto max-w-[1200px] px-6 py-[88px]">
+        <div className="max-w-2xl">
+          <SectionLabel label="FAQ" />
+          <h2 className="mt-6 text-[2rem] font-medium leading-[1.08] tracking-[-0.03em] text-text-primary sm:text-[2.75rem]">
+            Questions?
+          </h2>
+        </div>
 
-      <div className="divide-y divide-card-border">
-        {faqs.map((faq, i) => {
-          const isOpen = openIndex === i;
-          return (
-            <div key={faq.question}>
-              <button
-                type="button"
-                onClick={() => toggle(i)}
-                className="flex w-full items-center justify-between py-5 text-left cursor-pointer"
-              >
-                <span className="text-base font-medium text-text-primary pr-4">
-                  {faq.question}
-                </span>
-                <CaretDown
-                  size={18}
-                  className={`shrink-0 text-white transition-transform duration-200 ${
-                    isOpen ? "rotate-180" : ""
+        <div className="mt-10 border-t border-hairline">
+          {FAQS.map((f, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={f.q} className="border-b border-hairline">
+                <button
+                  type="button"
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                >
+                  <span
+                    className={`text-[16px] transition-colors ${
+                      isOpen ? "text-text-primary" : "text-text-secondary"
+                    }`}
+                  >
+                    {f.q}
+                  </span>
+                  <span
+                    aria-hidden
+                    className="shrink-0 font-mono text-[18px] leading-none text-text-dim"
+                  >
+                    {isOpen ? "−" : "+"}
+                  </span>
+                </button>
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-200 ease-[var(--ease-out)] ${
+                    isOpen
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                   }`}
-                />
-              </button>
-              <div
-                className={`grid transition-[grid-template-rows] duration-200 ${
-                  isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                }`}
-              >
-                <div className="overflow-hidden">
-                  <p className="pb-5 text-base leading-relaxed text-white">
-                    {faq.answer}
-                  </p>
+                >
+                  <div className="overflow-hidden">
+                    <p className="max-w-2xl pb-6 text-[14px] leading-relaxed text-text-secondary">
+                      {f.a}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );
