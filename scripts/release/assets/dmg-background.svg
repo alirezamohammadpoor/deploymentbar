@@ -1,13 +1,13 @@
 <svg width="660" height="400" viewBox="0 0 660 400" xmlns="http://www.w3.org/2000/svg">
   <rect width="660" height="400" fill="#08090a"/>
   <g transform="translate(255,40)">
-    <path d="M0 16 L9 0 L18 16 Z" fill="#ededed"/>
-    <text x="28" y="13" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#ededed" letter-spacing="-0.2">Deploymentbar</text>
+    <path d="M0 16 L9 0 L18 16 Z" fill="#ffffff"/>
+    <text x="28" y="13" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17" font-weight="500" fill="#ffffff" letter-spacing="-0.2">Deploymentbar</text>
   </g>
-  <g stroke="#5a5a5e" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <g stroke="#8a8a8e" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <line x1="256" y1="190" x2="404" y2="190"/>
     <polyline points="388,177 410,190 388,203"/>
   </g>
-  <text x="330" y="324" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#ededed" text-anchor="middle">Drag <tspan font-weight="500">Deploymentbar</tspan> into Applications to install</text>
-  <text x="330" y="352" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#7a7a7e" text-anchor="middle">First launch: right-click the app and choose Open to get past macOS</text>
+  <text x="330" y="324" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15" font-weight="400" fill="#ffffff" text-anchor="middle">Drag <tspan font-weight="500">Deploymentbar</tspan> into Applications to install</text>
+  <text x="330" y="352" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="400" fill="#9a9a9e" text-anchor="middle">First launch: right-click the app and choose Open to get past macOS</text>
 </svg>
