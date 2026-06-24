@@ -43,7 +43,7 @@ VOL_ICON="$ROOT_DIR/Resources/AppIcon.icns"
 if [[ "${CREATE_DMG:-0}" == "1" ]]; then
   rm -rf "$DMG_ROOT"
   mkdir -p "$DMG_ROOT"
-  cp -R "$APP_PATH" "$DMG_ROOT/"
+  cp -R "$APP_PATH" "$DMG_ROOT/Deploymentbar.app"
 
   if command -v create-dmg >/dev/null 2>&1; then
     # Styled "drag to Applications" window. create-dmg can exit non-zero on a
@@ -53,8 +53,8 @@ if [[ "${CREATE_DMG:-0}" == "1" ]]; then
       --window-pos 200 120
       --window-size 660 400
       --icon-size 128
-      --icon "VercelBar.app" 165 190
-      --hide-extension "VercelBar.app"
+      --icon "Deploymentbar.app" 165 190
+      --hide-extension "Deploymentbar.app"
       --app-drop-link 495 190
       --no-internet-enable
     )
