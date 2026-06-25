@@ -35,7 +35,7 @@ export const deployments: MockDeployment[] = [
     project: "api-server",
     branch: "feat/auth",
     status: "building",
-    commit: "Add OAuth2 PKCE flow",
+    commit: "Add token validation",
     author: "alex",
     env: "Preview",
     duration: "1m 12s",

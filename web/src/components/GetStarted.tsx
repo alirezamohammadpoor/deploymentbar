@@ -18,12 +18,12 @@ const STEPS: { num: string; title: string; desc: string; frag: ReactNode }[] = [
   },
   {
     num: "02",
-    title: "Sign in with Vercel",
-    desc: "Authorize with Vercel in one click. No tokens to copy or paste.",
+    title: "Add your Vercel token",
+    desc: "Create a personal access token on Vercel and paste it in — about 30 seconds.",
     frag: (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-text-primary px-3.5 py-2 text-[12px] font-medium text-background">
-        ▲ Continue with Vercel
-      </span>
+      <div className="w-full rounded-[6px] border border-hairline bg-surface-3 px-2.5 py-1.5 font-mono text-[12px] text-text-dim">
+        vca_••••••••••••
+      </div>
     ),
   },
   {
@@ -73,8 +73,8 @@ export function GetStarted() {
             <span className="block text-text-secondary">in four steps.</span>
           </h2>
           <p className="mt-6 max-w-md text-[15px] leading-relaxed text-text-secondary">
-            Install the app, sign in with Vercel, and your deployments appear in
-            the menu bar. GitHub is optional — connect it for CI check status.
+            Install the app, paste a Vercel token, and your deployments appear in
+            the menu bar. GitHub is optional — add a token for CI check status.
           </p>
         </div>
 

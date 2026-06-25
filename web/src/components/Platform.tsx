@@ -48,7 +48,7 @@ const CARDS = [
   {
     icon: "lock",
     title: "Secure by default",
-    desc: "Read-only OAuth scope. Tokens live in the macOS Keychain, never on disk.",
+    desc: "Your access token stays in the macOS Keychain — never written to disk, and only ever sent to Vercel.",
   },
   {
     icon: "bolt",
@@ -62,7 +62,7 @@ const CARDS = [
   },
 ];
 
-const BADGES = ["Swift", "SwiftUI", "Keychain", "OAuth", "Sparkle"];
+const BADGES = ["Swift", "SwiftUI", "Keychain", "REST API", "Sparkle"];
 
 export function Platform() {
   return (

@@ -10,15 +10,15 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Is it secure?",
-    a: "Yes. Deploymentbar uses Vercel’s official OAuth2 with PKCE — a read-only scope, with tokens stored in the macOS Keychain. Nothing leaves your machine.",
+    a: "Yes. Deploymentbar uses a Vercel personal access token — you choose its scope and expiration — stored in the macOS Keychain. Nothing leaves your machine.",
   },
   {
     q: "How long does setup take?",
-    a: "Under a minute. Install the app, click Sign in with Vercel, authorize, and your deployments appear immediately.",
+    a: "Under a minute. Install the app, create a Vercel token, paste it in, and your deployments appear immediately.",
   },
   {
     q: "macOS says the app is “damaged.” How do I open it?",
-    a: "During the public beta the app isn’t notarized by Apple yet, so macOS quarantines it on first launch. Right-click the app and choose Open, or run xattr -dr com.apple.quarantine /Applications/VercelBar.app in Terminal once. It launches normally after that, and updates install automatically.",
+    a: "During the public beta the app isn’t notarized by Apple yet, so macOS quarantines it on first launch. Right-click the app and choose Open, or run xattr -dr com.apple.quarantine /Applications/Deploymentbar.app in Terminal once. It launches normally after that, and updates install automatically.",
   },
   {
     q: "What happens after the beta?",
