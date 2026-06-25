@@ -1,16 +1,16 @@
 import Foundation
 
 enum APIClientFactory {
+  /// Builds an API client backed by the stored personal access token.
+  /// `teamId` is always nil — a personal token's scope already determines access.
   static func create() throws -> (client: VercelAPIClientImpl, teamId: String?) {
-    guard let config = VercelAuthConfig.load() else {
-      throw APIError.invalidResponse
-    }
     let credentialStore = CredentialStore.shared
-    let tokenProvider: () -> String? = {
-      credentialStore.loadPersonalToken() ?? credentialStore.loadTokens()?.accessToken
+    guard credentialStore.loadPersonalToken() != nil else {
+      throw APIError.unauthorized
     }
-    let client = VercelAPIClientImpl(config: config, tokenProvider: tokenProvider)
-    let teamId = credentialStore.loadTokens()?.teamId
-    return (client, teamId)
+    let client = VercelAPIClientImpl(tokenProvider: {
+      credentialStore.loadPersonalToken()
+    })
+    return (client, nil)
   }
 }

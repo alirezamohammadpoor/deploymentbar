@@ -9,7 +9,6 @@ enum APIError: Error, Equatable {
   case serverError
   case decodingFailed
   case networkFailure
-  case oauthError(String)
 }
 
 extension APIError {
@@ -34,8 +33,6 @@ extension APIError {
       return "Network error"
     case .invalidResponse:
       return "Invalid response"
-    case .oauthError(let message):
-      return message
     }
   }
 }

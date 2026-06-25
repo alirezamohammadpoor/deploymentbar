@@ -1,9 +1,6 @@
 import Foundation
 
 protocol CredentialStoring {
-  func loadTokens() -> TokenPair?
-  func saveTokens(_ tokens: TokenPair)
-  func clearTokens()
   func loadPersonalToken() -> String?
   func savePersonalToken(_ token: String)
   func clearPersonalToken()
@@ -20,10 +17,6 @@ protocol KeychainDataStoring {
 }
 
 protocol LegacyCredentialFileStoring {
-  func loadOAuthTokensData() -> Data?
-  func saveOAuthTokensData(_ data: Data)
-  func clearOAuthTokensData()
-
   func loadPersonalTokenData() -> Data?
   func savePersonalTokenData(_ data: Data)
   func clearPersonalTokenData()
@@ -33,7 +26,6 @@ final class CredentialStore: CredentialStoring {
   static let shared = CredentialStore()
 
   enum Account {
-    static let oauthTokens = "oauth-tokens"
     static let personalToken = "personal-token"
     static let githubToken = "github-token"
   }
@@ -45,8 +37,6 @@ final class CredentialStore: CredentialStoring {
 
   private let keychain: KeychainDataStoring
   private let legacyStore: LegacyCredentialFileStoring
-  private let encoder: JSONEncoder
-  private let decoder: JSONDecoder
 
   init(
     keychain: KeychainDataStoring? = nil,
@@ -54,53 +44,6 @@ final class CredentialStore: CredentialStoring {
   ) {
     self.keychain = keychain ?? KeychainWrapper(service: Self.defaultKeychainService)
     self.legacyStore = legacyStore
-
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    self.encoder = encoder
-
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    self.decoder = decoder
-  }
-
-  func loadTokens() -> TokenPair? {
-    if let keychainData = keychain.data(for: Account.oauthTokens) {
-      if let tokens = decodeTokens(from: keychainData) {
-        legacyStore.clearOAuthTokensData()
-        return tokens
-      }
-
-      DebugLog.write("CredentialStore.loadTokens found invalid Keychain data, clearing")
-      keychain.removeData(for: Account.oauthTokens)
-    }
-
-    guard let legacyData = legacyStore.loadOAuthTokensData(),
-          let tokens = decodeTokens(from: legacyData) else {
-      return nil
-    }
-
-    migrateOAuthTokensToKeychain(legacyData)
-    return tokens
-  }
-
-  func saveTokens(_ tokens: TokenPair) {
-    do {
-      let data = try encoder.encode(tokens)
-
-      if keychain.setData(data, for: Account.oauthTokens) {
-        legacyStore.clearOAuthTokensData()
-      } else {
-        DebugLog.write("CredentialStore.saveTokens failed to persist Keychain item")
-      }
-    } catch {
-      DebugLog.write("CredentialStore.saveTokens failed: \(error)")
-    }
-  }
-
-  func clearTokens() {
-    keychain.removeData(for: Account.oauthTokens)
-    legacyStore.clearOAuthTokensData()
   }
 
   func loadPersonalToken() -> String? {
@@ -163,15 +106,6 @@ final class CredentialStore: CredentialStoring {
     keychain.removeData(for: Account.githubToken)
   }
 
-  private func decodeTokens(from data: Data) -> TokenPair? {
-    do {
-      return try decoder.decode(TokenPair.self, from: data)
-    } catch {
-      DebugLog.write("CredentialStore.decodeTokens failed: \(error)")
-      return nil
-    }
-  }
-
   private func decodePersonalToken(from data: Data) -> String? {
     guard let token = String(data: data, encoding: .utf8)?
       .trimmingCharacters(in: .whitespacesAndNewlines),
@@ -179,15 +113,6 @@ final class CredentialStore: CredentialStoring {
       return nil
     }
     return token
-  }
-
-  private func migrateOAuthTokensToKeychain(_ data: Data) {
-    if keychain.setData(data, for: Account.oauthTokens) {
-      legacyStore.clearOAuthTokensData()
-      DebugLog.write("CredentialStore migrated OAuth tokens from legacy storage to Keychain")
-    } else {
-      DebugLog.write("CredentialStore failed to migrate OAuth tokens to Keychain")
-    }
   }
 
   private func migratePersonalTokenToKeychain(_ data: Data) {
@@ -202,16 +127,13 @@ final class CredentialStore: CredentialStoring {
 
 final class LegacyCredentialFileStore: LegacyCredentialFileStoring {
   private let directory: URL
-  private let oauthTokensFile: String
   private let personalTokenFile: String
 
   init(
     directory: URL = LegacyCredentialFileStore.defaultDirectory(),
-    oauthTokensFile: String = "oauth-tokens.json",
     personalTokenFile: String = "personal-token"
   ) {
     self.directory = directory
-    self.oauthTokensFile = oauthTokensFile
     self.personalTokenFile = personalTokenFile
 
     try? FileManager.default.createDirectory(
@@ -219,18 +141,6 @@ final class LegacyCredentialFileStore: LegacyCredentialFileStoring {
       withIntermediateDirectories: true,
       attributes: [.posixPermissions: 0o700]
     )
-  }
-
-  func loadOAuthTokensData() -> Data? {
-    read(fileName: oauthTokensFile)
-  }
-
-  func saveOAuthTokensData(_ data: Data) {
-    write(data: data, fileName: oauthTokensFile)
-  }
-
-  func clearOAuthTokensData() {
-    delete(fileName: oauthTokensFile)
   }
 
   func loadPersonalTokenData() -> Data? {

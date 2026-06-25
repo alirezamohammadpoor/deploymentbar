@@ -59,7 +59,7 @@ struct SettingsView: View {
           }
         }
 
-        section("Authentication", description: "Use a personal token for direct access without OAuth.") {
+        section("Authentication", description: "Connect with a Vercel personal access token.") {
           PersonalTokenView()
         }
 

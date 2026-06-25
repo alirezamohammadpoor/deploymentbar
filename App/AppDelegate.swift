@@ -1,5 +1,4 @@
 import AppKit
-import Carbon
 
 @MainActor
 protocol ApplicationIconTarget: AnyObject {
@@ -20,19 +19,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
   private var statusBarController: StatusBarController?
   private var minimalStatusItem: NSStatusItem?
   private let instanceCoordinator = AppInstanceCoordinator(
-    lockProvider: DefaultAppInstanceLockProvider(),
-    messenger: AppInstanceMessenger.shared
+    lockProvider: DefaultAppInstanceLockProvider()
   )
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     applyApplicationIconIfAvailable()
     DebugLog.write("AppDelegate did finish launching")
-    NSAppleEventManager.shared().setEventHandler(
-      self,
-      andSelector: #selector(handleGetURLEvent(_:replyEvent:)),
-      forEventClass: AEEventClass(kInternetEventClass),
-      andEventID: AEEventID(kAEGetURL)
-    )
 
     if !instanceCoordinator.startPrimaryIfPossible() {
       Task { @MainActor in
@@ -44,11 +36,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     DebugLog.write("Primary instance starting")
-    _ = URLSchemeRegistrar.registerCurrentBundle()
-    AppInstanceMessenger.shared.startObserving { url in
-      DebugLog.write("Received forwarded OAuth URL: \(url.absoluteString)")
-      OAuthCallbackHandler.shared.handle(url: url)
-    }
     Task { @MainActor in
       let forceStandalone = ProcessInfo.processInfo.environment["VERCELBAR_STANDALONE_STATUSITEM"] == "1"
       if forceStandalone {
@@ -86,36 +73,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         OnboardingWindowController.shared.show()
       }
     }
-  }
-
-  func application(_ application: NSApplication, open urls: [URL]) {
-    guard let url = urls.first else { return }
-    DebugLog.write("callback[source=applicationOpen] received URL: \(url.absoluteString)")
-    instanceCoordinator.handleOpenURL(url, onForward: {
-      DebugLog.write("callback[source=applicationOpen] forwarding URL to primary instance")
-      RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-      NSApp.terminate(nil)
-    }, onHandle: {
-      DebugLog.write("callback[source=applicationOpen] handling URL in primary instance")
-      OAuthCallbackHandler.shared.handle(url: url)
-    })
-  }
-
-  @objc private func handleGetURLEvent(_ event: NSAppleEventDescriptor, replyEvent: NSAppleEventDescriptor) {
-    guard let urlString = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
-          let url = URL(string: urlString) else {
-      return
-    }
-
-    DebugLog.write("callback[source=appleEvent] received URL: \(url.absoluteString)")
-    instanceCoordinator.handleOpenURL(url, onForward: {
-      DebugLog.write("callback[source=appleEvent] forwarding URL to primary instance")
-      RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.5))
-      NSApp.terminate(nil)
-    }, onHandle: {
-      DebugLog.write("callback[source=appleEvent] handling URL in primary instance")
-      OAuthCallbackHandler.shared.handle(url: url)
-    })
   }
 
   @MainActor

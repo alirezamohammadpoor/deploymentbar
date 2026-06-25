@@ -314,9 +314,29 @@ struct StatusBarMenu: View {
     switch authSession.status {
     case .signedIn:
       deploymentsView
-    case .signedOut, .signingIn, .error:
-      OAuthFlowView(authSession: authSession)
+    case .signedOut, .signingIn:
+      signedOutView
     }
+  }
+
+  private var signedOutView: some View {
+    VStack(spacing: Geist.Layout.spacingMD) {
+      Image(systemName: "key.horizontal")
+        .font(.system(size: 28))
+        .foregroundColor(Geist.Colors.textTertiary)
+      Text("Connect your Vercel account")
+        .font(.system(size: 14, weight: .medium))
+        .foregroundColor(Geist.Colors.textPrimary)
+      Text("Add a personal access token to start monitoring your deployments.")
+        .font(Geist.Typography.caption)
+        .foregroundColor(Geist.Colors.textSecondary)
+        .multilineTextAlignment(.center)
+        .fixedSize(horizontal: false, vertical: true)
+      Button("Open Setup") { OnboardingWindowController.shared.show() }
+        .buttonStyle(VercelPrimaryButtonStyle())
+    }
+    .padding(Geist.Layout.spacingLG)
+    .frame(maxWidth: .infinity)
   }
 
   // MARK: - Deployments

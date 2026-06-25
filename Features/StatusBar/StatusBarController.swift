@@ -45,7 +45,8 @@ final class StatusBarController: NSObject {
       }
       DebugLog.write("Status item title: \(button.title)")
       button.target = self
-      button.action = #selector(togglePopover(_:))
+      button.action = #selector(handleStatusItemClick(_:))
+      button.sendAction(on: [.leftMouseUp, .rightMouseUp])
     } else {
       DebugLog.write("StatusBarController button missing")
     }
@@ -110,29 +111,22 @@ final class StatusBarController: NSObject {
       return
     }
 
-    if let config = VercelAuthConfig.load() {
-      DebugLog.write("VercelAuthConfig loaded: clientId=\(config.clientId.prefix(8))…")
-      let client = VercelAPIClientImpl(config: config, tokenProvider: { [weak self] in
-        let pat = self?.credentialStore?.loadPersonalToken()
-        let oauth = self?.credentialStore?.loadTokens()?.accessToken
-        let token = pat ?? oauth
-        DebugLog.write("tokenProvider called: hasPAT=\(pat != nil), hasOAuth=\(oauth != nil)")
-        return token
-      })
-      projectStore.configure(apiClient: client)
-      refreshEngine = RefreshEngine(
-        store: deploymentStore,
-        credentialStore: credentialStore,
-        apiClient: client,
-        authSession: authSession,
-        statusStore: refreshStatusStore,
-        settingsStore: settingsStore,
-        interval: settingsStore.pollingInterval
-      )
-      DebugLog.write("RefreshEngine created")
-    } else {
-      DebugLog.write("VercelAuthConfig.load() returned nil — no RefreshEngine")
-    }
+    let client = VercelAPIClientImpl(tokenProvider: { [weak self] in
+      let pat = self?.credentialStore?.loadPersonalToken()
+      DebugLog.write("tokenProvider called: hasPAT=\(pat != nil)")
+      return pat
+    })
+    projectStore.configure(apiClient: client)
+    refreshEngine = RefreshEngine(
+      store: deploymentStore,
+      credentialStore: credentialStore,
+      apiClient: client,
+      authSession: authSession,
+      statusStore: refreshStatusStore,
+      settingsStore: settingsStore,
+      interval: settingsStore.pollingInterval
+    )
+    DebugLog.write("RefreshEngine created")
 
     let menuView = StatusBarMenu(
       store: deploymentStore,
@@ -144,7 +138,7 @@ final class StatusBarController: NSObject {
         self?.refreshEngine?.triggerImmediateRefresh()
       },
       signOut: { [weak self] in
-        self?.authSession?.signOut(revokeToken: true)
+        self?.authSession?.signOut()
       }
     )
     let hostingController = NSHostingController(rootView: menuView)
@@ -195,6 +189,15 @@ final class StatusBarController: NSObject {
     DebugLog.write("StatusBarController configure complete")
   }
 
+  @objc private func handleStatusItemClick(_ sender: Any?) {
+    guard let event = NSApp.currentEvent else { togglePopover(sender); return }
+    if event.type == .rightMouseUp || event.modifierFlags.contains(.control) {
+      showContextMenu()
+    } else {
+      togglePopover(sender)
+    }
+  }
+
   @objc private func togglePopover(_ sender: Any?) {
     guard let button = statusItem.button else { return }
     if popover.isShown {
@@ -203,6 +206,64 @@ final class StatusBarController: NSObject {
       popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
       NSApp.activate(ignoringOtherApps: true)
     }
+  }
+
+  // MARK: - Right-click menu
+
+  private func showContextMenu() {
+    let menu = NSMenu()
+    menu.autoenablesItems = false
+
+    let version = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String) ?? ""
+    let header = NSMenuItem(
+      title: version.isEmpty ? "Deploymentbar" : "Deploymentbar \(version)",
+      action: nil,
+      keyEquivalent: ""
+    )
+    header.isEnabled = false
+    menu.addItem(header)
+    menu.addItem(.separator())
+
+    addMenuItem(to: menu, title: "Refresh Now", action: #selector(menuRefreshNow), key: "r")
+    addMenuItem(to: menu, title: "Settings…", action: #selector(menuOpenSettings), key: ",")
+    addMenuItem(to: menu, title: "Check for Updates…", action: #selector(menuCheckForUpdates), key: "")
+    menu.addItem(.separator())
+    addMenuItem(to: menu, title: "Open Vercel Dashboard", action: #selector(menuOpenDashboard), key: "")
+    menu.addItem(.separator())
+    addMenuItem(to: menu, title: "Quit Deploymentbar", action: #selector(menuQuit), key: "q")
+
+    statusItem.menu = menu
+    defer { statusItem.menu = nil }
+    statusItem.button?.performClick(nil)
+  }
+
+  private func addMenuItem(to menu: NSMenu, title: String, action: Selector, key: String) {
+    let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+    item.target = self
+    item.isEnabled = true
+    menu.addItem(item)
+  }
+
+  @objc private func menuRefreshNow() {
+    refreshEngine?.triggerImmediateRefresh()
+  }
+
+  @objc private func menuOpenSettings() {
+    NSApp.activate(ignoringOtherApps: true)
+    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+  }
+
+  @objc private func menuCheckForUpdates() {
+    UpdateWindowController.shared.show()
+  }
+
+  @objc private func menuOpenDashboard() {
+    guard let url = URL(string: "https://vercel.com/dashboard") else { return }
+    browserLauncher?.open(url: url)
+  }
+
+  @objc private func menuQuit() {
+    NSApp.terminate(nil)
   }
 
   private func handleAuthStatus(_ status: AuthSession.Status) {
@@ -217,8 +278,6 @@ final class StatusBarController: NSObject {
       refreshEngine?.stop()
       deploymentStore?.apply(deployments: [])
     case .signingIn:
-      break
-    case .error:
       break
     }
   }

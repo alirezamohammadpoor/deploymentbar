@@ -22,10 +22,9 @@ final class ProjectStore: ObservableObject {
       return
     }
 
-    let existingTokens = credentialStore.loadTokens()
     let personalToken = credentialStore.loadPersonalToken()
 
-    guard existingTokens != nil || personalToken != nil else {
+    guard personalToken != nil else {
       projects = []
       isLoading = false
       error = nil
@@ -37,19 +36,8 @@ final class ProjectStore: ObservableObject {
 
     Task { [weak self] in
       guard let self else { return }
-      var tokens = existingTokens
       do {
-        if let currentTokens = tokens,
-           currentTokens.shouldRefreshSoon,
-           let refreshToken = currentTokens.refreshToken,
-           !refreshToken.isEmpty {
-          let refreshed = try await apiClient.refreshToken(refreshToken)
-          credentialStore.saveTokens(refreshed)
-          tokens = refreshed
-        }
-
-        let teamId = tokens?.teamId
-        let dtos = try await apiClient.fetchProjects(teamId: teamId)
+        let dtos = try await apiClient.fetchProjects(teamId: nil)
         let projects = dtos.map(Project.from(dto:)).sorted { $0.name.lowercased() < $1.name.lowercased() }
 
         self.projects = projects

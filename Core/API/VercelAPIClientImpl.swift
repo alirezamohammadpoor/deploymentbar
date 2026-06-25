@@ -1,83 +1,12 @@
 import Foundation
 
 final class VercelAPIClientImpl: VercelAPIClient {
-  private let config: VercelAuthConfig
   private let tokenProvider: () -> String?
   private let session: URLSession
 
-  init(config: VercelAuthConfig, tokenProvider: @escaping () -> String?, session: URLSession = .shared) {
-    self.config = config
+  init(tokenProvider: @escaping () -> String?, session: URLSession = .shared) {
     self.tokenProvider = tokenProvider
     self.session = session
-  }
-
-  func authorizationURL(state: String, codeChallenge: String?) throws -> URL {
-    guard var components = URLComponents(url: VercelEndpoints.oauthAuthorize, resolvingAgainstBaseURL: false) else {
-      throw APIError.invalidResponse
-    }
-    var items: [URLQueryItem] = [
-      URLQueryItem(name: "client_id", value: config.clientId),
-      URLQueryItem(name: "redirect_uri", value: config.redirectURI),
-      URLQueryItem(name: "response_type", value: "code"),
-      URLQueryItem(name: "state", value: state),
-      URLQueryItem(name: "scope", value: config.scopes.joined(separator: " "))
-    ]
-
-    if let codeChallenge {
-      items.append(URLQueryItem(name: "code_challenge", value: codeChallenge))
-      items.append(URLQueryItem(name: "code_challenge_method", value: "S256"))
-    }
-
-    components.queryItems = items
-    guard let url = components.url else {
-      throw APIError.invalidResponse
-    }
-    return url
-  }
-
-  func exchangeCode(_ code: String, codeVerifier: String?, redirectURI: String) async throws -> TokenPair {
-    var body: [String: String] = [
-      "grant_type": "authorization_code",
-      "client_id": config.clientId,
-      "code": code,
-      "redirect_uri": redirectURI
-    ]
-    if let secret = config.clientSecret {
-      body["client_secret"] = secret
-    }
-    if let codeVerifier {
-      body["code_verifier"] = codeVerifier
-    }
-    return try await tokenRequest(body: body)
-  }
-
-  func refreshToken(_ refreshToken: String) async throws -> TokenPair {
-    var body: [String: String] = [
-      "grant_type": "refresh_token",
-      "client_id": config.clientId,
-      "refresh_token": refreshToken
-    ]
-    if let secret = config.clientSecret {
-      body["client_secret"] = secret
-    }
-    return try await tokenRequest(body: body, fallbackRefreshToken: refreshToken)
-  }
-
-  func revokeToken(_ token: String) async throws {
-    var body: [String: String] = [
-      "client_id": config.clientId,
-      "token": token
-    ]
-    if let secret = config.clientSecret {
-      body["client_secret"] = secret
-    }
-
-    var request = URLRequest(url: VercelEndpoints.oauthRevoke)
-    request.httpMethod = "POST"
-    request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-    request.httpBody = formBody(body)
-
-    try await executeNoContent(request)
   }
 
   func fetchDeployments(limit: Int, projectIds: [String]?, teamId: String? = nil) async throws -> [DeploymentDTO] {
@@ -113,12 +42,24 @@ final class VercelAPIClientImpl: VercelAPIClient {
     return response.teams
   }
 
+  /// Fetches the authenticated user and returns a display name. Throws on a
+  /// non-2xx status, so it doubles as token validation when connecting.
   func fetchCurrentUser() async throws -> String {
     let request = try authorizedRequest(path: "/v2/user", queryItems: [])
     let (data, response) = try await session.data(for: request)
     guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
     DebugLog.write("API /v2/user → \(http.statusCode) (\(data.count) bytes)")
-    return String(data: data, encoding: .utf8) ?? "unreadable"
+    switch http.statusCode {
+    case 200...299:
+      if let parsed = try? JSONDecoder().decode(VercelUserResponse.self, from: data) {
+        return parsed.displayName
+      }
+      return "your account"
+    case 401, 403:
+      throw APIError.unauthorized
+    default:
+      throw APIError.invalidResponse
+    }
   }
 
   func fetchDeploymentEvents(deploymentId: String, teamId: String? = nil) async throws -> [LogLine] {
@@ -203,52 +144,6 @@ final class VercelAPIClientImpl: VercelAPIClient {
     try await executeNoContent(request)
   }
 
-  private func tokenRequest(body: [String: String], fallbackRefreshToken: String? = nil) async throws -> TokenPair {
-    var request = URLRequest(url: VercelEndpoints.oauthToken)
-    request.httpMethod = "POST"
-    request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-    request.httpBody = formBody(body)
-
-    let data: Data
-    let response: URLResponse
-    do {
-      (data, response) = try await session.data(for: request)
-    } catch {
-      throw APIError.networkFailure
-    }
-    guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
-
-    if (200...299).contains(http.statusCode) {
-      if let raw = String(data: data, encoding: .utf8)?.prefix(500) {
-        DebugLog.write("Token exchange raw response: \(raw)")
-      }
-      if let parsed = TokenResponseParser.parse(data: data) {
-        let refresh = parsed.refreshToken ?? fallbackRefreshToken
-        let expiresIn = TimeInterval(parsed.expiresIn ?? 3600)
-        DebugLog.write("Token exchange: teamId=\(parsed.teamId ?? "nil")")
-        return TokenPair(
-          accessToken: parsed.accessToken,
-          refreshToken: refresh,
-          expiresAt: Date().addingTimeInterval(expiresIn),
-          teamId: parsed.teamId
-        )
-      }
-
-      let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
-      throw APIError.oauthError(message ?? "OAuth token decode failed (HTTP \(http.statusCode))")
-    }
-
-    let message = OAuthErrorParser.parseMessage(data: data, statusCode: http.statusCode)
-    throw APIError.oauthError(message ?? "OAuth error (HTTP \(http.statusCode))")
-  }
-
-  private func formBody(_ body: [String: String]) -> Data? {
-    body
-      .map { key, value in "\(key)=\(value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value)" }
-      .joined(separator: "&")
-      .data(using: .utf8)
-  }
-
   private func authorizedRequest(path: String, queryItems: [URLQueryItem]) throws -> URLRequest {
     guard let token = tokenProvider() else { throw APIError.unauthorized }
     guard var components = URLComponents(url: VercelEndpoints.baseURL, resolvingAgainstBaseURL: false) else {
@@ -262,7 +157,7 @@ final class VercelAPIClientImpl: VercelAPIClient {
     return request
   }
 
-  private func execute<Response: Decodable>(_ request: URLRequest, requiresAuth: Bool = true) async throws -> Response {
+  private func execute<Response: Decodable>(_ request: URLRequest) async throws -> Response {
     do {
       let (data, response) = try await session.data(for: request)
       guard let http = response as? HTTPURLResponse else { throw APIError.invalidResponse }
@@ -332,4 +227,17 @@ private struct ProjectsResponse: Decodable {
 
 private struct TeamsResponse: Decodable {
   let teams: [TeamDTO]
+}
+
+private struct VercelUserResponse: Decodable {
+  struct User: Decodable {
+    let username: String?
+    let name: String?
+    let email: String?
+  }
+  let user: User
+
+  var displayName: String {
+    user.username ?? user.name ?? user.email ?? "your account"
+  }
 }

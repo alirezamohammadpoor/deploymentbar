@@ -2,34 +2,20 @@ import XCTest
 @testable import VercelBar
 
 final class AppInstanceCoordinatorTests: XCTestCase {
-  func testPrimaryInstanceHandlesURL() {
-    let lockProvider = FakeLockProvider(lock: FakeLock())
-    let messenger = FakeMessenger()
-    let coordinator = AppInstanceCoordinator(lockProvider: lockProvider, messenger: messenger)
-    let url = URL(string: "vercelbar://oauth/callback")!
-    var didForward = false
-    var didHandle = false
-
-    coordinator.handleOpenURL(url, onForward: { didForward = true }, onHandle: { didHandle = true })
-
-    XCTAssertFalse(didForward)
-    XCTAssertTrue(didHandle)
-    XCTAssertTrue(messenger.postedURLs.isEmpty)
+  func testPrimaryInstanceAcquiresLock() {
+    let coordinator = AppInstanceCoordinator(lockProvider: FakeLockProvider(lock: FakeLock()))
+    XCTAssertTrue(coordinator.startPrimaryIfPossible())
   }
 
-  func testSecondaryInstanceForwardsURL() {
-    let lockProvider = FakeLockProvider(lock: nil)
-    let messenger = FakeMessenger()
-    let coordinator = AppInstanceCoordinator(lockProvider: lockProvider, messenger: messenger)
-    let url = URL(string: "vercelbar://oauth/callback")!
-    var didForward = false
-    var didHandle = false
+  func testSecondaryInstanceFailsToAcquireLock() {
+    let coordinator = AppInstanceCoordinator(lockProvider: FakeLockProvider(lock: nil))
+    XCTAssertFalse(coordinator.startPrimaryIfPossible())
+  }
 
-    coordinator.handleOpenURL(url, onForward: { didForward = true }, onHandle: { didHandle = true })
-
-    XCTAssertTrue(didForward)
-    XCTAssertFalse(didHandle)
-    XCTAssertEqual(messenger.postedURLs, [url])
+  func testStartIsIdempotentForPrimary() {
+    let coordinator = AppInstanceCoordinator(lockProvider: FakeLockProvider(lock: FakeLock()))
+    XCTAssertTrue(coordinator.startPrimaryIfPossible())
+    XCTAssertTrue(coordinator.startPrimaryIfPossible())
   }
 }
 
@@ -46,11 +32,3 @@ private final class FakeLockProvider: AppInstanceLockProviding {
 }
 
 private final class FakeLock: AppInstanceLockToken {}
-
-private final class FakeMessenger: AppInstanceMessaging {
-  private(set) var postedURLs: [URL] = []
-
-  func post(url: URL) {
-    postedURLs.append(url)
-  }
-}

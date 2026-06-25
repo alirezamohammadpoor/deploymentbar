@@ -8,10 +8,6 @@ settings:
   base:
     SWIFT_VERSION: 5.9
     SPARKLE_PUBLIC_ED_KEY: $(SPARKLE_PUBLIC_ED_KEY)
-    VERCEL_CLIENT_ID: $(VERCEL_CLIENT_ID)
-    VERCEL_CLIENT_SECRET: $(VERCEL_CLIENT_SECRET)
-    VERCEL_REDIRECT_URI: $(VERCEL_REDIRECT_URI)
-    VERCEL_SCOPES: $(VERCEL_SCOPES)
 
 packages:
   Sparkle:
@@ -43,21 +39,13 @@ targets:
         ATSApplicationFontsPath: Fonts
         CFBundleName: Deploymentbar
         CFBundleDisplayName: Deploymentbar
-        CFBundleShortVersionString: "1.4.0"
-        CFBundleVersion: "13"
+        CFBundleShortVersionString: "1.4.1"
+        CFBundleVersion: "14"
         LSUIElement: true
         SUFeedURL: https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml
         SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
         SUEnableAutomaticChecks: true
         SUAllowsAutomaticUpdates: true
-        CFBundleURLTypes:
-          - CFBundleURLName: com.example.VercelBar
-            CFBundleURLSchemes:
-              - vercelbar
-        VercelClientId: $(VERCEL_CLIENT_ID)
-        VercelClientSecret: $(VERCEL_CLIENT_SECRET)
-        VercelRedirectURI: $(VERCEL_REDIRECT_URI)
-        VercelScopes: $(VERCEL_SCOPES)
     configFiles:
       Debug: Config/Secrets.xcconfig
       Release: Config/Secrets.xcconfig

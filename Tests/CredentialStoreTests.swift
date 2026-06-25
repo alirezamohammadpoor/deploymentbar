@@ -2,40 +2,6 @@ import XCTest
 @testable import VercelBar
 
 final class CredentialStoreTests: XCTestCase {
-  func testLoadTokensMigratesLegacyDataToKeychain() throws {
-    let keychain = InMemoryKeychainStore()
-    let legacy = InMemoryLegacyCredentialStore()
-    let tokens = makeTokens(access: "legacy-access")
-    legacy.oauthTokensData = try encodeTokens(tokens)
-
-    let store = CredentialStore(keychain: keychain, legacyStore: legacy)
-
-    let loaded = store.loadTokens()
-
-    XCTAssertEqual(loaded, tokens)
-    XCTAssertNotNil(keychain.data(for: CredentialStore.Account.oauthTokens))
-    XCTAssertNil(legacy.oauthTokensData)
-  }
-
-  func testLoadTokensFallsBackToLegacyWhenKeychainDataIsCorrupt() throws {
-    let keychain = InMemoryKeychainStore()
-    let legacy = InMemoryLegacyCredentialStore()
-    let legacyTokens = makeTokens(access: "legacy-access")
-    keychain.values[CredentialStore.Account.oauthTokens] = Data("not-json".utf8)
-    legacy.oauthTokensData = try encodeTokens(legacyTokens)
-
-    let store = CredentialStore(keychain: keychain, legacyStore: legacy)
-
-    let loaded = store.loadTokens()
-
-    XCTAssertEqual(loaded, legacyTokens)
-    XCTAssertEqual(
-      try decodeTokens(keychain.values[CredentialStore.Account.oauthTokens]),
-      legacyTokens
-    )
-    XCTAssertNil(legacy.oauthTokensData)
-  }
-
   func testLoadPersonalTokenMigratesLegacyDataToKeychain() {
     let keychain = InMemoryKeychainStore()
     let legacy = InMemoryLegacyCredentialStore()
@@ -53,62 +19,43 @@ final class CredentialStoreTests: XCTestCase {
     XCTAssertNil(legacy.personalTokenData)
   }
 
-  func testSaveTokensWritesToKeychainAndClearsLegacyCopy() throws {
+  func testSavePersonalTokenWritesToKeychainAndClearsLegacyCopy() {
     let keychain = InMemoryKeychainStore()
     let legacy = InMemoryLegacyCredentialStore()
-    legacy.oauthTokensData = Data("stale".utf8)
-    let tokens = makeTokens(access: "new-access")
+    legacy.personalTokenData = Data("stale".utf8)
 
     let store = CredentialStore(keychain: keychain, legacyStore: legacy)
-
-    store.saveTokens(tokens)
+    store.savePersonalToken("new-pat")
 
     XCTAssertEqual(
-      try decodeTokens(keychain.values[CredentialStore.Account.oauthTokens]),
-      tokens
+      String(data: keychain.values[CredentialStore.Account.personalToken] ?? Data(), encoding: .utf8),
+      "new-pat"
     )
-    XCTAssertNil(legacy.oauthTokensData)
-  }
-
-  func testClearRemovesKeychainAndLegacyData() {
-    let keychain = InMemoryKeychainStore()
-    let legacy = InMemoryLegacyCredentialStore()
-    keychain.values[CredentialStore.Account.oauthTokens] = Data("oauth".utf8)
-    keychain.values[CredentialStore.Account.personalToken] = Data("pat".utf8)
-    legacy.oauthTokensData = Data("legacy-oauth".utf8)
-    legacy.personalTokenData = Data("legacy-pat".utf8)
-
-    let store = CredentialStore(keychain: keychain, legacyStore: legacy)
-
-    store.clearTokens()
-    store.clearPersonalToken()
-
-    XCTAssertNil(keychain.values[CredentialStore.Account.oauthTokens])
-    XCTAssertNil(keychain.values[CredentialStore.Account.personalToken])
-    XCTAssertNil(legacy.oauthTokensData)
     XCTAssertNil(legacy.personalTokenData)
   }
 
-  private func makeTokens(access: String) -> TokenPair {
-    TokenPair(
-      accessToken: access,
-      refreshToken: "refresh",
-      expiresAt: Date(timeIntervalSince1970: 1_700_000_000),
-      teamId: "team_1"
-    )
+  func testClearPersonalTokenRemovesKeychainAndLegacyData() {
+    let keychain = InMemoryKeychainStore()
+    let legacy = InMemoryLegacyCredentialStore()
+    keychain.values[CredentialStore.Account.personalToken] = Data("pat".utf8)
+    legacy.personalTokenData = Data("legacy-pat".utf8)
+
+    let store = CredentialStore(keychain: keychain, legacyStore: legacy)
+    store.clearPersonalToken()
+
+    XCTAssertNil(keychain.values[CredentialStore.Account.personalToken])
+    XCTAssertNil(legacy.personalTokenData)
   }
 
-  private func encodeTokens(_ tokens: TokenPair) throws -> Data {
-    let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .iso8601
-    return try encoder.encode(tokens)
-  }
+  func testGitHubTokenRoundTrips() {
+    let keychain = InMemoryKeychainStore()
+    let store = CredentialStore(keychain: keychain, legacyStore: InMemoryLegacyCredentialStore())
 
-  private func decodeTokens(_ data: Data?) throws -> TokenPair? {
-    guard let data else { return nil }
-    let decoder = JSONDecoder()
-    decoder.dateDecodingStrategy = .iso8601
-    return try decoder.decode(TokenPair.self, from: data)
+    store.saveGitHubToken("ghp_abc")
+    XCTAssertEqual(store.loadGitHubToken(), "ghp_abc")
+
+    store.clearGitHubToken()
+    XCTAssertNil(store.loadGitHubToken())
   }
 }
 
@@ -131,20 +78,7 @@ private final class InMemoryKeychainStore: KeychainDataStoring {
 }
 
 private final class InMemoryLegacyCredentialStore: LegacyCredentialFileStoring {
-  var oauthTokensData: Data?
   var personalTokenData: Data?
-
-  func loadOAuthTokensData() -> Data? {
-    oauthTokensData
-  }
-
-  func saveOAuthTokensData(_ data: Data) {
-    oauthTokensData = data
-  }
-
-  func clearOAuthTokensData() {
-    oauthTokensData = nil
-  }
 
   func loadPersonalTokenData() -> Data? {
     personalTokenData

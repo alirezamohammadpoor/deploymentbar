@@ -87,36 +87,18 @@ final class RefreshEngine {
     await MainActor.run { statusStore.status.isRefreshing = true }
 
     let personalToken = credentialStore.loadPersonalToken()
-    let tokens = credentialStore.loadTokens()
 
-    if tokens == nil && personalToken == nil {
-      DebugLog.write("RefreshEngine: no credentials, signing out")
+    guard personalToken != nil else {
+      DebugLog.write("RefreshEngine: no token, signing out")
       await MainActor.run { authSession.signOut() }
       await updateStatus(isStale: true, error: "Missing credentials")
-      return
-    }
-
-    if let tokens, tokens.isExpired, !tokens.canRefresh {
-      DebugLog.write("RefreshEngine: session expired, signing out")
-      await MainActor.run { authSession.signOut() }
-      await updateStatus(isStale: true, error: "Session expired. Sign in again.")
       return
     }
 
     let selectedIds = await MainActor.run { settingsStore.selectedProjectIds }
 
     do {
-      if let tokens, tokens.shouldRefreshSoon, let refreshToken = tokens.refreshToken, !refreshToken.isEmpty {
-        var refreshed = try await apiClient.refreshToken(refreshToken)
-        // Preserve teamId if the refresh response didn't include one
-        if refreshed.teamId == nil, let existingTeamId = tokens.teamId {
-          refreshed = refreshed.withTeamId(existingTeamId)
-        }
-        credentialStore.saveTokens(refreshed)
-      }
-
-      let teamId = tokens?.teamId
-      let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: nil, teamId: teamId)
+      let dtos = try await apiClient.fetchDeployments(limit: 10, projectIds: nil, teamId: nil)
       #if DEBUG
       if dtos.isEmpty {
         DebugLog.write("RefreshEngine: 0 results — probing user and team context")

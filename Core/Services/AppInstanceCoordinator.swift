@@ -10,21 +10,13 @@ struct DefaultAppInstanceLockProvider: AppInstanceLockProviding {
   }
 }
 
-protocol AppInstanceMessaging {
-  func post(url: URL)
-}
-
-extension AppInstanceMessenger: AppInstanceMessaging {}
-
 final class AppInstanceCoordinator {
   private let lockProvider: AppInstanceLockProviding
-  private let messenger: AppInstanceMessaging
   private var lock: AppInstanceLockToken?
   private var isSecondary = false
 
-  init(lockProvider: AppInstanceLockProviding, messenger: AppInstanceMessaging) {
+  init(lockProvider: AppInstanceLockProviding) {
     self.lockProvider = lockProvider
-    self.messenger = messenger
   }
 
   func startPrimaryIfPossible() -> Bool {
@@ -37,15 +29,5 @@ final class AppInstanceCoordinator {
       isSecondary = true
     }
     return !isSecondary
-  }
-
-  func handleOpenURL(_ url: URL, onForward: () -> Void, onHandle: () -> Void) {
-    if !startPrimaryIfPossible() {
-      messenger.post(url: url)
-      onForward()
-      return
-    }
-
-    onHandle()
   }
 }

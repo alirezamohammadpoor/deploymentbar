@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// First-run setup guide. Six wired steps modeled on the Figma onboarding tour.
@@ -17,7 +18,9 @@ struct OnboardingView: View {
 
   @State private var patInput = ""
   @State private var githubInput = ""
-  @State private var githubSaved = false
+  @State private var githubValidating = false
+  @State private var githubLogin: String?
+  @State private var githubError: String?
 
   private let pollingOptions: [(value: TimeInterval, label: String)] =
     [(10, "10s"), (30, "30s"), (60, "1m"), (300, "5m")]
@@ -41,7 +44,10 @@ struct OnboardingView: View {
     .background(Geist.Colors.backgroundPrimary)
     .onChange(of: auth.status) { _, newValue in
       if case .signedIn = newValue, step == .connect {
-        advance()
+        // Let the green "Connected as …" state register before moving on.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+          if step == .connect { advance() }
+        }
       }
     }
   }
@@ -93,25 +99,30 @@ struct OnboardingView: View {
 
   private var connectStep: some View {
     VStack(alignment: .leading, spacing: Geist.Layout.spacingMD) {
-      Image(systemName: "scope").font(.system(size: 28)).foregroundColor(Geist.Colors.accent)
-      title("Connect Vercel")
-      subtitle("Authorize with OAuth, or paste a personal access token. We only request read access to deployments and projects.")
+      Image(systemName: "key.horizontal").font(.system(size: 28)).foregroundColor(Geist.Colors.accent)
+      title("Add your Vercel token")
+      subtitle("Deploymentbar reads your deployments with one Vercel token. Create it, paste it below — it stays only on this Mac.")
 
       if case .signedIn = auth.status {
-        Label("Connected", systemImage: "checkmark.circle.fill")
+        Label(auth.connectedAs.map { "Connected as \($0)" } ?? "Connected", systemImage: "checkmark.circle.fill")
           .font(Geist.Typography.caption).foregroundColor(Geist.Colors.statusReady)
       } else {
-        Button("Continue with Vercel") { auth.startSignIn() }
-          .buttonStyle(VercelPrimaryButtonStyle())
-
+        tokenCreateRow(label: "Create a token on Vercel", url: VercelEndpoints.accountTokensPage)
+        guideHints([
+          "Name it anything — e.g. \"Deploymentbar\"",
+          "Scope: your account for personal projects, or a team to watch that team",
+          "Expiration: your call — \"No Expiration\" for set-and-forget",
+        ])
         HStack(spacing: Geist.Layout.spacingSM) {
-          SecureField("Paste personal token", text: $patInput)
+          SecureField("Paste token", text: $patInput)
             .textFieldStyle(.plain).vercelTextField()
-          Button("Use Token") {
-            auth.usePersonalToken(patInput); patInput = ""
-          }
-          .buttonStyle(VercelSecondaryButtonStyle())
-          .disabled(patInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+          Button(auth.isConnecting ? "Verifying…" : "Connect") { auth.connect(token: patInput) }
+            .buttonStyle(VercelPrimaryButtonStyle())
+            .disabled(auth.isConnecting || patInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        if let message = auth.connectError {
+          Text(message).font(Geist.Typography.caption).foregroundColor(Geist.Colors.statusError)
+            .fixedSize(horizontal: false, vertical: true)
         }
       }
     }
@@ -129,17 +140,48 @@ struct OnboardingView: View {
           .overlay(Capsule().stroke(Geist.Colors.borderAccentSubtle, lineWidth: 1))
           .clipShape(Capsule())
       }
-      title("GitHub for CI checks")
-      subtitle("Add a GitHub token to show CI check status on deployments. You can skip this and add it later in Settings.")
-      HStack(spacing: Geist.Layout.spacingSM) {
-        SecureField("Paste GitHub token", text: $githubInput)
-          .textFieldStyle(.plain).vercelTextField()
-        Button(githubSaved ? "Saved" : "Save") {
-          credentialStore.saveGitHubToken(githubInput); githubInput = ""; githubSaved = true
+      title("Add a GitHub token for CI checks")
+      subtitle("Shows lint, test, and build status on each deployment. Skip and add it later in Settings.")
+
+      if let githubLogin {
+        Label("Connected as @\(githubLogin)", systemImage: "checkmark.circle.fill")
+          .font(Geist.Typography.caption).foregroundColor(Geist.Colors.statusReady)
+      } else {
+        tokenCreateRow(label: "Create a token on GitHub", url: GitHubEndpoints.newTokenPage)
+        guideHints([
+          "Scope \"repo\" is pre-selected — it reads CI checks on private repos",
+          "Public repos only? \"public_repo\" is enough",
+          "Set an expiration if you rotate tokens",
+        ])
+        HStack(spacing: Geist.Layout.spacingSM) {
+          SecureField("Paste GitHub token", text: $githubInput)
+            .textFieldStyle(.plain).vercelTextField()
+          Button(githubValidating ? "Verifying…" : "Connect") { connectGitHub() }
+            .buttonStyle(VercelPrimaryButtonStyle())
+            .disabled(githubValidating || githubInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
-        .buttonStyle(VercelSecondaryButtonStyle())
-        .disabled(githubInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        if let githubError {
+          Text(githubError).font(Geist.Typography.caption).foregroundColor(Geist.Colors.statusError)
+            .fixedSize(horizontal: false, vertical: true)
+        }
       }
+    }
+  }
+
+  private func connectGitHub() {
+    let token = githubInput.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !token.isEmpty else { return }
+    githubValidating = true
+    githubError = nil
+    Task {
+      if let login = await GitHubValidator.fetchLogin(token: token) {
+        credentialStore.saveGitHubToken(token)
+        githubLogin = login
+        githubInput = ""
+      } else {
+        githubError = "That token didn't work — check it has the repo scope and isn't expired."
+      }
+      githubValidating = false
     }
   }
 
@@ -199,6 +241,43 @@ struct OnboardingView: View {
     HStack(spacing: Geist.Layout.spacingSM) {
       Image(systemName: "checkmark.circle.fill").font(.system(size: 13)).foregroundColor(Geist.Colors.statusReady)
       Text(text).font(.system(size: 12)).foregroundColor(Geist.Colors.textSecondary)
+    }
+  }
+
+  // MARK: - Reusable guide pieces
+
+  private func tokenCreateRow(label: String, url: URL) -> some View {
+    VStack(alignment: .leading, spacing: 4) {
+      Button {
+        BrowserLauncher().open(url: url)
+      } label: {
+        HStack(spacing: 4) {
+          Text(label)
+          Image(systemName: "arrow.up.right").font(.system(size: 10, weight: .semibold))
+        }
+      }
+      .buttonStyle(VercelSecondaryButtonStyle())
+
+      Button("Didn't open? Copy link") {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(url.absoluteString, forType: .string)
+      }
+      .buttonStyle(.plain)
+      .font(Geist.Typography.caption)
+      .foregroundColor(Geist.Colors.textTertiary)
+    }
+  }
+
+  private func guideHints(_ items: [String]) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+        HStack(alignment: .top, spacing: 8) {
+          Circle().fill(Geist.Colors.textTertiary).frame(width: 4, height: 4).padding(.top, 6)
+          Text(item).font(Geist.Typography.caption).foregroundColor(Geist.Colors.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+      }
     }
   }
 
