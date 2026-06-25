@@ -39,8 +39,8 @@ targets:
         ATSApplicationFontsPath: Fonts
         CFBundleName: Deploymentbar
         CFBundleDisplayName: Deploymentbar
-        CFBundleShortVersionString: "1.4.1"
-        CFBundleVersion: "14"
+        CFBundleShortVersionString: "1.5.0"
+        CFBundleVersion: "15"
         LSUIElement: true
         SUFeedURL: https://raw.githubusercontent.com/alirezamohammadpoor/deploymentbar/main/appcast.xml
         SUPublicEDKey: $(SPARKLE_PUBLIC_ED_KEY)
